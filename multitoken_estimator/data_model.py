@@ -1,53 +1,57 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from dataclasses_json import DataClassJsonMixin
 
 
 # external types
-@dataclass
+@dataclass(frozen=True, slots=True)
 class Entity(DataClassJsonMixin):
-    names: set[str]
+    name: str
     type: str
+    alternative_names: Optional[frozenset[str]] = None
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class RelationSample(DataClassJsonMixin):
     subject: Entity
     object: Entity
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class RelationData(DataClassJsonMixin):
     name: str
-    templates: set[str]
+    templates: frozenset[str]
     samples: list[RelationSample]
 
 
 # data models (for storage in the DB)
-@dataclass
+@dataclass(frozen=True, slots=True)
 class DataModel:
     id: int
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class EntityTypeDataModel(DataModel):
     name: str
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class EntityDataModel(DataModel):
-    names: set[str]
-    entity_type_id: int
+    name: str
+    alternative_names: Optional[frozenset[str]]
+    entity_type: EntityTypeDataModel
 
 
-@dataclass
-class RelationTemplateDataModel(DataModel):
+@dataclass(frozen=True, slots=True)
+class RelationDataModel(DataModel):
+    name: str
     # expects a template string with {subject} and {object} placeholders
-    templates: set[str]
+    templates: frozenset[str]
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class SampleDataModel(DataModel):
-    template_id: int
-    subject_id: int
-    object_id: int
+    relation: RelationDataModel
+    subject: EntityDataModel
+    object: EntityDataModel

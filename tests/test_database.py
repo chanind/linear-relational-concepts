@@ -3,7 +3,7 @@ from multitoken_estimator.data_model import (
     EntityDataModel,
     EntityTypeDataModel,
     RelationData,
-    RelationTemplateDataModel,
+    RelationDataModel,
     SampleDataModel,
 )
 from multitoken_estimator.database import Database
@@ -19,7 +19,7 @@ def test_database_load_city_in_country_data() -> None:
 
     entity_types = db.query_all(EntityTypeDataModel)
     entities = db.query_all(EntityDataModel)
-    relation_templates = db.query_all(RelationTemplateDataModel)
+    relation_templates = db.query_all(RelationDataModel)
     samples = db.query_all(SampleDataModel)
     assert len(entity_types) == 2
     assert {e.name for e in entity_types} == {"city", "country"}
