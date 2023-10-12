@@ -53,7 +53,7 @@ class Database:
     # upsert helpers
 
     def get_or_create_relation(
-        self, name: str, templates: set[str]
+        self, name: str, templates: frozenset[str]
     ) -> RelationDataModel:
         relation_template = self.query_one(
             RelationDataModel, lambda t: t.templates == templates
@@ -73,7 +73,7 @@ class Database:
         return entity_type
 
     def get_or_create_entity(
-        self, name: str, type: str, alternative_names: Optional[set[str]]
+        self, name: str, type: str, alternative_names: Optional[frozenset[str]]
     ) -> EntityDataModel:
         entity_type = self.get_or_create_entity_type(type)
         entity = self.query_one(
