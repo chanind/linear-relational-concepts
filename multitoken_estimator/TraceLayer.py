@@ -18,8 +18,7 @@ from typing import Any, Callable, Optional
 import torch
 from torch import nn
 
-from lm_knowledge_miner.lib.torch_utils import get_module
-from lm_knowledge_miner.lib.torch_utils import recursive_tensor_copy
+from .torch_utils import get_module, recursive_tensor_copy
 
 
 class TraceLayer(contextlib.AbstractContextManager["TraceLayer"]):
