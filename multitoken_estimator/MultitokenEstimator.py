@@ -1,4 +1,6 @@
+from collections import defaultdict
 from dataclasses import dataclass
+from typing import Literal
 
 import torch
 from tokenizers import Tokenizer
@@ -24,13 +26,19 @@ from multitoken_estimator.verify_answers_match_expected import (
 class ObjectActivation:
     object: str
     object_tokens: list[int]
-    layered_activations: dict[int, tuple[torch.Tensor, ...]]
+    layer_activations: dict[int, tuple[torch.Tensor, ...]]
 
 
 @dataclass
 class ObjectActivations:
     object_name: str
     activations: list[ObjectActivation]
+
+
+@dataclass
+class ObjectRepresentation:
+    object_name: str
+    layer_representations: dict[int, torch.Tensor]
 
 
 class MultitokenEstimator:
@@ -119,10 +127,75 @@ class MultitokenEstimator:
                 ObjectActivation(
                     object=prompt_answer.answer,
                     object_tokens=prompt_answer.answer_tokens,
-                    layered_activations={
+                    layer_activations={
                         layer_to_layer_num[layer]: tuple(activation)
                         for layer, activation in raw_activation.items()
                     },
                 )
             )
         return ObjectActivations(object_name=object, activations=object_activations)
+
+    def estimate_object_representation(
+        self,
+        object: str,
+        num_fsl_examples: int = 5,
+        entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
+        exclude_fsl_examples_of_object: bool = True,
+        batch_size: int = 8,
+        verbose: bool = True,
+        estimation_method: Literal["mean", "weighted_mean"] = "mean",
+    ) -> ObjectRepresentation:
+        object_activations = self.collect_object_activations(
+            object,
+            num_fsl_examples=num_fsl_examples,
+            entity_modifiers=entity_modifiers,
+            exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+            batch_size=batch_size,
+            verbose=verbose,
+        )
+        if estimation_method == "mean":
+            return _estimate_object_representation_mean(object_activations)
+        elif estimation_method == "weighted_mean":
+            return _estimate_object_representation_weighted_mean(object_activations)
+        else:
+            raise ValueError(
+                f"Unknown estimation method: {estimation_method}.  Must be one of 'mean', 'weighted_mean'."
+            )
+
+
+@torch.no_grad()
+def _estimate_object_representation_mean(
+    object_activations: ObjectActivations,
+) -> ObjectRepresentation:
+    all_activations_by_layer = defaultdict(list)
+    for object_activation in object_activations.activations:
+        for layer_num, activations in object_activation.layer_activations.items():
+            for activation in activations:
+                all_activations_by_layer[layer_num].append(activation)
+    return ObjectRepresentation(
+        object_name=object_activations.object_name,
+        layer_representations={
+            layer_num: torch.stack(activations).mean(dim=0)
+            for layer_num, activations in all_activations_by_layer.items()
+        },
+    )
+
+
+@torch.no_grad()
+def _estimate_object_representation_weighted_mean(
+    object_activations: ObjectActivations,
+) -> ObjectRepresentation:
+    mean_activations_by_layer = defaultdict(list)
+    for object_activation in object_activations.activations:
+        for layer_num, activations in object_activation.layer_activations.items():
+            mean_activations_by_layer[layer_num].append(
+                torch.stack(activations).mean(dim=0)
+            )
+
+    return ObjectRepresentation(
+        object_name=object_activations.object_name,
+        layer_representations={
+            layer_num: torch.stack(activations).mean(dim=0)
+            for layer_num, activations in mean_activations_by_layer.items()
+        },
+    )
