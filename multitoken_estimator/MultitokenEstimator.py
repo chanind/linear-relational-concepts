@@ -39,6 +39,7 @@ class ObjectActivations:
 class ObjectRepresentation:
     object_name: str
     layer_representations: dict[int, torch.Tensor]
+    activations: list[ObjectActivation]
 
 
 class MultitokenEstimator:
@@ -174,6 +175,7 @@ def _estimate_object_representation_mean(
                 all_activations_by_layer[layer_num].append(activation)
     return ObjectRepresentation(
         object_name=object_activations.object_name,
+        activations=object_activations.activations,
         layer_representations={
             layer_num: torch.stack(activations).mean(dim=0)
             for layer_num, activations in all_activations_by_layer.items()
@@ -194,6 +196,7 @@ def _estimate_object_representation_weighted_mean(
 
     return ObjectRepresentation(
         object_name=object_activations.object_name,
+        activations=object_activations.activations,
         layer_representations={
             layer_num: torch.stack(activations).mean(dim=0)
             for layer_num, activations in mean_activations_by_layer.items()
