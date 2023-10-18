@@ -7,6 +7,7 @@ from tokenizers import Tokenizer
 from torch import nn
 
 from multitoken_estimator.constants import DEFAULT_DEVICE
+from multitoken_estimator.data_model import SampleDataModel
 from multitoken_estimator.database import Database
 from multitoken_estimator.extract_token_activations import extract_token_activations
 from multitoken_estimator.layer_matching import LayerMatcher, collect_matching_layers
@@ -47,6 +48,7 @@ class MultitokenEstimator:
     model: nn.Module
     tokenizer: Tokenizer
     device: torch.device
+    database: Database
     prompt_generator: PromptGenerator
     layer_matcher: LayerMatcher
 
@@ -61,6 +63,7 @@ class MultitokenEstimator:
         self.model = model
         self.tokenizer = tokenizer
         self.device = device
+        self.database = database
         self.prompt_generator = PromptGenerator(database)
         self.layer_matcher = layer_matcher
 
@@ -157,6 +160,15 @@ class MultitokenEstimator:
             batch_size=batch_size,
             verbose=verbose,
         )
+        return self.estimate_object_representation_from_activations(
+            object_activations, estimation_method=estimation_method
+        )
+
+    def estimate_object_representation_from_activations(
+        self,
+        object_activations: ObjectActivations,
+        estimation_method: Literal["mean", "weighted_mean"] = "mean",
+    ) -> ObjectRepresentation:
         if estimation_method == "mean":
             return _estimate_object_representation_mean(object_activations)
         elif estimation_method == "weighted_mean":
@@ -165,6 +177,43 @@ class MultitokenEstimator:
             raise ValueError(
                 f"Unknown estimation method: {estimation_method}.  Must be one of 'mean', 'weighted_mean'."
             )
+
+    def estimate_all_object_representations(
+        self,
+        num_fsl_examples: int = 5,
+        entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
+        exclude_fsl_examples_of_object: bool = True,
+        batch_size: int = 8,
+        verbose: bool = True,
+        estimation_method: Literal["mean", "weighted_mean"] = "mean",
+    ) -> list[ObjectRepresentation]:
+        samples = self.database.query_all(SampleDataModel)
+        objects = {sample.object.name for sample in samples}
+        object_representations = []
+        for i, object in enumerate(objects):
+            log_or_print(
+                f"estimating representation for {object} ({i+1}/{len(objects)})",
+                verbose=verbose,
+            )
+            object_activations = self.collect_object_activations(
+                object,
+                num_fsl_examples=num_fsl_examples,
+                entity_modifiers=entity_modifiers,
+                exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+                batch_size=batch_size,
+                verbose=verbose,
+            )
+            if len(object_activations.activations) == 0:
+                log_or_print(
+                    f"no activations found for {object}, skipping", verbose=verbose
+                )
+                continue
+            object_representations.append(
+                self.estimate_object_representation_from_activations(
+                    object_activations, estimation_method=estimation_method
+                )
+            )
+        return object_representations
 
 
 @torch.no_grad()
