@@ -163,6 +163,7 @@ class PromptAnswerData:
     answer_start_index: int
     answer: str
     answer_tokens: list[int]
+    base_prompt: str
     full_prompt: str
 
     @property
@@ -191,5 +192,6 @@ def find_prompt_answer_data(
         answer=answer_stripped,
         answer_start_index=len(base_prompt_tokens),
         answer_tokens=full_prompt_tokens[len(base_prompt_tokens) :],
+        base_prompt=base_prompt_stripped,
         full_prompt=full_prompt,
     )

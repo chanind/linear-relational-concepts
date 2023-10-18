@@ -26,6 +26,7 @@ from multitoken_estimator.verify_answers_match_expected import (
 class ObjectActivation:
     object: str
     object_tokens: list[int]
+    base_prompt: str
     layer_activations: dict[int, tuple[torch.Tensor, ...]]
 
 
@@ -72,6 +73,7 @@ class MultitokenEstimator:
         batch_size: int = 8,
         verbose: bool = True,
     ) -> ObjectActivations:
+        self.model.eval()
         prompts = list(
             self.prompt_generator.generate_prompts_for_object(
                 object,
@@ -80,7 +82,7 @@ class MultitokenEstimator:
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
             )
         )
-        log_or_print(f"{len(prompts)} generated for {object}", verbose=verbose)
+        log_or_print(f"{len(prompts)} prompts generated for {object}", verbose=verbose)
         answer_match_results = verify_answers_match_expected(
             model=self.model,
             tokenizer=self.tokenizer,
@@ -128,6 +130,7 @@ class MultitokenEstimator:
                 ObjectActivation(
                     object=prompt_answer.answer,
                     object_tokens=prompt_answer.answer_tokens,
+                    base_prompt=prompt_answer.base_prompt,
                     layer_activations={
                         layer_to_layer_num[layer]: tuple(activation)
                         for layer, activation in raw_activation.items()
