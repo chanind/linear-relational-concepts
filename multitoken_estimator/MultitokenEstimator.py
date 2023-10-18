@@ -1,6 +1,7 @@
+import random
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 import torch
 from tokenizers import Tokenizer
@@ -74,6 +75,7 @@ class MultitokenEstimator:
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
+        max_prompts: Optional[int] = None,
         verbose: bool = True,
     ) -> ObjectActivations:
         self.model.eval()
@@ -85,6 +87,9 @@ class MultitokenEstimator:
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
             )
         )
+        if max_prompts is not None:
+            random.shuffle(prompts)
+            prompts = prompts[:max_prompts]
         log_or_print(f"{len(prompts)} prompts generated for {object}", verbose=verbose)
         answer_match_results = verify_answers_match_expected(
             model=self.model,
@@ -151,6 +156,7 @@ class MultitokenEstimator:
         batch_size: int = 8,
         verbose: bool = True,
         estimation_method: Literal["mean", "weighted_mean"] = "mean",
+        max_prompts: Optional[int] = None,
     ) -> ObjectRepresentation:
         object_activations = self.collect_object_activations(
             object,
@@ -158,6 +164,7 @@ class MultitokenEstimator:
             entity_modifiers=entity_modifiers,
             exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
             batch_size=batch_size,
+            max_prompts=max_prompts,
             verbose=verbose,
         )
         return self.estimate_object_representation_from_activations(
@@ -186,6 +193,8 @@ class MultitokenEstimator:
         batch_size: int = 8,
         verbose: bool = True,
         estimation_method: Literal["mean", "weighted_mean"] = "mean",
+        max_prompts_per_object: Optional[int] = None,
+        min_prompts_per_object: int = 0,
     ) -> list[ObjectRepresentation]:
         samples = self.database.query_all(SampleDataModel)
         objects = {sample.object.name for sample in samples}
@@ -195,12 +204,27 @@ class MultitokenEstimator:
                 f"estimating representation for {object} ({i+1}/{len(objects)})",
                 verbose=verbose,
             )
+            if min_prompts_per_object > 0:
+                num_prompts = len(
+                    self.prompt_generator.generate_prompts_for_object(
+                        object,
+                        entity_modifiers=entity_modifiers,
+                        exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+                    )
+                )
+                if num_prompts < min_prompts_per_object:
+                    log_or_print(
+                        f"not enough prompts for {object} ({num_prompts} < {min_prompts_per_object}), skipping",
+                        verbose=verbose,
+                    )
+                    continue
             object_activations = self.collect_object_activations(
                 object,
                 num_fsl_examples=num_fsl_examples,
                 entity_modifiers=entity_modifiers,
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
                 batch_size=batch_size,
+                max_prompts=max_prompts_per_object,
                 verbose=verbose,
             )
             if len(object_activations.activations) == 0:

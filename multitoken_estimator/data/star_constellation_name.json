@@ -1,0 +1,4352 @@
+{
+  "name": "star constellation name",
+  "templates": [
+    "{} is part of the constellation named"
+  ],
+  "samples": [
+    {
+      "subject": {
+        "name": "Sirius",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Canis Major",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Vega",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Lyra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Arcturus",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Boötes",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Capella",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Auriga",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Procyon",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Canis Minor",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Altair",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquila",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Aldebaran",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Taurus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Antares",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Scorpius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Fomalhaut",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Piscis Austrinus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Deneb",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cygnus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Castor",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mizar",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Ursa Major",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Dubhe",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Ursa Major",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alcor",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Ursa Major",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alphecca",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Corona Borealis",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zubenelgenubi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gacrux",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Crux",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alnair",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Grus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Shaula",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Scorpius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kaus Australis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Diphda",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cetus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Schedar",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mirfak",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta2 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Chi1 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 570A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Pi3 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "23 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta1 Orionis B",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 581",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "83 Leonis A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Phi2 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 205",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta1 Orionis C",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Wolf 359",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Rigel",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V520 Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Betelgeuse",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Algol",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "AD Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Denebola",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "NGC 1275",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alpha Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 436",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Leonis A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "71 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "89 Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omicron Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "35 Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "37 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "50 Persei E",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 436 b",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 204",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "X Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "11 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 402",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "29 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "48 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "4C 01.28",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alnilam",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "12 Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "40 Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Bellatrix",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alpha1 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mintaka",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Tau Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "39 Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V1386 Ori",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "49 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Phi Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "88 Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "QSO B1514-24",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Regulus",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 555",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "16 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Sigma Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "93 Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Rho Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "74 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Ross 47",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "54 Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota1 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alpha2 Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Saiph",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "22 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Pi1 Orionis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Tau Leonis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Leo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 179",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Orion",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "9 Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Sigma Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "48 Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Perseus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Librae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Libra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "51 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "61 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "70 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "54 Piscium A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "107 Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "HN Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "59 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "85 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "U Sagittarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Sigma Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 908",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omicron Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gumala",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Ross 128",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Messier 87",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "16 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "15 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "109 Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "112 Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "35 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 514",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+17 4708",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Chi Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "DT Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 880",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "9 Sagittarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Nu Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "34 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Spica",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "53 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Phi Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "17 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "56 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Lambda Sagittarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Lambda Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Upsilon Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Van Maanen's star",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "3C 273",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "II Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "7 Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "1 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Ross 154",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "70 Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "1RXS J141146.2-123634",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omega Sagittarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omicron Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "5 Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "EO Psc",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Virginis A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omicron Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Wolf 424",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+09 2636",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "MT Pegasi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Rho Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Nu Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+26 4251",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+08 4887",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Sagittarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Tau Sagittarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Sagittarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Tau Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 536",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V* PX Vir",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "4C 06.69",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pegasus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "20 Piscium",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Pisces",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "33 Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 486",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Virginis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Wolf 433",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "4C 04.42",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Virgo",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Pollux",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Herculis A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "72 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Chi Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "110 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "14 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "99 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Indi A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Indus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 349",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Rho Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 649",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Nu Indi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Indus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alphard",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 251",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "OU Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 686",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Sigma Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omega Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "109 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V774 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Rho Indi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Indus",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V401 Hya",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "YY Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Phi Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Lambda Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "37 Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "89 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+18 3423",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Tau Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V377 Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+42 2667",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Nu Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "* del Gem",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "39 Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Pi Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 453",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Herculis A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Upsilon1 Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "30 Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V647 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "QSO J0738+1742",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V* LQ Hya",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Upsilon Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Furuhjelm 46",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "111 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Nu Hydrae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "81 Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Tau Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Markarian 501",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V1090 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "1 Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 433",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Geminorum",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Gemini",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "87 Herculis",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hercules",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Ross 889",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Hydra",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Upsilon Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "rho01 Cnc",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "GX Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V987 Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Milky Way",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "91 Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Andromeda",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 876",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Chi Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Lambda Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "GJ 28",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alpha Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "14 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Ross 248",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "11 Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Phi Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alpha Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Upsilon2 Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "V453 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Psi2 Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "51 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 849",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu2 Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 49",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "GQ Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Beta Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "5 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Navi",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "94 Aquarii A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "6 Persei",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Alpha Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+38 4955",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gliese 90",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Pi Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma¹ Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Iota Cancri A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "QSO B2134+0028",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omega Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Buna",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "44 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "3 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Chi Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "6 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "28 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Zeta Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Pi Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "HZ Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "7C 082754.29+242103.00",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Sigma3 Cancri A",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "81 Cancri AB",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Xi Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "FF Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "GN Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Kappa Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omicron Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+47 612",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Delta Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Epsilon Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "75 Cancri",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Mu Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "1 Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Theta Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+59 2723",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "108 Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "BD+10 1857",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cancer",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Psi Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Eta Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "96 Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Gamma Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "12 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "56 Andromedae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Andromeda",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "Omicron Cassiopeiae",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Cassiopeia",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "EZ Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    },
+    {
+      "subject": {
+        "name": "FK Aquarii",
+        "type": "star",
+        "alternative_names": null
+      },
+      "object": {
+        "name": "Aquarius",
+        "type": "constellation",
+        "alternative_names": null
+      }
+    }
+  ]
+}
