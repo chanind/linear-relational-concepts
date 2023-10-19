@@ -5,6 +5,8 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
+from multitoken_estimator.lib.util import find_all_substring_indices
+
 from .constants import DEFAULT_DEVICE
 
 
@@ -195,3 +197,56 @@ def find_prompt_answer_data(
         base_prompt=base_prompt_stripped,
         full_prompt=full_prompt,
     )
+
+
+def decode_tokens(
+    tokenizer: Tokenizer, token_array: list[int] | torch.Tensor | list[torch.Tensor]
+) -> list[str]:
+    return [tokenizer.decode([t]) for t in token_array]
+
+
+def find_token_range(
+    tokenizer: Tokenizer,
+    token_array: list[int] | torch.Tensor,
+    substring: str,
+    find_last_match: bool = True,
+) -> tuple[int, int]:
+    # sometimes the tokenizer messes with non-alphanumeric characters
+    # so make sure the substring goes through an encoding/decoding cycle as well
+    substr_toks = decode_tokens(tokenizer, tokenizer(substring)["input_ids"])
+    # we want to remove the start of sentence token if the tokenizer adds it
+    if tokenizer.bos_token and substr_toks[0] == tokenizer.bos_token:
+        substr_toks = substr_toks[1:]
+    recoded_substr = "".join(substr_toks)
+    toks = decode_tokens(tokenizer, token_array)
+    whole_string = "".join(toks)
+    char_locs = find_all_substring_indices(whole_string, recoded_substr)
+    if len(char_locs) == 0:
+        # sometimes adding a space in front causes different tokenization which works
+        if substring[0] != " ":
+            return find_token_range(tokenizer, token_array, " " + substring)
+        raise ValueError(f"Could not find substring {recoded_substr} in {whole_string}")
+    token_ranges: list[tuple[int, int]] = []
+    for char_loc in char_locs:
+        loc = 0
+        tok_start, tok_end = None, None
+        for i, t in enumerate(toks):
+            loc += len(t)
+            if tok_start is None and loc > char_loc:
+                tok_start = i
+            if tok_end is None and loc >= char_loc + len(recoded_substr):
+                tok_end = i + 1
+                break
+        if tok_start is not None and tok_end is not None:
+            token_ranges.append((tok_start, tok_end))
+    if len(token_ranges) == 0:
+        raise ValueError(f"Could not find substring {recoded_substr} in {toks}")
+    return token_ranges[-1] if find_last_match else token_ranges[0]
+
+
+def find_final_subject_token_index(
+    tokenizer: Tokenizer, prompt: str, subject: str
+) -> int:
+    tokens = tokenizer.encode(prompt)
+    _start, end = find_token_range(tokenizer, tokens, subject)
+    return end - 1

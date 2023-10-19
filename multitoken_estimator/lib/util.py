@@ -1,3 +1,4 @@
+import random
 from typing import Generator, Iterable, Sequence, TypeVar
 
 from tqdm import tqdm
@@ -31,3 +32,30 @@ def batchify(
 
 def tuplify(item: T | tuple[T, ...]) -> tuple[T, ...]:
     return item if isinstance(item, tuple) else (item,)
+
+
+def stable_shuffle(items: list[T], seed: int | float | str = 42) -> list[T]:
+    """
+    Shuffle a list in a stable way
+    """
+    generator = random.Random(seed)
+    # copy items to avoid modifying original
+    results = [*items]
+    generator.shuffle(results)
+    return results
+
+
+def find_all_substring_indices(
+    string: str, substring: str, start: int = 0, end: int | None = None
+) -> list[int]:
+    """
+    Find all indices of a substring in a string
+    """
+    indices = []
+    while True:
+        index = string.find(substring, start, end)
+        if index == -1:
+            break
+        indices.append(index)
+        start = index + len(substring)
+    return indices

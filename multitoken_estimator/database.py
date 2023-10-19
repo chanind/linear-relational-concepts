@@ -11,6 +11,7 @@ from multitoken_estimator.data_model import (
     lre_relation_to_relation_data,
 )
 from multitoken_estimator.lib.constants import DATA_DIR
+from multitoken_estimator.lib.util import stable_shuffle
 
 T = TypeVar("T", bound=DataModel)
 
@@ -30,13 +31,19 @@ class Database:
         return model if isinstance(model, type) else None
 
     def query_all(
-        self, type: type[T], matcher: Optional[Callable[[T], bool]] = None
+        self,
+        type: type[T],
+        matcher: Optional[Callable[[T], bool]] = None,
+        sort: bool = False,
     ) -> list[T]:
-        return [
+        models = [
             model
             for model in self.models.values()
             if isinstance(model, type) and (matcher is None or matcher(model))
         ]
+        if sort:
+            models.sort(key=lambda m: m.id)
+        return models
 
     def query_one(
         self, type: type[T], matcher: Optional[Callable[[T], bool]] = None
@@ -55,14 +62,23 @@ class Database:
     # upsert helpers
 
     def get_or_create_relation(
-        self, name: str, templates: frozenset[str]
+        self,
+        name: str,
+        templates: frozenset[str],
+        zs_templates: frozenset[str] | None = None,
     ) -> RelationDataModel:
         relation_template = self.query_one(
-            RelationDataModel, lambda t: t.templates == templates
+            RelationDataModel,
+            lambda t: t.templates == templates
+            and t.name == name
+            and t.zs_templates == zs_templates,
         )
         if relation_template is None:
             relation_template = RelationDataModel(
-                id=self._autoincrement_id(), name=name, templates=templates
+                id=self._autoincrement_id(),
+                name=name,
+                templates=templates,
+                zs_templates=zs_templates,
             )
             self._add(relation_template)
         return relation_template
@@ -98,7 +114,7 @@ class Database:
 
     def add_relation_data(self, relation_data: RelationData) -> None:
         relation = self.get_or_create_relation(
-            relation_data.name, relation_data.templates
+            relation_data.name, relation_data.templates, relation_data.zs_templates
         )
         for sample in relation_data.samples:
             subject = self.get_or_create_entity(
@@ -125,6 +141,37 @@ class Database:
     def _add(self, model: T) -> T:
         self.models[model.id] = model
         return model
+
+    def _add_sample(self, sample: SampleDataModel) -> SampleDataModel:
+        self.models[sample.id] = sample
+        self.models[sample.subject.id] = sample.subject
+        self.models[sample.object.id] = sample.object
+        self.models[sample.relation.id] = sample.relation
+        return sample
+
+    def split(
+        self, train_portion: float = 0.5, seed: int | str = 42
+    ) -> tuple["Database", "Database"]:
+        """
+        Split this dataset into train / test datasets based on SampleDataModel grouped by relation
+        """
+
+        train_database = Database()
+        test_database = Database()
+        relations = [relation for relation in self.query_all(RelationDataModel)]
+        for relation in relations:
+            relation_samples = self.query_all(
+                SampleDataModel, lambda s: s.relation == relation, sort=True
+            )
+            shuffled_samples = stable_shuffle(
+                relation_samples, seed=f"{relation.name}-{seed}"
+            )
+            split_index = int(len(shuffled_samples) * train_portion)
+            for train_sample in shuffled_samples[:split_index]:
+                train_database._add_sample(train_sample)
+            for test_sample in shuffled_samples[split_index:]:
+                test_database._add_sample(test_sample)
+        return train_database, test_database
 
 
 def load_lre_data() -> Database:

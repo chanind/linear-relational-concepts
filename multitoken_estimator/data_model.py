@@ -47,6 +47,7 @@ class RelationData(DataClassJsonMixin):
     name: str
     templates: frozenset[str]
     samples: list[RelationSample]
+    zs_templates: frozenset[str] | None = None
 
 
 # data models (for storage in the DB)
@@ -70,8 +71,9 @@ class EntityDataModel(DataModel):
 @dataclass(frozen=True, slots=True)
 class RelationDataModel(DataModel):
     name: str
-    # expects a template string with {subject} and {object} placeholders
+    # expects a template string with a {} placeholder for the subject
     templates: frozenset[str]
+    zs_templates: frozenset[str] | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -85,6 +87,7 @@ def lre_relation_to_relation_data(lre_relation: LreRelation) -> RelationData:
     return RelationData(
         name=lre_relation.name,
         templates=frozenset(lre_relation.prompt_templates),
+        zs_templates=frozenset(lre_relation.prompt_templates_zs),
         samples=[
             RelationSample(
                 subject=Entity(

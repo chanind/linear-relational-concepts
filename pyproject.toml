@@ -11,6 +11,7 @@ python = "^3.10"
 dataclasses-json = "^0.6.1"
 transformers = "^4.34.0"
 tqdm = "^4.66.1"
+sentencepiece = "^0.1.99"
 
 
 [tool.poetry.group.dev.dependencies]
