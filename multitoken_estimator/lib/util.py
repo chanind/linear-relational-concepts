@@ -59,3 +59,12 @@ def find_all_substring_indices(
         indices.append(index)
         start = index + len(substring)
     return indices
+
+
+def sample_or_all(items: Sequence[T], k: int) -> list[T]:
+    """
+    same as random.sample, but if k >= len(items), return items unmodified
+    """
+    if k >= len(items):
+        return list(items)
+    return random.sample(items, k=k)

@@ -4,10 +4,10 @@ from multitoken_estimator.data_model import Entity, RelationData, RelationSample
 from multitoken_estimator.database import Database
 from multitoken_estimator.PromptGenerator import (
     PromptGenerator,
-    split_entry_with_dashes,
-    split_entry_with_periods,
-    split_entry_with_spaces,
-    uppercase_entry,
+    split_with_dashes_modifier,
+    split_with_periods_modifier,
+    split_with_spaces_modifier,
+    uppercase_modifier,
 )
 
 
@@ -42,8 +42,8 @@ def test_PromptGenerator() -> None:
     )
 
     pg = PromptGenerator(db)
-    prompts = pg.generate_prompts_for_object("Canada")
-    # 6x entity modifiers * 1x templates * 2x Canada objects = 14
+    prompts = pg.generate_prompts_for_object_modifier("Canada")
+    # 6x entity modifiers * 1x templates * 2_modifierx Canada objects = 14
     assert len(prompts) == 12
 
 
@@ -61,7 +61,7 @@ def test_PromptGenerator_customize_entity_modifiers() -> None:
     )
     pg = PromptGenerator(db)
     prompts = pg.generate_prompts_for_object(
-        "Canada", entity_modifiers=[uppercase_entry]
+        "Canada", entity_modifiers=[uppercase_modifier]
     )
     assert len(prompts) == 1
     prompt = list(prompts)[0]
@@ -73,16 +73,16 @@ def test_PromptGenerator_customize_entity_modifiers() -> None:
     assert prompt.answer == "CANADA"
 
 
-def test_split_entry_with_dashes() -> None:
-    assert split_entry_with_dashes("Canada") == "C-a-n-a-d-a"
-    assert split_entry_with_dashes("United States") == "U-n-i-t-e-d S-t-a-t-e-s"
+def test_split_with_dashes_modifier() -> None:
+    assert split_with_dashes_modifier("Canada") == "C-a-n-a-d-a"
+    assert split_with_dashes_modifier("United States") == "U-n-i-t-e-d S-t-a-t-e-s"
 
 
-def test_split_entry_with_periods() -> None:
-    assert split_entry_with_periods("Canada") == "C.a.n.a.d.a"
-    assert split_entry_with_periods("United States") == "U.n.i.t.e.d S.t.a.t.e.s"
+def test_split_with_periods_modifier() -> None:
+    assert split_with_periods_modifier("Canada") == "C.a.n.a.d.a"
+    assert split_with_periods_modifier("United States") == "U.n.i.t.e.d S.t.a.t.e.s"
 
 
-def test_split_entry_with_spaces() -> None:
-    assert split_entry_with_spaces("Canada") == "C a n a d a"
-    assert split_entry_with_spaces("United States") == "U n i t e d S t a t e s"
+def test_split_with_spaces_modifier() -> None:
+    assert split_with_spaces_modifier("Canada") == "C a n a d a"
+    assert split_with_spaces_modifier("United States") == "U n i t e d S t a t e s"

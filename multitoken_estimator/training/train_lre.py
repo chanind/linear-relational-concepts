@@ -110,8 +110,10 @@ def order_1_approx(
     use_cache = past_key_values is not None
 
     # Precompute initial h and z.
-    with TraceLayerDict(model, layers=(subject_layer_name, object_layer_name)) as ret:
-        outputs = model(
+    with TraceLayerDict(
+        model, layers=(subject_layer_name, object_layer_name), stop=True
+    ) as ret:
+        model(
             input_ids=input_ids,
             use_cache=use_cache,
             past_key_values=past_key_values,
@@ -135,7 +137,10 @@ def order_1_approx(
             return output
 
         with TraceLayerDict(
-            model, (subject_layer_name, object_layer_name), edit_output=insert_h
+            model,
+            (subject_layer_name, object_layer_name),
+            edit_output=insert_h,
+            stop=True,
         ) as ret:
             model(
                 input_ids=input_ids,
@@ -156,7 +161,7 @@ def order_1_approx(
     # fragmentation, or some kind of memory leak. This seems to help.
     torch.cuda.empty_cache()
 
-    return weight, bias
+    return weight.detach(), bias.detach()
 
 
 def _extract_object_activation(

@@ -7,20 +7,20 @@ from multitoken_estimator.database import Database
 
 EntityModifier = Callable[[str], str]
 
-original_entry: EntityModifier = lambda s: s
-uppercase_entry: EntityModifier = lambda s: s.upper()
-lowercase_entry: EntityModifier = lambda s: s.lower()
-split_entry_with_dashes: EntityModifier = lambda s: "-".join(s).replace("- -", " ")
-split_entry_with_periods: EntityModifier = lambda s: ".".join(s).replace(". .", " ")
-split_entry_with_spaces: EntityModifier = lambda s: " ".join(s).replace("   ", " ")
+null_modifier: EntityModifier = lambda s: s
+uppercase_modifier: EntityModifier = lambda s: s.upper()
+lowercase_modifier: EntityModifier = lambda s: s.lower()
+split_with_dashes_modifier: EntityModifier = lambda s: "-".join(s).replace("- -", " ")
+split_with_periods_modifier: EntityModifier = lambda s: ".".join(s).replace(". .", " ")
+split_with_spaces_modifier: EntityModifier = lambda s: " ".join(s).replace("   ", " ")
 
 DEFAULT_ENTITY_MODIFIERS = [
-    original_entry,
-    uppercase_entry,
-    lowercase_entry,
-    split_entry_with_dashes,
-    split_entry_with_periods,
-    split_entry_with_spaces,
+    null_modifier,
+    uppercase_modifier,
+    lowercase_modifier,
+    split_with_dashes_modifier,
+    split_with_periods_modifier,
+    split_with_spaces_modifier,
 ]
 
 
@@ -41,11 +41,35 @@ class PromptGenerator:
     def __init__(self, db: Database) -> None:
         self.db = db
 
+    def generate_prompts_for_relation(
+        self,
+        relation_name: str,
+        num_fsl_examples: int = 5,
+        entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
+        exclude_fsl_examples_of_object: bool = True,
+    ) -> set[Prompt]:
+        samples_in_relation = self.db.query_all(
+            SampleDataModel, lambda s: s.relation.name == relation_name
+        )
+        object_names = {s.object.name for s in samples_in_relation}
+        prompts: set[Prompt] = set()
+        for object_name in object_names:
+            prompts.update(
+                self.generate_prompts_for_object(
+                    object_name=object_name,
+                    num_fsl_examples=num_fsl_examples,
+                    entity_modifiers=entity_modifiers,
+                    exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+                    valid_relations={relation_name},
+                )
+            )
+        return prompts
+
     def generate_prompts_for_object(
         self,
         object_name: str,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         valid_relations: Optional[set[str]] = None,
     ) -> set[Prompt]:
@@ -73,7 +97,7 @@ class PromptGenerator:
             if object.alternative_names is not None:
                 answers.update(object.alternative_names)
             for answer in answers:
-                for entity_modifier in entity_modifiers:
+                for entity_modifier in entity_modifiers or [null_modifier]:
                     for template in object_sample.relation.templates:
                         text = format_prompt_text(
                             template=template,
