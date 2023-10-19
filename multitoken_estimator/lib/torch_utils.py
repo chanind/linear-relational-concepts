@@ -18,6 +18,15 @@ def get_module(model: nn.Module, name: str) -> nn.Module:
     raise LookupError(name)
 
 
+def get_device(model: nn.Module) -> torch.device:
+    """
+    Returns the device on which the model is running.
+    """
+    if isinstance(model.device, torch.device):
+        return model.device
+    return next(model.parameters()).device
+
+
 T = TypeVar("T", torch.Tensor, dict[Any, Any], list[Any], tuple[Any, ...])
 
 
@@ -51,3 +60,25 @@ def recursive_tensor_copy(
         return type(x)([recursive_tensor_copy(v) for v in x])
     else:
         assert False, f"Unknown type {type(x)} cannot be broken into tensors."
+
+
+Svd = tuple[torch.Tensor, torch.Tensor, torch.Tensor]
+
+
+def low_rank_pinv(
+    *, matrix: torch.Tensor, rank: int, svd: Svd | None = None
+) -> torch.Tensor:
+    """Compute a low-rank pseudo-inverse of a matrix.
+
+    Args:
+        matrix: The matrix to invert.
+        rank: The rank of the approximation.
+
+    Returns:
+        The pseudo-inverse.
+    """
+    if svd is None:
+        svd = torch.svd(matrix.float())
+    u, s, v = svd
+    matrix_pinv = v[:, :rank] @ torch.diag(1 / s[:rank]) @ u[:, :rank].T
+    return matrix_pinv.to(matrix.dtype)
