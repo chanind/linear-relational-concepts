@@ -42,7 +42,7 @@ def test_PromptGenerator() -> None:
     )
 
     pg = PromptGenerator(db)
-    prompts = pg.generate_prompts_for_object_modifier("Canada")
+    prompts = pg.generate_prompts_for_object("Canada")
     # 6x entity modifiers * 1x templates * 2_modifierx Canada objects = 14
     assert len(prompts) == 12
 
