@@ -10,7 +10,7 @@ def aggregate_similarity_at_layer(
     comparison: torch.Tensor,
     activations: list[ObjectActivation],
     layer: int,
-    aggregation: Literal["mean", "weighted_mean"] = "mean",
+    aggregation: Literal["mean", "weighted_mean", "first_token"] = "mean",
 ) -> float:
     """
     Given a comparison matrix, activations, and a layer, return the
@@ -27,6 +27,8 @@ def aggregate_similarity_at_layer(
         elif aggregation == "mean":
             for similarity in tok_similarities:
                 similarity_tensors_stack.append(similarity)
+        elif aggregation == "first_token":
+            similarity_tensors_stack.append(tok_similarities[0])
         else:
             raise ValueError(
                 f"Unknown aggregation method: {aggregation}.  Must be one of 'mean', 'weighted_mean'."

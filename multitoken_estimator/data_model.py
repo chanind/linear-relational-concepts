@@ -4,6 +4,30 @@ from typing import Optional
 from dataclasses_json import DataClassJsonMixin
 
 
+# LRE data types
+@dataclass
+class LreProperties(DataClassJsonMixin):
+    relation_type: str
+    domain_name: str
+    range_name: str
+    symmetric: bool
+
+
+@dataclass
+class LreSample(DataClassJsonMixin):
+    subject: str
+    object: str
+
+
+@dataclass
+class LreRelation(DataClassJsonMixin):
+    name: str
+    prompt_templates: list[str]
+    prompt_templates_zs: list[str]
+    properties: LreProperties
+    samples: list[LreSample]
+
+
 # external types
 @dataclass(frozen=True, slots=True)
 class Entity(DataClassJsonMixin):
@@ -55,3 +79,21 @@ class SampleDataModel(DataModel):
     relation: RelationDataModel
     subject: EntityDataModel
     object: EntityDataModel
+
+
+def lre_relation_to_relation_data(lre_relation: LreRelation) -> RelationData:
+    return RelationData(
+        name=lre_relation.name,
+        templates=frozenset(lre_relation.prompt_templates),
+        samples=[
+            RelationSample(
+                subject=Entity(
+                    name=sample.subject, type=lre_relation.properties.domain_name
+                ),
+                object=Entity(
+                    name=sample.object, type=lre_relation.properties.range_name
+                ),
+            )
+            for sample in lre_relation.samples
+        ],
+    )

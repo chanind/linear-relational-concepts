@@ -7,20 +7,23 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.constants import DEFAULT_DEVICE
 from multitoken_estimator.data_model import SampleDataModel
 from multitoken_estimator.database import Database
-from multitoken_estimator.extract_token_activations import extract_token_activations
-from multitoken_estimator.layer_matching import LayerMatcher, collect_matching_layers
-from multitoken_estimator.logger import log_or_print
+from multitoken_estimator.lib.constants import DEFAULT_DEVICE
+from multitoken_estimator.lib.extract_token_activations import extract_token_activations
+from multitoken_estimator.lib.layer_matching import (
+    LayerMatcher,
+    collect_matching_layers,
+)
+from multitoken_estimator.lib.logger import log_or_print
+from multitoken_estimator.lib.token_utils import find_prompt_answer_data
+from multitoken_estimator.lib.verify_answers_match_expected import (
+    verify_answers_match_expected,
+)
 from multitoken_estimator.PromptGenerator import (
     DEFAULT_ENTITY_MODIFIERS,
     EntityModifier,
     PromptGenerator,
-)
-from multitoken_estimator.token_utils import find_prompt_answer_data
-from multitoken_estimator.verify_answers_match_expected import (
-    verify_answers_match_expected,
 )
 
 
@@ -77,6 +80,7 @@ class MultitokenEstimator:
         batch_size: int = 8,
         max_prompts: Optional[int] = None,
         verbose: bool = True,
+        valid_relations: Optional[set[str]] = None,
     ) -> ObjectActivations:
         self.model.eval()
         prompts = list(
@@ -85,6 +89,7 @@ class MultitokenEstimator:
                 num_fsl_examples=num_fsl_examples,
                 entity_modifiers=entity_modifiers,
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+                valid_relations=valid_relations,
             )
         )
         if max_prompts is not None:
@@ -155,8 +160,9 @@ class MultitokenEstimator:
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         verbose: bool = True,
-        estimation_method: Literal["mean", "weighted_mean"] = "mean",
+        estimation_method: Literal["mean", "weighted_mean", "first_token"] = "mean",
         max_prompts: Optional[int] = None,
+        valid_relations: Optional[set[str]] = None,
     ) -> ObjectRepresentation:
         object_activations = self.collect_object_activations(
             object,
@@ -166,6 +172,7 @@ class MultitokenEstimator:
             batch_size=batch_size,
             max_prompts=max_prompts,
             verbose=verbose,
+            valid_relations=valid_relations,
         )
         return self.estimate_object_representation_from_activations(
             object_activations, estimation_method=estimation_method
@@ -174,29 +181,34 @@ class MultitokenEstimator:
     def estimate_object_representation_from_activations(
         self,
         object_activations: ObjectActivations,
-        estimation_method: Literal["mean", "weighted_mean"] = "mean",
+        estimation_method: Literal["mean", "weighted_mean", "first_token"] = "mean",
     ) -> ObjectRepresentation:
         if estimation_method == "mean":
             return _estimate_object_representation_mean(object_activations)
         elif estimation_method == "weighted_mean":
             return _estimate_object_representation_weighted_mean(object_activations)
+        elif estimation_method == "first_token":
+            return _estimate_object_representation_first_token_mean(object_activations)
         else:
             raise ValueError(
                 f"Unknown estimation method: {estimation_method}.  Must be one of 'mean', 'weighted_mean'."
             )
 
-    def estimate_all_object_representations(
+    def estimate_relation_object_representations(
         self,
+        relation: str,
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         verbose: bool = True,
-        estimation_method: Literal["mean", "weighted_mean"] = "mean",
+        estimation_method: Literal["mean", "weighted_mean", "first_token"] = "mean",
         max_prompts_per_object: Optional[int] = None,
         min_prompts_per_object: int = 0,
     ) -> list[ObjectRepresentation]:
-        samples = self.database.query_all(SampleDataModel)
+        samples = self.database.query_all(
+            SampleDataModel, lambda s: s.relation.name == relation
+        )
         objects = {sample.object.name for sample in samples}
         object_representations = []
         for i, object in enumerate(objects):
@@ -210,6 +222,7 @@ class MultitokenEstimator:
                         object,
                         entity_modifiers=entity_modifiers,
                         exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+                        valid_relations={relation},
                     )
                 )
                 if num_prompts < min_prompts_per_object:
@@ -226,6 +239,7 @@ class MultitokenEstimator:
                 batch_size=batch_size,
                 max_prompts=max_prompts_per_object,
                 verbose=verbose,
+                valid_relations={relation},
             )
             if len(object_activations.activations) == 0:
                 log_or_print(
@@ -249,6 +263,24 @@ def _estimate_object_representation_mean(
         for layer_num, activations in object_activation.layer_activations.items():
             for activation in activations:
                 all_activations_by_layer[layer_num].append(activation)
+    return ObjectRepresentation(
+        object_name=object_activations.object_name,
+        activations=object_activations.activations,
+        layer_representations={
+            layer_num: torch.stack(activations).mean(dim=0)
+            for layer_num, activations in all_activations_by_layer.items()
+        },
+    )
+
+
+@torch.no_grad()
+def _estimate_object_representation_first_token_mean(
+    object_activations: ObjectActivations,
+) -> ObjectRepresentation:
+    all_activations_by_layer = defaultdict(list)
+    for object_activation in object_activations.activations:
+        for layer_num, activations in object_activation.layer_activations.items():
+            all_activations_by_layer[layer_num].append(activations[0])
     return ObjectRepresentation(
         object_name=object_activations.object_name,
         activations=object_activations.activations,

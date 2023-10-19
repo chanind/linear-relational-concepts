@@ -1,14 +1,16 @@
 from typing import Callable, Optional, TypeVar
 
-from multitoken_estimator.constants import DATA_DIR
 from multitoken_estimator.data_model import (
     DataModel,
     EntityDataModel,
     EntityTypeDataModel,
+    LreRelation,
     RelationData,
     RelationDataModel,
     SampleDataModel,
+    lre_relation_to_relation_data,
 )
+from multitoken_estimator.lib.constants import DATA_DIR
 
 T = TypeVar("T", bound=DataModel)
 
@@ -125,10 +127,11 @@ class Database:
         return model
 
 
-def load_all_data() -> Database:
+def load_lre_data() -> Database:
     db = Database()
-    for relation_file in DATA_DIR.glob("*.json"):
+    for relation_file in DATA_DIR.glob("lre/*/*.json"):
         with open(relation_file) as f:
-            relation_data = RelationData.from_json(f.read())
+            lre_relation = LreRelation.from_json(f.read())
+            relation_data = lre_relation_to_relation_data(lre_relation)
         db.add_relation_data(relation_data)
     return db

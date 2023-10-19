@@ -4,7 +4,7 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.torch_utils import get_module
+from multitoken_estimator.lib.torch_utils import get_module
 
 
 class EarlyDecoder:

@@ -28,7 +28,7 @@ def test_PromptGenerator() -> None:
     db.add_relation_data(
         RelationData(
             "city in country",
-            frozenset({"{subject} is located in the country of"}),
+            frozenset({"{} is located in the country of"}),
             samples=[
                 loc_sample("Toronto", "Canada"),
                 loc_sample("Montreal", "Canada"),
@@ -52,7 +52,7 @@ def test_PromptGenerator_customize_entity_modifiers() -> None:
     db.add_relation_data(
         RelationData(
             "city in country",
-            frozenset({"{subject} is located in the country of"}),
+            frozenset({"{} is located in the country of"}),
             samples=[
                 loc_sample("Toronto", "Canada"),
                 loc_sample("Beijing", "China"),

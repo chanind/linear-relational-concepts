@@ -1,4 +1,4 @@
-from multitoken_estimator.util import dedupe_stable
+from multitoken_estimator.lib.util import dedupe_stable
 
 
 def test_dedule_stable() -> None:

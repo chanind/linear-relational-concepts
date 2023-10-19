@@ -1,6 +1,6 @@
 import random
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Optional
 
 from multitoken_estimator.data_model import EntityDataModel, SampleDataModel
 from multitoken_estimator.database import Database
@@ -47,6 +47,7 @@ class PromptGenerator:
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
+        valid_relations: Optional[set[str]] = None,
     ) -> set[Prompt]:
         object = self.db.query_one_or_throw(
             EntityDataModel, lambda e: e.name == object_name
@@ -55,6 +56,8 @@ class PromptGenerator:
             SampleDataModel, lambda s: s.object == object
         )
         relations = {s.relation for s in object_samples}
+        if valid_relations is not None:
+            relations = relations.intersection(valid_relations)
         samples_by_relation_id = {}
         for relation in relations:
             selector = lambda s: s.relation == relation
@@ -113,9 +116,9 @@ def format_prompt_text(
             object = object_modifier(object)
         if subject_modifier is not None:
             subject = subject_modifier(subject)
-        texts.append(template.format(subject=subject).strip() + " " + object.strip())
+        texts.append(template.format(subject).strip() + " " + object.strip())
     subject = sample.subject.name
     if subject_modifier is not None:
         subject = subject_modifier(subject)
-    texts.append(template.format(subject=subject).strip())
+    texts.append(template.format(subject).strip())
     return "\n".join(texts)
