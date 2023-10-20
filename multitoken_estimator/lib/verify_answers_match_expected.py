@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Sequence
 
 from tokenizers import Tokenizer
 from torch import nn
@@ -22,8 +23,8 @@ class AnswerMatchResult:
 def verify_answers_match_expected(
     model: nn.Module,
     tokenizer: Tokenizer,
-    prompts: list[str],
-    expected_answers: list[tuple[str, ...] | str],
+    prompts: Sequence[str],
+    expected_answers: Sequence[tuple[str, ...] | str],
     batch_size: int = 8,
     show_progress: bool = True,
     exact_match: bool = True,

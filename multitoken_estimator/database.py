@@ -22,6 +22,22 @@ class Database:
     def __init__(self) -> None:
         self.models = {}
 
+    # select helpers
+
+    def get_relation_names(self) -> set[str]:
+        return {
+            relation.name
+            for relation in self.query_all(RelationDataModel)
+            if relation.name is not None
+        }
+
+    def get_object_names_in_relation(self, relation_name: str) -> set[str]:
+        return {
+            sample.object.name
+            for sample in self.query_all(SampleDataModel)
+            if sample.relation.name == relation_name
+        }
+
     # data model select
 
     def get_by_id(self, type: type[T], id: int | None) -> T | None:
@@ -172,6 +188,19 @@ class Database:
             for test_sample in shuffled_samples[split_index:]:
                 test_database._add_sample(test_sample)
         return train_database, test_database
+
+    def reformulate_samples(
+        self, modifier: Callable[[SampleDataModel], SampleDataModel]
+    ) -> "Database":
+        """
+        Reformulate samples by a user-provided modifier fn.
+        Returns a new database with the reformulated samples.
+        """
+        new_database = Database()
+        for sample in self.query_all(SampleDataModel):
+            new_sample = modifier(sample)
+            new_database._add_sample(new_sample)
+        return new_database
 
 
 def load_lre_data() -> Database:

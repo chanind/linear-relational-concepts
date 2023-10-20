@@ -169,6 +169,10 @@ class PromptAnswerData:
     full_prompt: str
 
     @property
+    def num_answer_tokens(self) -> int:
+        return len(self.answer_tokens)
+
+    @property
     def output_answer_token_indices(self) -> tuple[int, ...]:
         # everything is shifted 1 earlier for output tokens
         output_start_index = self.answer_start_index - 1

@@ -17,11 +17,13 @@ def test_train_lre(model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast) -> None
             text=f"{fsl_prefixes}\nTokyo is located in the country of",
             answer="Japan",
             subject="Tokyo",
+            object_name="Japan",
         ),
         Prompt(
             text=f"{fsl_prefixes}\nRome is located in the country of",
             answer="Italy",
             subject="Rome",
+            object_name="Italy",
         ),
     ]
     lre = train_lre(

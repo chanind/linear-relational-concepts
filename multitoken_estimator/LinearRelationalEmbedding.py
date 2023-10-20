@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 import torch
 
@@ -21,6 +21,7 @@ class InvertedLinearRelationalEmbedding:
         self,
         object_activations: list[torch.Tensor],
         aggregation: Literal["first", "mean"] = "mean",
+        normalize: bool = True,
     ) -> torch.Tensor:
         if aggregation == "first":
             stacked_acts = torch.stack([object_activations[0]])
@@ -30,10 +31,13 @@ class InvertedLinearRelationalEmbedding:
             raise ValueError(f"Unknown aggregation {aggregation}")
 
         device = stacked_acts.device
-        return (
+        vec = (
             self.weight_inverse.to(device)
             @ (object_activations - self.bias.to(device)).t()
         ).mean(dim=1)
+        if normalize:
+            vec = vec / vec.norm()
+        return vec
 
 
 @dataclass
@@ -45,13 +49,20 @@ class LinearRelationalEmbedding:
     bias: torch.Tensor
     metadata: dict[str, Any] | None = None
 
-    def invert(self, rank: int) -> InvertedLinearRelationalEmbedding:
+    def invert(
+        self, rank: int, device: Optional[torch.device] = None
+    ) -> InvertedLinearRelationalEmbedding:
+        """Invert this LRE with a low-rank approximation, and optionally move to device."""
+        if device is None:
+            device = self.weight.device
         return InvertedLinearRelationalEmbedding(
             relation=self.relation,
             subject_layer=self.subject_layer,
             object_layer=self.object_layer,
-            weight_inverse=low_rank_pinv(matrix=self.weight, rank=rank),
-            bias=self.bias,
+            weight_inverse=low_rank_pinv(matrix=self.weight, rank=rank)
+            .clone()
+            .to(device),
+            bias=self.bias.clone().to(device),
             rank=rank,
             metadata=self.metadata,
         )

@@ -14,6 +14,7 @@ def create_prompt(subject: str, answer: str, text: Optional[str] = None) -> Prom
         text=text or f"{subject} is located in the country of",
         answer=answer,
         subject=subject,
+        object_name=answer,
     )
 
 

@@ -17,14 +17,18 @@ from multitoken_estimator.lib.layer_matching import (
 )
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
+from multitoken_estimator.lib.torch_utils import get_device
 from multitoken_estimator.lib.verify_answers_match_expected import (
     verify_answers_match_expected,
 )
 from multitoken_estimator.PromptGenerator import (
     DEFAULT_ENTITY_MODIFIERS,
     EntityModifier,
+    Prompt,
     PromptGenerator,
 )
+
+EstimationMethod = Literal["mean", "weighted_mean", "first_token"]
 
 
 @dataclass
@@ -73,7 +77,7 @@ class MultitokenEstimator:
 
     def collect_object_activations(
         self,
-        object: str,
+        object_name: str,
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
@@ -85,7 +89,7 @@ class MultitokenEstimator:
         self.model.eval()
         prompts = list(
             self.prompt_generator.generate_prompts_for_object(
-                object,
+                object_name,
                 num_fsl_examples=num_fsl_examples,
                 entity_modifiers=entity_modifiers,
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
@@ -95,7 +99,9 @@ class MultitokenEstimator:
         if max_prompts is not None:
             random.shuffle(prompts)
             prompts = prompts[:max_prompts]
-        log_or_print(f"{len(prompts)} prompts generated for {object}", verbose=verbose)
+        log_or_print(
+            f"{len(prompts)} prompts generated for {object_name}", verbose=verbose
+        )
         answer_match_results = verify_answers_match_expected(
             model=self.model,
             tokenizer=self.tokenizer,
@@ -113,59 +119,30 @@ class MultitokenEstimator:
             f"{len(matching_prompts)} of {len(prompts)} prompts matched expected answer",
             verbose=verbose,
         )
-        prompt_answer_data = [
-            find_prompt_answer_data(self.tokenizer, prompt.text, prompt.answer)
-            for prompt in matching_prompts
-        ]
-
-        layers = collect_matching_layers(self.model, self.layer_matcher)
-        layer_to_layer_num = {layer: i for i, layer in enumerate(layers)}
-        log_or_print(
-            f"extracting activations from {len(layers)} layers", verbose=verbose
-        )
-        raw_activations = extract_token_activations(
-            self.model,
-            self.tokenizer,
-            layers=layers,
-            texts=[prompt_answer.full_prompt for prompt_answer in prompt_answer_data],
-            token_indices=[
-                prompt_answer.output_answer_token_indices
-                for prompt_answer in prompt_answer_data
-            ],
-            device=self.device,
+        return extract_object_activations_from_prompts(
+            model=self.model,
+            tokenizer=self.tokenizer,
+            layer_matcher=self.layer_matcher,
+            object_name=object_name,
+            object_prompts=matching_prompts,
             batch_size=batch_size,
             show_progress=verbose,
         )
 
-        object_activations = []
-        for prompt_answer, raw_activation in zip(prompt_answer_data, raw_activations):
-            object_activations.append(
-                ObjectActivation(
-                    object=prompt_answer.answer,
-                    object_tokens=prompt_answer.answer_tokens,
-                    base_prompt=prompt_answer.base_prompt,
-                    layer_activations={
-                        layer_to_layer_num[layer]: tuple(activation)
-                        for layer, activation in raw_activation.items()
-                    },
-                )
-            )
-        return ObjectActivations(object_name=object, activations=object_activations)
-
     def estimate_object_representation(
         self,
-        object: str,
+        object_name: str,
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         verbose: bool = True,
-        estimation_method: Literal["mean", "weighted_mean", "first_token"] = "mean",
+        estimation_method: EstimationMethod = "mean",
         max_prompts: Optional[int] = None,
         valid_relations: Optional[set[str]] = None,
     ) -> ObjectRepresentation:
         object_activations = self.collect_object_activations(
-            object,
+            object_name,
             num_fsl_examples=num_fsl_examples,
             entity_modifiers=entity_modifiers,
             exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
@@ -174,25 +151,9 @@ class MultitokenEstimator:
             verbose=verbose,
             valid_relations=valid_relations,
         )
-        return self.estimate_object_representation_from_activations(
+        return estimate_object_representation_from_activations(
             object_activations, estimation_method=estimation_method
         )
-
-    def estimate_object_representation_from_activations(
-        self,
-        object_activations: ObjectActivations,
-        estimation_method: Literal["mean", "weighted_mean", "first_token"] = "mean",
-    ) -> ObjectRepresentation:
-        if estimation_method == "mean":
-            return _estimate_object_representation_mean(object_activations)
-        elif estimation_method == "weighted_mean":
-            return _estimate_object_representation_weighted_mean(object_activations)
-        elif estimation_method == "first_token":
-            return _estimate_object_representation_first_token_mean(object_activations)
-        else:
-            raise ValueError(
-                f"Unknown estimation method: {estimation_method}.  Must be one of 'mean', 'weighted_mean'."
-            )
 
     def estimate_relation_object_representations(
         self,
@@ -202,7 +163,7 @@ class MultitokenEstimator:
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         verbose: bool = True,
-        estimation_method: Literal["mean", "weighted_mean", "first_token"] = "mean",
+        estimation_method: EstimationMethod = "mean",
         max_prompts_per_object: Optional[int] = None,
         min_prompts_per_object: int = 0,
     ) -> list[ObjectRepresentation]:
@@ -247,7 +208,7 @@ class MultitokenEstimator:
                 )
                 continue
             object_representations.append(
-                self.estimate_object_representation_from_activations(
+                estimate_object_representation_from_activations(
                     object_activations, estimation_method=estimation_method
                 )
             )
@@ -310,3 +271,64 @@ def _estimate_object_representation_weighted_mean(
             for layer_num, activations in mean_activations_by_layer.items()
         },
     )
+
+
+def extract_object_activations_from_prompts(
+    model: nn.Module,
+    tokenizer: Tokenizer,
+    layer_matcher: LayerMatcher,
+    object_name: str,
+    object_prompts: list[Prompt],
+    batch_size: int = 8,
+    show_progress: bool = False,
+) -> ObjectActivations:
+    prompt_answer_data = [
+        find_prompt_answer_data(tokenizer, prompt.text, prompt.answer)
+        for prompt in object_prompts
+    ]
+    layers = collect_matching_layers(model, layer_matcher)
+    layer_to_layer_num = {layer: i for i, layer in enumerate(layers)}
+    raw_activations = extract_token_activations(
+        model,
+        tokenizer,
+        layers=layers,
+        texts=[prompt_answer.full_prompt for prompt_answer in prompt_answer_data],
+        token_indices=[
+            prompt_answer.output_answer_token_indices
+            for prompt_answer in prompt_answer_data
+        ],
+        device=get_device(model),
+        batch_size=batch_size,
+        show_progress=show_progress,
+    )
+
+    object_activations = []
+    for prompt_answer, raw_activation in zip(prompt_answer_data, raw_activations):
+        object_activations.append(
+            ObjectActivation(
+                object=prompt_answer.answer,
+                object_tokens=prompt_answer.answer_tokens,
+                base_prompt=prompt_answer.base_prompt,
+                layer_activations={
+                    layer_to_layer_num[layer]: tuple(activation)
+                    for layer, activation in raw_activation.items()
+                },
+            )
+        )
+    return ObjectActivations(object_name=object_name, activations=object_activations)
+
+
+def estimate_object_representation_from_activations(
+    object_activations: ObjectActivations,
+    estimation_method: EstimationMethod = "mean",
+) -> ObjectRepresentation:
+    if estimation_method == "mean":
+        return _estimate_object_representation_mean(object_activations)
+    elif estimation_method == "weighted_mean":
+        return _estimate_object_representation_weighted_mean(object_activations)
+    elif estimation_method == "first_token":
+        return _estimate_object_representation_first_token_mean(object_activations)
+    else:
+        raise ValueError(
+            f"Unknown estimation method: {estimation_method}.  Must be one of 'mean', 'weighted_mean'."
+        )

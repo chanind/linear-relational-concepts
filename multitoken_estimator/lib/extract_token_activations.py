@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Iterable
+from typing import Iterable, Sequence
 
 import torch
 from tokenizers import Tokenizer
@@ -16,8 +16,8 @@ def extract_token_activations(
     model: nn.Module,
     tokenizer: Tokenizer,
     layers: Iterable[str],
-    texts: list[str],
-    token_indices: list[tuple[int, ...] | int],
+    texts: Sequence[str],
+    token_indices: Sequence[tuple[int, ...] | int],
     device: torch.device = DEFAULT_DEVICE,
     move_results_to_cpu: bool = True,
     batch_size: int = 32,
@@ -36,7 +36,7 @@ def extract_token_activations(
     ):
         batch_texts = [t for t, _ in batch]
         batch_subject_token_indices = [tuplify(indices) for _, indices in batch]
-        batch_subj_token_activations = extract_token_activations_batch(
+        batch_subj_token_activations = _extract_token_activations_batch(
             model=model,
             tokenizer=tokenizer,
             layers=layers,
@@ -49,7 +49,7 @@ def extract_token_activations(
     return results
 
 
-def extract_token_activations_batch(
+def _extract_token_activations_batch(
     model: nn.Module,
     tokenizer: Tokenizer,
     layers: Iterable[str],

@@ -29,6 +29,7 @@ class Prompt:
     text: str
     answer: str
     subject: str
+    object_name: str
 
 
 class PromptGenerator:
@@ -113,6 +114,7 @@ class PromptGenerator:
                                 text=text,
                                 answer=entity_modifier(answer),
                                 subject=object_sample.subject.name,
+                                object_name=object_name,
                             )
                         )
         return prompts
