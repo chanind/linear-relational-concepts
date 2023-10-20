@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from typing import Iterable, Literal, Optional, Sequence
+from typing import Iterable, Literal, Optional
 
 import torch
 from tokenizers import Tokenizer
@@ -156,7 +156,7 @@ class PromptAccuracyResult:
 
 @dataclass
 class RelationAccuracyResult:
-    group: str
+    relation: str
     prompt_answer_match_results: list[AnswerMatchResult]
     prompt_eval_results: list[PromptAccuracyResult]
 
@@ -173,7 +173,7 @@ class RelationAccuracyResult:
         return sum(1 for r in self.prompt_eval_results if r.is_correct)
 
     @property
-    def faithfulness(self) -> float:
+    def accuracy(self) -> float:
         if self.total == 0:
             return 0
         return self.total_correct / self.total
@@ -195,6 +195,7 @@ def evaluate_relation_classification_accuracy(
     """
     Evaluate faithfulness of trained LRE dataset concepts
     """
+    relation_results = []
     reformulated_dataset = _reformulate_zs_prompts(dataset, use_zs_prompts)
     prompt_generator = PromptGenerator(reformulated_dataset)
     valid_relation_names = reformulated_dataset.get_relation_names()
@@ -244,11 +245,13 @@ def evaluate_relation_classification_accuracy(
             batch_size=batch_size,
             inv_lre_rank=inv_lre_rank,
         )
-
         matcher = ConceptMatcher(model, tokenizer, concepts, layer_matcher)
 
         valid_prompts = filter_prompts_result.valid_prompts
         prompt_answer_match_results = filter_prompts_result.prompt_answer_match_results
+        object_name_to_concept_name = {
+            concept.object: concept.name for concept in concepts
+        }
 
         matcher_queries = []
         for prompt in valid_prompts:
@@ -261,26 +264,26 @@ def evaluate_relation_classification_accuracy(
         )
         prompt_eval_results = [
             PromptAccuracyResult(
-                correct_concept=prompt.name,
-                prompt=prompt_and_concept[0],
+                correct_concept=object_name_to_concept_name[prompt.object_name],
+                prompt=prompt,
                 concept_scores=concept_result,
                 num_answer_tokens=_get_prompt_num_answer_tokens(
-                    tokenizer, prompt=prompt_and_concept[0]
+                    tokenizer, prompt=prompt
                 ),
             )
             for prompt, concept_result in zip(valid_prompts, concept_results)
         ]
-        group_result = RelationAccuracyResult(
-            group_name,
+        relation_result = RelationAccuracyResult(
+            relation_name,
             prompt_answer_match_results=prompt_answer_match_results,
             prompt_eval_results=prompt_eval_results,
         )
         log_or_print(
-            f"Group {group_name} faithfulness: {group_result.faithfulness}",
+            f"Relation {relation_name} accuracy: {relation_result.accuracy}",
             verbose=verbose,
         )
-        group_results.append(group_result)
-    return group_results
+        relation_results.append(relation_result)
+    return relation_results
 
 
 def avg_faithfulness(
@@ -292,7 +295,7 @@ def avg_faithfulness(
         # if no prompts were evaluated, skip this group
         if res.total > 0:
             faithfulness_total += 1
-            faithfulness_sum += res.faithfulness
+            faithfulness_sum += res.accuracy
     if faithfulness_total == 0:
         return 0
     return faithfulness_sum / faithfulness_total
