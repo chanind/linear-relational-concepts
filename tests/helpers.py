@@ -6,6 +6,15 @@ from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 from multitoken_estimator.Concept import Concept
 from multitoken_estimator.lib.extract_token_activations import extract_token_activations
 from multitoken_estimator.lib.token_utils import find_final_subject_token_index
+from multitoken_estimator.PromptGenerator import Prompt
+
+
+def create_prompt(subject: str, answer: str, text: Optional[str] = None) -> Prompt:
+    return Prompt(
+        text=text or f"{subject} is located in the country of",
+        answer=answer,
+        subject=subject,
+    )
 
 
 def quick_concept(
