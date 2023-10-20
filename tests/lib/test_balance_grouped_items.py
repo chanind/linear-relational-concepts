@@ -5,26 +5,26 @@ from multitoken_estimator.lib.balance_grouped_items import balance_grouped_items
 
 
 @dataclass
-class TestItem:
+class FakeItem:
     subject: str
 
 
 items_by_group = {
     "London": [
-        TestItem(subject="London"),
-        TestItem(subject="London"),
-        TestItem(subject="London"),
-        TestItem(subject="London"),
+        FakeItem(subject="London"),
+        FakeItem(subject="London"),
+        FakeItem(subject="London"),
+        FakeItem(subject="London"),
     ],
     "Paris": [
-        TestItem(subject="Paris"),
-        TestItem(subject="Paris"),
-        TestItem(subject="Paris"),
-        TestItem(subject="Paris"),
+        FakeItem(subject="Paris"),
+        FakeItem(subject="Paris"),
+        FakeItem(subject="Paris"),
+        FakeItem(subject="Paris"),
     ],
     "Berlin": [
-        TestItem(subject="Berlin"),
-        TestItem(subject="Berlin"),
+        FakeItem(subject="Berlin"),
+        FakeItem(subject="Berlin"),
     ],
 }
 
