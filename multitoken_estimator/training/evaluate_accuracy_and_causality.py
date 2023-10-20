@@ -286,19 +286,19 @@ def evaluate_relation_classification_accuracy(
     return relation_results
 
 
-def avg_faithfulness(
-    faithfulness_results: Iterable[RelationAccuracyResult],
+def avg_accuracy(
+    accuracy_results: Iterable[RelationAccuracyResult],
 ) -> float:
-    faithfulness_sum: float = 0
-    faithfulness_total = 0
-    for res in faithfulness_results:
+    accuracy_sum: float = 0
+    accuracy_total = 0
+    for res in accuracy_results:
         # if no prompts were evaluated, skip this group
         if res.total > 0:
-            faithfulness_total += 1
-            faithfulness_sum += res.accuracy
-    if faithfulness_total == 0:
+            accuracy_total += 1
+            accuracy_sum += res.accuracy
+    if accuracy_total == 0:
         return 0
-    return faithfulness_sum / faithfulness_total
+    return accuracy_sum / accuracy_total
 
 
 def _get_prompt_num_answer_tokens(

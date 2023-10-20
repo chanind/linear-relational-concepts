@@ -203,6 +203,10 @@ def find_prompt_answer_data(
     )
 
 
+def find_num_answer_tokens(tokenizer: Tokenizer, base_prompt: str, answer: str) -> int:
+    return find_prompt_answer_data(tokenizer, base_prompt, answer).num_answer_tokens
+
+
 def decode_tokens(
     tokenizer: Tokenizer, token_array: list[int] | torch.Tensor | list[torch.Tensor]
 ) -> list[str]:

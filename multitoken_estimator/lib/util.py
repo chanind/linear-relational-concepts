@@ -1,5 +1,5 @@
 import random
-from typing import Generator, Iterable, Sequence, TypeVar
+from typing import Generator, Iterable, Mapping, Sequence, TypeVar
 
 from tqdm import tqdm
 
@@ -68,3 +68,20 @@ def sample_or_all(items: Sequence[T], k: int) -> list[T]:
     if k >= len(items):
         return list(items)
     return random.sample(items, k=k)
+
+
+def mean(items: Sequence[float]) -> float:
+    """
+    Compute the mean of a list of numbers
+    """
+    return sum(items) / len(items)
+
+
+def mean_values(items: Sequence[Mapping[T, float]]) -> dict[T, float]:
+    """
+    Compute the mean of a list of dicts of numbers
+    """
+    return {
+        key: mean([item[key] for item in items if key in item])
+        for key in set(key for item in items for key in item.keys())
+    }

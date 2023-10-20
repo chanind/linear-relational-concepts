@@ -1,3 +1,4 @@
+from functools import lru_cache
 from typing import Callable, Optional, TypeVar
 
 from multitoken_estimator.data_model import (
@@ -211,3 +212,17 @@ def load_lre_data() -> Database:
             relation_data = lre_relation_to_relation_data(lre_relation)
         db.add_relation_data(relation_data)
     return db
+
+
+@lru_cache(maxsize=1)
+def get_relation_to_lre_type_map() -> dict[str, str]:
+    """
+    map relation name to LRE type
+    """
+    relation_to_lre_type_map = {}
+    for relation_file in DATA_DIR.glob("lre/*/*.json"):
+        lre_type = relation_file.parent.name
+        with open(relation_file) as f:
+            lre_relation = LreRelation.from_json(f.read())
+        relation_to_lre_type_map[lre_relation.name] = lre_type
+    return relation_to_lre_type_map

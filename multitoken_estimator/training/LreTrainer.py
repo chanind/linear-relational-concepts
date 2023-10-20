@@ -1,9 +1,13 @@
+import os
+from typing import Optional
+
+import torch
 from tokenizers import Tokenizer
 from torch import nn
 
 from multitoken_estimator.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
-from multitoken_estimator.lib.logger import log_or_print
+from multitoken_estimator.lib.logger import log_or_print, logger
 from multitoken_estimator.lib.util import sample_or_all
 from multitoken_estimator.lib.verify_answers_match_expected import (
     verify_answers_match_expected,
@@ -35,6 +39,50 @@ class LreTrainer:
         self.layer_matcher = layer_matcher
         self.database = database
         self.prompt_generator = PromptGenerator(database)
+
+    def train_all_relations(
+        self,
+        subject_layer: int,
+        object_layer: int,
+        n_lre_training_prompts: int = 5,
+        augment_lre_prompts: bool = False,
+        object_aggregation: ObjectAggregation = "mean",
+        n_fsl_prompts: int = 5,
+        batch_size: int = 8,
+        max_consider_prompts: int = 100,
+        verbose: bool = True,
+        filter_training_prompts: bool = True,
+        save_progress_path: Optional[str] = None,
+        force_retrain_all: bool = False,
+    ) -> list[LinearRelationalEmbedding]:
+        relations = self.database.get_relation_names()
+        lres = load_trained_lres(save_progress_path, force_retrain_all, verbose=verbose)
+        already_trained_relations = {lre.relation for lre in lres}
+        for relation in relations:
+            if relation in already_trained_relations:
+                log_or_print(f"Skipping {relation}, already trained", verbose=verbose)
+                continue
+            log_or_print(f"Training LRE for {relation}", verbose=verbose)
+            try:
+                lre = self.train_relation_lre(
+                    relation=relation,
+                    subject_layer=subject_layer,
+                    object_layer=object_layer,
+                    n_lre_training_prompts=n_lre_training_prompts,
+                    augment_lre_prompts=augment_lre_prompts,
+                    object_aggregation=object_aggregation,
+                    n_fsl_prompts=n_fsl_prompts,
+                    batch_size=batch_size,
+                    max_consider_prompts=max_consider_prompts,
+                    verbose=verbose,
+                    filter_training_prompts=filter_training_prompts,
+                )
+                lres.append(lre)
+                if save_progress_path is not None:
+                    torch.save(lres, save_progress_path)
+            except Exception:
+                logger.exception(f"Error training relation {relation}")
+        return lres
 
     def train_relation_lre(
         self,
@@ -87,3 +135,22 @@ class LreTrainer:
             object_aggregation=object_aggregation,
             move_to_cpu=False,
         )
+
+
+def load_trained_lres(
+    save_progress_path: Optional[str] = None,
+    force_retrain_all: bool = False,
+    verbose: bool = True,
+) -> list[LinearRelationalEmbedding]:
+    lres: list[LinearRelationalEmbedding] = []
+    if (
+        save_progress_path is not None
+        and os.path.exists(save_progress_path)
+        and not force_retrain_all
+    ):
+        lres = torch.load(save_progress_path)
+        log_or_print(
+            f"Loaded {len(lres)} lres from {save_progress_path}",
+            verbose,
+        )
+    return lres
