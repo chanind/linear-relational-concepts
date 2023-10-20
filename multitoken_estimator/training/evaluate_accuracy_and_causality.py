@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from typing import Iterable, Literal, Optional
+from typing import Iterable, Literal, Optional, Sequence
 
 import torch
 from tokenizers import Tokenizer
@@ -45,8 +45,7 @@ def evaluate_causality(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
-    concept_vector_layer: int,
-    lres: list[LinearRelationalEmbedding],
+    lres: Sequence[LinearRelationalEmbedding],
     dataset: Database,
     batch_size: int = 32,
     inv_lre_rank: int = 100,
@@ -124,7 +123,7 @@ def evaluate_causality(
             relation_name=relation_name,
             editor=editor,
             concept_prompts=concept_prompts,
-            concept_vector_layer=concept_vector_layer,
+            concept_vector_layer=lre.subject_layer,
             batch_size=batch_size,
             max_swaps_per_concept=max_swaps_per_concept,
             max_swaps_total=max_swaps_total,
@@ -183,7 +182,7 @@ def evaluate_relation_classification_accuracy(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
-    lres: list[LinearRelationalEmbedding],
+    lres: Sequence[LinearRelationalEmbedding],
     dataset: Database,
     batch_size: int = 32,
     inv_lre_rank: int = 100,

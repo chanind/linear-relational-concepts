@@ -65,7 +65,7 @@ class PromptEditResult:
 
 @dataclass
 class RelationCausalityResult:
-    group: str
+    relation: str
     prompt_edit_results: list[PromptEditResult]
 
     @property
