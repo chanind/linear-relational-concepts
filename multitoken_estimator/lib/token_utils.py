@@ -250,3 +250,23 @@ def find_final_subject_token_index(
     tokens = tokenizer.encode(prompt)
     _start, end = find_token_range(tokenizer, tokens, subject)
     return end - 1
+
+
+def predict_all_token_probs_from_input(
+    model: nn.Module,
+    inp: dict[str, torch.Tensor],
+    move_to_cpu: bool = True,
+) -> list[torch.Tensor]:
+    """
+    Returns logits for each item in the batch as a list.
+    This will handle batches of different lengths correctly.
+    """
+    all_logits = model(**inp)["logits"]
+    all_probs = torch.softmax(all_logits, dim=-1)
+    final_token_positions = find_final_attention_positions(inp["attention_mask"])
+    if move_to_cpu:
+        all_probs = all_probs.cpu()
+    return [
+        all_probs[batch_idx, : final_token + 1]
+        for batch_idx, final_token in enumerate(final_token_positions.tolist())
+    ]

@@ -48,6 +48,7 @@ class LreTrainer:
         batch_size: int = 8,
         max_consider_prompts: int = 100,
         verbose: bool = True,
+        filter_training_prompts: bool = True,
     ) -> LinearRelationalEmbedding:
         lre_modifiers = DEFAULT_ENTITY_MODIFIERS if augment_lre_prompts else None
         relation_prompts = list(
@@ -58,24 +59,23 @@ class LreTrainer:
             )
         )
         relation_prompts = sample_or_all(relation_prompts, max_consider_prompts)
-        check_prompt_results = verify_answers_match_expected(
-            self.model,
-            self.tokenizer,
-            prompts=[prompt.text for prompt in relation_prompts],
-            expected_answers=[prompt.answer for prompt in relation_prompts],
-            batch_size=batch_size,
-        )
-        valid_prompts = [
-            prompt
-            for prompt, result in zip(relation_prompts, check_prompt_results)
-            if result.answer_matches_expected
-        ]
-        if len(valid_prompts) == 0:
-            raise ValueError(
-                f"None of the prompts for {relation} returned the expected answer."
+        if filter_training_prompts:
+            check_prompt_results = verify_answers_match_expected(
+                self.model,
+                self.tokenizer,
+                prompts=[prompt.text for prompt in relation_prompts],
+                expected_answers=[prompt.answer for prompt in relation_prompts],
+                batch_size=batch_size,
             )
+            relation_prompts = [
+                prompt
+                for prompt, result in zip(relation_prompts, check_prompt_results)
+                if result.answer_matches_expected
+            ]
+        if len(relation_prompts) == 0:
+            raise ValueError(f"No valid prompts found for {relation}.")
         log_or_print(f"Training LRE for {relation}", verbose=verbose)
-        training_prompts = sample_or_all(list(valid_prompts), n_lre_training_prompts)
+        training_prompts = sample_or_all(list(relation_prompts), n_lre_training_prompts)
         return train_lre(
             self.model,
             self.tokenizer,
