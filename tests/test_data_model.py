@@ -25,7 +25,7 @@ def test_load_city_in_country_custom_data() -> None:
     with open(CUSTOM_DATA_FILE) as f:
         relation_data = RelationData.from_json(f.read())
     assert relation_data.name == "city in country"
-    assert relation_data.templates == {"{subject} is located in the country of"}
+    assert relation_data.templates == {"{} is located in the country of"}
     assert len(relation_data.samples) == 3801
     assert relation_data.samples[0].subject.name == "Toronto"
     assert relation_data.samples[0].subject.type == "city"

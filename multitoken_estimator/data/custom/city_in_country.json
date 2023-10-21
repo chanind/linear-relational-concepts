@@ -1,6 +1,6 @@
 {
   "name": "city in country",
-  "templates": ["{subject} is located in the country of"],
+  "templates": ["{} is located in the country of"],
   "samples": [
     {
       "subject": {
