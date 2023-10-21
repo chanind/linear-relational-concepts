@@ -116,10 +116,6 @@ def evaluate_relation_causality(
 ) -> RelationCausalityResult:
     tokenizer = editor.tokenizer
     concepts = editor.concepts
-    log_or_print(
-        f"evaluating causality for concept group with {len(concepts)} concepts",
-        verbose=verbose,
-    )
     valid_concept_names: set[str] = set()
     for concept in concepts:
         if concept.relation != relation_name:

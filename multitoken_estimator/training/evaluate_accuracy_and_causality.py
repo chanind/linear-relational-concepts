@@ -74,7 +74,7 @@ def evaluate_causality(
             relation_name
         )
         log_or_print(
-            f"evaluating causality for concept group {relation_name} with {len(objects_in_relation)} concepts",
+            f"evaluating causality for relation {relation_name} with {len(objects_in_relation)} objects",
             verbose=verbose,
         )
 
@@ -196,7 +196,7 @@ def evaluate_relation_classification_accuracy(
     use_zs_prompts: bool = True,
 ) -> list[RelationAccuracyResult]:
     """
-    Evaluate faithfulness of trained LRE dataset concepts
+    Evaluate accuracy of trained LRE dataset concepts
     """
     relation_results = []
     reformulated_dataset = _reformulate_zs_prompts(dataset, use_zs_prompts)
@@ -213,7 +213,7 @@ def evaluate_relation_classification_accuracy(
             relation_name
         )
         log_or_print(
-            f"evaluating faithfulness for concept group {relation_name} with {len(objects_in_relation)} concepts",
+            f"evaluating accuracy for relation {relation_name} with {len(objects_in_relation)} objects",
             verbose=verbose,
         )
         raw_prompts = prompt_generator.generate_prompts_for_relation(
