@@ -30,6 +30,9 @@ class InvertedLinearRelationalEmbedding:
         else:
             raise ValueError(f"Unknown aggregation {aggregation}")
 
+        # match precision of weight_inverse and bias
+        stacked_acts = stacked_acts.to(self.weight_inverse.dtype)
+
         device = stacked_acts.device
         vec = (
             self.weight_inverse.to(device) @ (stacked_acts - self.bias.to(device)).t()

@@ -74,7 +74,6 @@ class LreTrainer:
                     n_fsl_prompts=n_fsl_prompts,
                     batch_size=batch_size,
                     max_consider_prompts=max_consider_prompts,
-                    verbose=verbose,
                     filter_training_prompts=filter_training_prompts,
                 )
                 lres.append(lre)
