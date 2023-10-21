@@ -58,6 +58,7 @@ def benchmark_llama2(
 
     shared_args: dict[str, str | float | int] = {
         "verbose": verbose,
+        "force_retrain_all": force_rerun,
     }
 
     dataset = load_lre_data()
