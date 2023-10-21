@@ -130,7 +130,7 @@ def evaluate_causality(
             magnitude_multiplier=magnitude_multiplier,
             edit_single_layer_only=edit_single_layer_only,
             use_remove_concept_projection_magnitude=use_remove_concept_projection_magnitude,
-            verbose=verbose,
+            verbose=False,
         )
         log_or_print(
             f"Relation {relation_name} causality: {relation_result.causality:.3f}",

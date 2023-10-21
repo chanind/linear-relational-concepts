@@ -156,7 +156,7 @@ def evaluate_relation_causality(
         prompt_edit_results=prompt_edit_results,
     )
     log_or_print(
-        f"Group {relation_name} causality: {group_result.causality}",
+        f"Relation {relation_name} causality: {group_result.causality}",
         verbose=verbose,
     )
     return group_result
