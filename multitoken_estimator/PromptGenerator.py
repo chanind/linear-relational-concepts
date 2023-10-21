@@ -4,6 +4,7 @@ from typing import Callable, Optional
 
 from multitoken_estimator.data_model import EntityDataModel, SampleDataModel
 from multitoken_estimator.database import Database
+from multitoken_estimator.lib.logger import logger
 
 EntityModifier = Callable[[str], str]
 
@@ -96,13 +97,11 @@ class PromptGenerator:
         object_samples = self.db.query_all(
             SampleDataModel, lambda s: s.object == object
         )
-        relations = {s.relation for s in object_samples}
         if valid_relation_names is not None:
-            relations = {
-                relation
-                for relation in relations
-                if relation.name in valid_relation_names
-            }
+            object_samples = [
+                s for s in object_samples if s.relation.name in valid_relation_names
+            ]
+        relations = {s.relation for s in object_samples}
         samples_by_relation_id = {}
         for relation in relations:
             selector = lambda s: s.relation == relation
@@ -117,15 +116,20 @@ class PromptGenerator:
             answers = {object.name}
             if object.alternative_names is not None:
                 answers.update(object.alternative_names)
+            potential_fsl_samples = samples_by_relation_id.get(
+                object_sample.relation.id, []
+            )
+            if len(potential_fsl_samples) == 0:
+                logger.warn(
+                    f"Warning: no FSL samples for relation {object_sample.relation.name} and object {object_name}",
+                )
             for answer in answers:
                 for entity_modifier in entity_modifiers or [null_modifier]:
                     for template in object_sample.relation.templates:
                         text = format_prompt_text(
                             template=template,
                             sample=object_sample,
-                            potential_fsl_samples=samples_by_relation_id[
-                                object_sample.relation.id
-                            ],
+                            potential_fsl_samples=potential_fsl_samples,
                             object_modifier=entity_modifier,
                             num_fsl_examples=num_fsl_examples,
                         )
