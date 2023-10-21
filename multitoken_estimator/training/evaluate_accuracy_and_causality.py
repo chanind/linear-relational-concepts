@@ -132,6 +132,10 @@ def evaluate_causality(
             use_remove_concept_projection_magnitude=use_remove_concept_projection_magnitude,
             verbose=verbose,
         )
+        log_or_print(
+            f"Relation {relation_name} causality: {relation_result.causality:.3f}",
+            verbose=verbose,
+        )
         relation_results.append(relation_result)
     return relation_results
 
@@ -278,7 +282,7 @@ def evaluate_relation_classification_accuracy(
             prompt_eval_results=prompt_eval_results,
         )
         log_or_print(
-            f"Relation {relation_name} accuracy: {relation_result.accuracy}",
+            f"Relation {relation_name} accuracy: {relation_result.accuracy:.3f}",
             verbose=verbose,
         )
         relation_results.append(relation_result)
