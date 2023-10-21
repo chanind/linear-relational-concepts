@@ -214,6 +214,15 @@ def load_lre_data() -> Database:
     return db
 
 
+def load_custom_data() -> Database:
+    db = Database()
+    for relation_file in DATA_DIR.glob("custom/*.json"):
+        with open(relation_file) as f:
+            relation_data = RelationData.from_json(f.read())
+        db.add_relation_data(relation_data)
+    return db
+
+
 @lru_cache(maxsize=1)
 def get_relation_to_lre_type_map() -> dict[str, str]:
     """
