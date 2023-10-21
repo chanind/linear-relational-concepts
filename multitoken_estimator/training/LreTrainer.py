@@ -95,7 +95,6 @@ class LreTrainer:
         n_fsl_prompts: int = 5,
         batch_size: int = 8,
         max_consider_prompts: int = 100,
-        verbose: bool = True,
         filter_training_prompts: bool = True,
     ) -> LinearRelationalEmbedding:
         lre_modifiers = DEFAULT_ENTITY_MODIFIERS if augment_lre_prompts else None
@@ -122,7 +121,6 @@ class LreTrainer:
             ]
         if len(relation_prompts) == 0:
             raise ValueError(f"No valid prompts found for {relation}.")
-        log_or_print(f"Training LRE for {relation}", verbose=verbose)
         training_prompts = sample_or_all(list(relation_prompts), n_lre_training_prompts)
         return train_lre(
             self.model,
