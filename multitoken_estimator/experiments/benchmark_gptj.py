@@ -4,7 +4,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 from time import time
-from typing import Literal, Optional, Sequence
+from typing import Literal, Optional
 
 import torch
 from tokenizers import Tokenizer
@@ -13,7 +13,6 @@ from transformers import AutoTokenizer, GPTJForCausalLM
 from multitoken_estimator.database import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.logger import log_or_print
-from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding
 from multitoken_estimator.training.benchmarking import (
     BenchmarkIterationsResult,
     BenchmarkResult,
@@ -21,14 +20,7 @@ from multitoken_estimator.training.benchmarking import (
     benchmark_strategies,
     strategy_from_trainer,
 )
-from multitoken_estimator.training.evaluate_accuracy_and_causality import (
-    RelationAccuracyResult,
-    evaluate_causality,
-    evaluate_relation_classification_accuracy,
-)
-from multitoken_estimator.training.evaluate_relation_causality import (
-    RelationCausalityResult,
-)
+from multitoken_estimator.training.LreEvaluator import LreEvaluator
 from multitoken_estimator.training.LreTrainer import LreTrainer
 
 BATCH_SIZE = 8
@@ -86,43 +78,18 @@ def benchmark_gptj(
                 )
             return None
 
-        def evaluate_lres(
-            lres: Sequence[LinearRelationalEmbedding],
-        ) -> tuple[
-            dict[str, RelationAccuracyResult], dict[str, RelationCausalityResult]
-        ]:
-            accuracy_results = evaluate_relation_classification_accuracy(
-                model,
-                tokenizer,
-                LAYER_MATCHER,
-                lres=lres,
-                dataset=test_data,
-                batch_size=batch_size,
-                inv_lre_rank=INV_LRE_RANK,
-                verbose=verbose,
-                use_zs_prompts=eval_zs_prompts,
-            )
-            accuracy_by_relation = {
-                result.relation: result for result in accuracy_results
-            }
-            causality_results = evaluate_causality(
-                model,
-                tokenizer,
-                LAYER_MATCHER,
-                lres=lres,
-                dataset=test_data,
-                batch_size=batch_size,
-                inv_lre_rank=INV_LRE_RANK,
-                verbose=verbose,
-                use_zs_prompts=eval_zs_prompts,
-                magnitude_multiplier=causality_magnitude_multiplier,
-                edit_single_layer_only=causality_edit_single_layer_only,
-                use_remove_concept_projection_magnitude=causality_use_remove_concept_projection_magnitude,
-            )
-            causality_by_relation = {
-                result.relation: result for result in causality_results
-            }
-            return accuracy_by_relation, causality_by_relation
+        evaluator = LreEvaluator(
+            model=model,
+            tokenizer=tokenizer,
+            layer_matcher=LAYER_MATCHER,
+            dataset=test_data,
+            batch_size=batch_size,
+            inv_lre_rank=INV_LRE_RANK,
+            use_zs_prompts=eval_zs_prompts,
+            causality_magnitude_multiplier=causality_magnitude_multiplier,
+            causality_edit_single_layer_only=causality_edit_single_layer_only,
+            causality_use_remove_concept_projection_magnitude=causality_use_remove_concept_projection_magnitude,
+        )
 
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
@@ -162,7 +129,7 @@ def benchmark_gptj(
 
         eval_results = benchmark_strategies(
             strategies,
-            evaluator=evaluate_lres,
+            evaluator=evaluator,
             save_progress_path=save_progress_path("overall-benchmark"),
             force_rerun=force_rerun,
             verbose=verbose,
