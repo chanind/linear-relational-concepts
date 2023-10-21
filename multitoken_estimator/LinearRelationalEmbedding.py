@@ -32,8 +32,7 @@ class InvertedLinearRelationalEmbedding:
 
         device = stacked_acts.device
         vec = (
-            self.weight_inverse.to(device)
-            @ (object_activations - self.bias.to(device)).t()
+            self.weight_inverse.to(device) @ (stacked_acts - self.bias.to(device)).t()
         ).mean(dim=1)
         if normalize:
             vec = vec / vec.norm()
