@@ -125,10 +125,11 @@ class ConceptMatcher:
 def _apply_concept_to_activations(
     concept: Concept, activations: dict[int, torch.Tensor]
 ) -> ConceptMatchResult:
-    device = concept.vector.device
     score = torch.matmul(
         concept.vector,
-        activations[concept.layer].to(device),
+        activations[concept.layer].to(
+            concept.vector.device, dtype=concept.vector.dtype
+        ),
     ).item()
     return ConceptMatchResult(
         concept=concept.name,
