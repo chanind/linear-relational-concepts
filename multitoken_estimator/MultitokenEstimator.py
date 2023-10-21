@@ -93,7 +93,7 @@ class MultitokenEstimator:
                 num_fsl_examples=num_fsl_examples,
                 entity_modifiers=entity_modifiers,
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
-                valid_relations=valid_relations,
+                valid_relation_names=valid_relations,
             )
         )
         if max_prompts is not None:
@@ -183,7 +183,7 @@ class MultitokenEstimator:
                         object,
                         entity_modifiers=entity_modifiers,
                         exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
-                        valid_relations={relation},
+                        valid_relation_names={relation},
                     )
                 )
                 if num_prompts < min_prompts_per_object:

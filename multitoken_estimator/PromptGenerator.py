@@ -77,7 +77,7 @@ class PromptGenerator:
                     num_fsl_examples=num_fsl_examples,
                     entity_modifiers=entity_modifiers,
                     exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
-                    valid_relations={relation_name},
+                    valid_relation_names={relation_name},
                 )
             )
         return prompts
@@ -88,7 +88,7 @@ class PromptGenerator:
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
-        valid_relations: Optional[set[str]] = None,
+        valid_relation_names: Optional[set[str]] = None,
     ) -> set[Prompt]:
         object = self.db.query_one_or_throw(
             EntityDataModel, lambda e: e.name == object_name
@@ -97,8 +97,12 @@ class PromptGenerator:
             SampleDataModel, lambda s: s.object == object
         )
         relations = {s.relation for s in object_samples}
-        if valid_relations is not None:
-            relations = relations.intersection(valid_relations)
+        if valid_relation_names is not None:
+            relations = {
+                relation
+                for relation in relations
+                if relation.name in valid_relation_names
+            }
         samples_by_relation_id = {}
         for relation in relations:
             selector = lambda s: s.relation == relation

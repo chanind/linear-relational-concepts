@@ -66,12 +66,28 @@ def test_PromptGenerator_customize_entity_modifiers() -> None:
     )
     assert len(prompts) == 1
     prompt = list(prompts)[0]
-    print(prompt.text)
     assert (
         prompt.text
         == "Beijing is located in the country of CHINA\nToronto is located in the country of"
     )
     assert prompt.answer == "CANADA"
+
+
+def test_PromptGenerator_generate_prompts_for_relation() -> None:
+    db = Database()
+    db.add_relation_data(
+        RelationData(
+            "city in country",
+            frozenset({"{} is located in the country of"}),
+            samples=[
+                loc_sample("Toronto", "Canada"),
+                loc_sample("Beijing", "China"),
+            ],
+        )
+    )
+    pg = PromptGenerator(db)
+    prompts = pg.generate_prompts_for_relation("city in country", entity_modifiers=None)
+    assert len(prompts) == 2
 
 
 def test_split_with_dashes_modifier() -> None:
