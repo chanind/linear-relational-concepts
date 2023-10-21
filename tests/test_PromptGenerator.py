@@ -5,6 +5,7 @@ from multitoken_estimator.database import Database
 from multitoken_estimator.PromptGenerator import (
     PromptGenerator,
     split_with_dashes_modifier,
+    split_with_dashes_uppercase_modifier,
     split_with_periods_modifier,
     split_with_spaces_modifier,
     uppercase_modifier,
@@ -86,3 +87,11 @@ def test_split_with_periods_modifier() -> None:
 def test_split_with_spaces_modifier() -> None:
     assert split_with_spaces_modifier("Canada") == "C a n a d a"
     assert split_with_spaces_modifier("United States") == "U n i t e d S t a t e s"
+
+
+def test_split_with_dashes_uppercase_modifier() -> None:
+    assert split_with_dashes_uppercase_modifier("Canada") == "C-A-N-A-D-A"
+    assert (
+        split_with_dashes_uppercase_modifier("United States")
+        == "U-N-I-T-E-D S-T-A-T-E-S"
+    )

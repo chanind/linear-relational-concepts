@@ -7,20 +7,36 @@ from multitoken_estimator.database import Database
 
 EntityModifier = Callable[[str], str]
 
+
+def chain_modifiers(modifiers: list[EntityModifier]) -> EntityModifier:
+    def chained_modifier(s: str) -> str:
+        for m in modifiers:
+            s = m(s)
+        return s
+
+    return chained_modifier
+
+
 null_modifier: EntityModifier = lambda s: s
 uppercase_modifier: EntityModifier = lambda s: s.upper()
 lowercase_modifier: EntityModifier = lambda s: s.lower()
 split_with_dashes_modifier: EntityModifier = lambda s: "-".join(s).replace("- -", " ")
 split_with_periods_modifier: EntityModifier = lambda s: ".".join(s).replace(". .", " ")
 split_with_spaces_modifier: EntityModifier = lambda s: " ".join(s).replace("   ", " ")
+split_with_periods_uppercase_modifier = chain_modifiers(
+    [uppercase_modifier, split_with_periods_modifier]
+)
+split_with_dashes_uppercase_modifier = chain_modifiers(
+    [uppercase_modifier, split_with_dashes_modifier]
+)
 
 DEFAULT_ENTITY_MODIFIERS = [
     null_modifier,
     uppercase_modifier,
     lowercase_modifier,
-    split_with_dashes_modifier,
-    split_with_periods_modifier,
     split_with_spaces_modifier,
+    split_with_periods_uppercase_modifier,
+    split_with_dashes_uppercase_modifier,
 ]
 
 
