@@ -1,7 +1,7 @@
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.PromptGenerator import Prompt
 from multitoken_estimator.training.train_lre import train_lre
+from tests.helpers import create_prompt
 
 
 def test_train_lre(model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast) -> None:
@@ -13,17 +13,15 @@ def test_train_lre(model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast) -> None
         ]
     )
     prompts = [
-        Prompt(
+        create_prompt(
             text=f"{fsl_prefixes}\nTokyo is located in the country of",
             answer="Japan",
             subject="Tokyo",
-            object_name="Japan",
         ),
-        Prompt(
+        create_prompt(
             text=f"{fsl_prefixes}\nRome is located in the country of",
             answer="Italy",
             subject="Rome",
-            object_name="Italy",
         ),
     ]
     lre = train_lre(

@@ -4,7 +4,7 @@ from typing import Sequence
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.database import Database
+from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding
 from multitoken_estimator.training.evaluate_accuracy_and_causality import (

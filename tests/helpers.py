@@ -5,7 +5,7 @@ from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
 from multitoken_estimator.Concept import Concept
 from multitoken_estimator.lib.extract_token_activations import extract_token_activations
-from multitoken_estimator.lib.token_utils import find_final_subject_token_index
+from multitoken_estimator.lib.token_utils import find_final_word_token_index
 from multitoken_estimator.PromptGenerator import Prompt
 
 
@@ -15,6 +15,7 @@ def create_prompt(subject: str, answer: str, text: Optional[str] = None) -> Prom
         answer=answer,
         subject=subject,
         object_name=answer,
+        relation_name="in country",
     )
 
 
@@ -34,7 +35,7 @@ def quick_concept(
         tokenizer,
         ["transformer.h.8"],
         texts=[subject],
-        token_indices=[find_final_subject_token_index(tokenizer, subject, subject)],
+        token_indices=[find_final_word_token_index(tokenizer, subject, subject)],
     )[0]["transformer.h.8"][0]
     concept_vec = raw_vec / torch.norm(raw_vec)
     return Concept(

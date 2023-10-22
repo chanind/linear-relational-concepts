@@ -5,7 +5,7 @@ from transformers import GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer
 from multitoken_estimator.lib.token_utils import (
     decode_tokens,
     find_final_attention_positions,
-    find_final_subject_token_index,
+    find_final_word_token_index,
     find_token_range,
     get_answer_token_ids,
     make_inputs,
@@ -67,16 +67,13 @@ def test_find_token_works_with_llama(vicuna_tokenizer: LlamaTokenizer) -> None:
     assert find_token_range(vicuna_tokenizer, tokens, "Paris") == (3, 4)
 
 
-def test_find_final_subject_token_index(tokenizer: GPT2TokenizerFast) -> None:
+def test_find_final_word_token_index(tokenizer: GPT2TokenizerFast) -> None:
     assert (
-        find_final_subject_token_index(
-            tokenizer, "Bill Gates is the CEO of", "Bill Gates"
-        )
+        find_final_word_token_index(tokenizer, "Bill Gates is the CEO of", "Bill Gates")
         == 1
     )
     assert (
-        find_final_subject_token_index(tokenizer, "Bill Gates is the CEO of", "Bill")
-        == 0
+        find_final_word_token_index(tokenizer, "Bill Gates is the CEO of", "Bill") == 0
     )
 
 

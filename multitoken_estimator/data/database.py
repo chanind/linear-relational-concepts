@@ -1,18 +1,15 @@
-from functools import lru_cache
 from typing import Callable, Optional, TypeVar
 
-from multitoken_estimator.data_model import (
+from multitoken_estimator.lib.util import stable_shuffle
+
+from .data_model import (
     DataModel,
     EntityDataModel,
     EntityTypeDataModel,
-    LreRelation,
     RelationData,
     RelationDataModel,
     SampleDataModel,
-    lre_relation_to_relation_data,
 )
-from multitoken_estimator.lib.constants import DATA_DIR
-from multitoken_estimator.lib.util import stable_shuffle
 
 T = TypeVar("T", bound=DataModel)
 
@@ -83,12 +80,14 @@ class Database:
         name: str,
         templates: frozenset[str],
         zs_templates: frozenset[str] | None = None,
+        category: str | None = None,
     ) -> RelationDataModel:
         relation_template = self.query_one(
             RelationDataModel,
             lambda t: t.templates == templates
             and t.name == name
-            and t.zs_templates == zs_templates,
+            and t.zs_templates == zs_templates
+            and t.category == category,
         )
         if relation_template is None:
             relation_template = RelationDataModel(
@@ -96,6 +95,7 @@ class Database:
                 name=name,
                 templates=templates,
                 zs_templates=zs_templates,
+                category=category,
             )
             self._add(relation_template)
         return relation_template
@@ -131,7 +131,10 @@ class Database:
 
     def add_relation_data(self, relation_data: RelationData) -> None:
         relation = self.get_or_create_relation(
-            relation_data.name, relation_data.templates, relation_data.zs_templates
+            relation_data.name,
+            relation_data.templates,
+            relation_data.zs_templates,
+            relation_data.category,
         )
         for sample in relation_data.samples:
             subject = self.get_or_create_entity(
@@ -202,36 +205,3 @@ class Database:
             new_sample = modifier(sample)
             new_database._add_sample(new_sample)
         return new_database
-
-
-def load_lre_data() -> Database:
-    db = Database()
-    for relation_file in DATA_DIR.glob("lre/*/*.json"):
-        with open(relation_file) as f:
-            lre_relation = LreRelation.from_json(f.read())
-            relation_data = lre_relation_to_relation_data(lre_relation)
-        db.add_relation_data(relation_data)
-    return db
-
-
-def load_custom_data() -> Database:
-    db = Database()
-    for relation_file in DATA_DIR.glob("custom/*.json"):
-        with open(relation_file) as f:
-            relation_data = RelationData.from_json(f.read())
-        db.add_relation_data(relation_data)
-    return db
-
-
-@lru_cache(maxsize=1)
-def get_relation_to_lre_type_map() -> dict[str, str]:
-    """
-    map relation name to LRE type
-    """
-    relation_to_lre_type_map = {}
-    for relation_file in DATA_DIR.glob("lre/*/*.json"):
-        lre_type = relation_file.parent.name
-        with open(relation_file) as f:
-            lre_relation = LreRelation.from_json(f.read())
-        relation_to_lre_type_map[lre_relation.name] = lre_type
-    return relation_to_lre_type_map

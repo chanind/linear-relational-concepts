@@ -10,7 +10,7 @@ import torch
 from tokenizers import Tokenizer
 from transformers import AutoTokenizer, GPTJForCausalLM
 
-from multitoken_estimator.database import load_lre_data
+from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.training.benchmarking import (

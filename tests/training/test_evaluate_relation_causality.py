@@ -3,7 +3,6 @@ from collections import defaultdict
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
 from multitoken_estimator.CausalEditor import CausalEditor
-from multitoken_estimator.PromptGenerator import Prompt
 from multitoken_estimator.training.evaluate_relation_causality import (
     EditAttempt,
     build_causal_edits,
@@ -24,22 +23,20 @@ def test_evaluate_causal_edits_batch_simple(
 
     edits = [
         EditAttempt(
-            prompt=Prompt(
-                "Beijing is located in the country of",
+            prompt=create_prompt(
+                text="Beijing is located in the country of",
                 subject="Beijing",
                 answer="China",
-                object_name="China",
             ),
             source_concept=china.name,
             target_concept=japan.name,
             target_answers=("Japan",),
         ),
         EditAttempt(
-            prompt=Prompt(
-                "Tokyo is located in the country of",
+            prompt=create_prompt(
+                text="Tokyo is located in the country of",
                 subject="Tokyo",
                 answer="Japan",
-                object_name="Japan",
             ),
             source_concept=japan.name,
             target_concept=china.name,
@@ -76,22 +73,20 @@ def test_evaluate_causal_edits_batch_with_multitoken_answers(
 
     edits = [
         EditAttempt(
-            prompt=Prompt(
-                "Beijing is located in the country of",
+            prompt=create_prompt(
+                text="Beijing is located in the country of",
                 subject="Beijing",
                 answer="China.",
-                object_name="China",
             ),
             source_concept=china.name,
             target_concept=japan.name,
             target_answers=("Japan.",),
         ),
         EditAttempt(
-            prompt=Prompt(
-                "Tokyo is located in the country of",
+            prompt=create_prompt(
+                text="Tokyo is located in the country of",
                 subject="Tokyo",
                 answer="Japan.",
-                object_name="Japan",
             ),
             source_concept=japan.name,
             target_concept=china.name,
@@ -128,22 +123,20 @@ def test_evaluate_causal_edits_batch_with_unsuccessful_causality(
 
     edits = [
         EditAttempt(
-            prompt=Prompt(
-                "Beijing is located in the country of",
+            prompt=create_prompt(
+                text="Beijing is located in the country of",
                 subject="Beijing",
                 answer="China.",
-                object_name="China",
             ),
             source_concept=china.name,
             target_concept=japan.name,
             target_answers=("Japan.",),
         ),
         EditAttempt(
-            prompt=Prompt(
-                "Tokyo is located in the country of",
+            prompt=create_prompt(
+                text="Tokyo is located in the country of",
                 subject="Tokyo",
                 answer="Japan.",
-                object_name="Japan",
             ),
             source_concept=japan.name,
             target_concept=china.name,

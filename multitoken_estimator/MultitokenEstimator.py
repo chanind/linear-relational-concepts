@@ -7,8 +7,8 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.data_model import SampleDataModel
-from multitoken_estimator.database import Database
+from multitoken_estimator.data.data_model import SampleDataModel
+from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.extract_token_activations import extract_token_activations
 from multitoken_estimator.lib.layer_matching import (

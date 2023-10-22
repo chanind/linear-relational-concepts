@@ -6,7 +6,7 @@ from torch import nn
 
 from multitoken_estimator.lib.layer_matching import LayerMatcher, get_layer_name
 from multitoken_estimator.lib.token_utils import (
-    find_final_subject_token_index,
+    find_final_word_token_index,
     find_prompt_answer_data,
 )
 from multitoken_estimator.lib.torch_utils import get_device, untuple_tensor
@@ -37,7 +37,7 @@ def train_lre(
             tokenizer, prompt.text, prompt.answer
         )
         full_prompts.append(prompt_answer_data.full_prompt)
-        subject_index = find_final_subject_token_index(
+        subject_index = find_final_word_token_index(
             tokenizer, prompt.text, prompt.subject
         )
         weight, bias = order_1_approx(

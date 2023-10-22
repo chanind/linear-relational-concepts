@@ -5,7 +5,7 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.database import Database
+from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.logger import log_or_print, logger
 from multitoken_estimator.lib.util import sample_or_all
@@ -79,7 +79,11 @@ class LreTrainer:
                 lres.append(lre)
                 if save_progress_path is not None:
                     torch.save(lres, save_progress_path)
-            except Exception:
+            # catch all excepts except cuda OOM
+            except Exception as e:
+                # if it's OOM, just quit since it won't get better
+                if isinstance(e, torch.cuda.OutOfMemoryError):
+                    raise e
                 logger.exception(f"Error training relation {relation}")
         return lres
 

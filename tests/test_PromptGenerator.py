@@ -1,7 +1,7 @@
 from typing import Iterable, Optional
 
-from multitoken_estimator.data_model import Entity, RelationData, RelationSample
-from multitoken_estimator.database import Database
+from multitoken_estimator.data.data_model import Entity, RelationData, RelationSample
+from multitoken_estimator.data.database import Database
 from multitoken_estimator.PromptGenerator import (
     PromptGenerator,
     split_with_dashes_modifier,

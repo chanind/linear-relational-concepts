@@ -8,7 +8,7 @@ from typing import Any, Callable, Literal, Mapping, Optional
 
 import torch
 
-from multitoken_estimator.database import get_relation_to_lre_type_map
+from multitoken_estimator.data.data_loaders import get_relation_to_lre_type_map
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.util import mean, mean_values
 from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding

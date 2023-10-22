@@ -252,11 +252,9 @@ def find_token_range(
     return token_ranges[-1] if find_last_match else token_ranges[0]
 
 
-def find_final_subject_token_index(
-    tokenizer: Tokenizer, prompt: str, subject: str
-) -> int:
+def find_final_word_token_index(tokenizer: Tokenizer, prompt: str, word: str) -> int:
     tokens = tokenizer.encode(prompt)
-    _start, end = find_token_range(tokenizer, tokens, subject)
+    _start, end = find_token_range(tokenizer, tokens, word)
     return end - 1
 
 

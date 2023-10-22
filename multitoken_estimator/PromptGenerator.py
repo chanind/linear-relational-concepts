@@ -2,8 +2,8 @@ import random
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from multitoken_estimator.data_model import EntityDataModel, SampleDataModel
-from multitoken_estimator.database import Database
+from multitoken_estimator.data.data_model import EntityDataModel, SampleDataModel
+from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.logger import logger
 
 EntityModifier = Callable[[str], str]
@@ -47,6 +47,7 @@ class Prompt:
     answer: str
     subject: str
     object_name: str
+    relation_name: str
 
 
 class PromptGenerator:
@@ -58,6 +59,27 @@ class PromptGenerator:
 
     def __init__(self, db: Database) -> None:
         self.db = db
+
+    def generate_prompts_for_all_relations(
+        self,
+        num_fsl_examples: int = 5,
+        entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
+        exclude_fsl_examples_of_object: bool = True,
+    ) -> set[Prompt]:
+        relation_names = {
+            r.relation.name for r in self.db.query_all(SampleDataModel, lambda s: True)
+        }
+        prompts: set[Prompt] = set()
+        for relation_name in relation_names:
+            prompts.update(
+                self.generate_prompts_for_relation(
+                    relation_name=relation_name,
+                    num_fsl_examples=num_fsl_examples,
+                    entity_modifiers=entity_modifiers,
+                    exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
+                )
+            )
+        return prompts
 
     def generate_prompts_for_relation(
         self,
@@ -139,6 +161,7 @@ class PromptGenerator:
                                 answer=entity_modifier(answer),
                                 subject=object_sample.subject.name,
                                 object_name=object_name,
+                                relation_name=object_sample.relation.name,
                             )
                         )
         return prompts

@@ -1,8 +1,5 @@
-from multitoken_estimator.data_model import (
-    LreRelation,
-    RelationData,
-    lre_relation_to_relation_data,
-)
+from multitoken_estimator.data.data_loaders import lre_relation_to_relation_data
+from multitoken_estimator.data.data_model import LreRelation, RelationData
 from multitoken_estimator.lib.constants import DATA_DIR
 
 LRE_DATA_FILE = DATA_DIR / "lre/factual/city_in_country.json"

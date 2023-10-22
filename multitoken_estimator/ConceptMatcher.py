@@ -15,7 +15,7 @@ from multitoken_estimator.lib.layer_matching import (
 )
 from multitoken_estimator.lib.token_utils import (
     ensure_tokenizer_has_pad_token,
-    find_final_subject_token_index,
+    find_final_word_token_index,
 )
 from multitoken_estimator.lib.util import batchify
 
@@ -115,7 +115,7 @@ class ConceptMatcher:
         if isinstance(subject, int):
             return subject
         if isinstance(subject, str):
-            return find_final_subject_token_index(self.tokenizer, text, subject)
+            return find_final_word_token_index(self.tokenizer, text, subject)
         if callable(subject):
             return subject(text, self.tokenizer.encode(text))
         raise ValueError(f"Unknown subject type: {type(subject)}")

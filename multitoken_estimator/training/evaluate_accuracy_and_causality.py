@@ -15,8 +15,8 @@ from multitoken_estimator.ConceptMatcher import (
     ConceptMatchQuery,
     ConceptMatchResult,
 )
-from multitoken_estimator.data_model import SampleDataModel
-from multitoken_estimator.database import Database
+from multitoken_estimator.data.data_model import SampleDataModel
+from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.logger import log_or_print, logger
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
