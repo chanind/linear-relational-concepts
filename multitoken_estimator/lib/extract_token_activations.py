@@ -6,7 +6,7 @@ from tokenizers import Tokenizer
 from torch import nn
 
 from .constants import DEFAULT_DEVICE
-from .token_utils import make_inputs
+from .token_utils import find_final_word_token_index, make_inputs
 from .torch_utils import untuple_tensor
 from .TraceLayerDict import TraceLayerDict
 from .util import batchify, tuplify
@@ -88,3 +88,38 @@ def _extract_token_activations_batch(
                     activations.append(activation)
                 batch_token_activations[i][layer_name] = activations
     return batch_token_activations
+
+
+def extract_final_token_activations(
+    model: nn.Module,
+    tokenizer: Tokenizer,
+    texts: Sequence[str],
+    layers: Iterable[str],
+    device: torch.device = DEFAULT_DEVICE,
+    move_results_to_cpu: bool = True,
+    batch_size: int = 32,
+    show_progress: bool = False,
+) -> list[OrderedDict[str, torch.Tensor]]:
+    raw_activations = extract_token_activations(
+        model,
+        tokenizer,
+        layers=layers,
+        texts=texts,
+        token_indices=[
+            find_final_word_token_index(tokenizer, text, text) for text in texts
+        ],
+        device=device,
+        batch_size=batch_size,
+        show_progress=show_progress,
+        move_results_to_cpu=move_results_to_cpu,
+    )
+    return [_pick_first_activation(activations) for activations in raw_activations]
+
+
+def _pick_first_activation(
+    token_activations: OrderedDict[str, list[torch.Tensor]]
+) -> OrderedDict[str, torch.Tensor]:
+    return OrderedDict(
+        (layer_name, layer_activations[0])
+        for layer_name, layer_activations in token_activations.items()
+    )

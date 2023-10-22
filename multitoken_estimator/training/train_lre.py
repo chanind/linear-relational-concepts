@@ -63,6 +63,7 @@ def train_lre(
         object_layer=object_layer,
         weight=weight,
         bias=bias,
+        object_aggregation=object_aggregation,
         metadata={
             "prompts": full_prompts,
         },

@@ -12,6 +12,7 @@ from multitoken_estimator.data.data_loaders import get_relation_to_lre_type_map
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.util import mean, mean_values
 from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding
+from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
 from multitoken_estimator.training.evaluate_accuracy_and_causality import (
     RelationAccuracyResult,
     avg_accuracy,
@@ -21,7 +22,7 @@ from multitoken_estimator.training.evaluate_relation_causality import (
     avg_causality,
 )
 from multitoken_estimator.training.LreEvaluator import LreEvaluator
-from multitoken_estimator.training.LreTrainer import LreTrainer
+from multitoken_estimator.training.LreTrainer import LresWithObjectMapping, LreTrainer
 
 CausalityTokenCountMethod = Literal["original", "target", "max_original_target"]
 
@@ -29,7 +30,7 @@ CausalityTokenCountMethod = Literal["original", "target", "max_original_target"]
 @dataclass
 class TrainingStrategy:
     name: str
-    run_fn: Callable[[], list[LinearRelationalEmbedding]]
+    run_fn: Callable[[], LresWithObjectMapping]
     metadata: dict[str, Any]
 
 
@@ -37,6 +38,7 @@ class TrainingStrategy:
 class BenchmarkResult:
     strategy_name: str
     lres: list[LinearRelationalEmbedding]
+    object_mapping: ObjectMappingModel
     relation_causality: dict[str, RelationCausalityResult]
     relation_accuracy: dict[str, RelationAccuracyResult]
     metadata: dict[str, Any]
@@ -316,8 +318,8 @@ def strategy_from_trainer(
     Create a training strategy from a trainer and a strategy name
     """
 
-    def run_fn() -> list[LinearRelationalEmbedding]:
-        return trainer.train_all_relations(**kwargs)
+    def run_fn() -> LresWithObjectMapping:
+        return trainer.train_all_relations_with_object_mapping(**kwargs)
 
     return TrainingStrategy(strategy_name, run_fn, kwargs)
 
@@ -368,14 +370,17 @@ def benchmark_strategy(
     """
     Run a training strategy and return the results
     """
-    lres = strategy.run_fn()
+    lres_with_mapping = strategy.run_fn()
 
-    relation_accuracy = evaluator.evaluate_accuracy(lres, verbose=verbose)
-    relation_causality = evaluator.evaluate_causality(lres, verbose=verbose)
+    relation_accuracy = evaluator.evaluate_accuracy(lres_with_mapping, verbose=verbose)
+    relation_causality = evaluator.evaluate_causality(
+        lres_with_mapping, verbose=verbose
+    )
 
     results = BenchmarkResult(
         strategy.name,
-        lres,
+        lres_with_mapping.lres,
+        lres_with_mapping.object_mapping,
         relation_accuracy=relation_accuracy,
         relation_causality=relation_causality,
         metadata=strategy.metadata,

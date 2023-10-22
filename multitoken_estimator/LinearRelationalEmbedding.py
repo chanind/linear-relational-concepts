@@ -14,28 +14,20 @@ class InvertedLinearRelationalEmbedding:
     weight_inverse: torch.Tensor
     bias: torch.Tensor
     rank: int
+    object_aggregation: Literal["mean", "first_token"]
     metadata: dict[str, Any] | None = None
 
     @torch.no_grad()
     def calculate_subject_activation(
         self,
-        object_activations: list[torch.Tensor],
-        aggregation: Literal["first", "mean"] = "mean",
+        object_activation: torch.Tensor,
         normalize: bool = True,
     ) -> torch.Tensor:
-        if aggregation == "first":
-            stacked_acts = torch.stack([object_activations[0]])
-        elif aggregation == "mean":
-            stacked_acts = torch.stack(object_activations)
-        else:
-            raise ValueError(f"Unknown aggregation {aggregation}")
-
         # match precision of weight_inverse and bias
-        stacked_acts = stacked_acts.to(self.weight_inverse.dtype)
-
-        device = stacked_acts.device
+        device = object_activation.device
         vec = (
-            self.weight_inverse.to(device) @ (stacked_acts - self.bias.to(device)).t()
+            self.weight_inverse.to(device)
+            @ (object_activation - self.bias.to(device)).t()
         ).mean(dim=1)
         if normalize:
             vec = vec / vec.norm()
@@ -49,6 +41,7 @@ class LinearRelationalEmbedding:
     object_layer: int
     weight: torch.Tensor
     bias: torch.Tensor
+    object_aggregation: Literal["mean", "first_token"]
     metadata: dict[str, Any] | None = None
 
     def invert(
@@ -61,6 +54,7 @@ class LinearRelationalEmbedding:
             relation=self.relation,
             subject_layer=self.subject_layer,
             object_layer=self.object_layer,
+            object_aggregation=self.object_aggregation,
             weight_inverse=low_rank_pinv(matrix=self.weight, rank=rank)
             .clone()
             .to(device),

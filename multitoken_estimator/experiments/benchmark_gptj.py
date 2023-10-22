@@ -26,6 +26,7 @@ from multitoken_estimator.training.LreTrainer import LreTrainer
 BATCH_SIZE = 8
 LAYER_MATCHER = "transformer.h.{num}"
 INV_LRE_RANK = 100
+ACTIVATIONS_DIM = 4096
 
 Precision = Literal["fp16", "bf16", "fp32"]
 
@@ -59,6 +60,8 @@ def benchmark_gptj(
     shared_args: dict[str, str | float | int] = {
         "verbose": verbose,
         "force_retrain_all": force_rerun,
+        "activations_dim": ACTIVATIONS_DIM,
+        "mapping_source_layer": 15,
     }
 
     dataset = load_lre_data()

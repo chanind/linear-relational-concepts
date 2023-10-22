@@ -1,12 +1,10 @@
 from dataclasses import dataclass
-from typing import Sequence
 
 from tokenizers import Tokenizer
 from torch import nn
 
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
-from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding
 from multitoken_estimator.training.evaluate_accuracy_and_causality import (
     RelationAccuracyResult,
     evaluate_causality,
@@ -15,6 +13,7 @@ from multitoken_estimator.training.evaluate_accuracy_and_causality import (
 from multitoken_estimator.training.evaluate_relation_causality import (
     RelationCausalityResult,
 )
+from multitoken_estimator.training.LreTrainer import LresWithObjectMapping
 
 
 @dataclass
@@ -31,13 +30,14 @@ class LreEvaluator:
     causality_use_remove_concept_projection_magnitude: bool = False
 
     def evaluate_causality(
-        self, lres: Sequence[LinearRelationalEmbedding], verbose: bool = True
+        self, lres_with_mapping: LresWithObjectMapping, verbose: bool = True
     ) -> dict[str, RelationCausalityResult]:
         causality_results = evaluate_causality(
             self.model,
             self.tokenizer,
             self.layer_matcher,
-            lres=lres,
+            lres=lres_with_mapping.lres,
+            object_mapping=lres_with_mapping.object_mapping,
             dataset=self.dataset,
             batch_size=self.batch_size,
             inv_lre_rank=self.inv_lre_rank,
@@ -50,13 +50,14 @@ class LreEvaluator:
         return {result.relation: result for result in causality_results}
 
     def evaluate_accuracy(
-        self, lres: Sequence[LinearRelationalEmbedding], verbose: bool = True
+        self, lres_with_mapping: LresWithObjectMapping, verbose: bool = True
     ) -> dict[str, RelationAccuracyResult]:
         accuracy_results = evaluate_relation_classification_accuracy(
             self.model,
             self.tokenizer,
             self.layer_matcher,
-            lres=lres,
+            lres=lres_with_mapping.lres,
+            object_mapping=lres_with_mapping.object_mapping,
             dataset=self.dataset,
             batch_size=self.batch_size,
             inv_lre_rank=self.inv_lre_rank,

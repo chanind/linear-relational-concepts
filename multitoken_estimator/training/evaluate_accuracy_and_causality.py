@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, replace
-from typing import Iterable, Literal, Optional, Sequence
+from typing import Iterable, Optional, Sequence
 
 import torch
 from tokenizers import Tokenizer
@@ -17,7 +17,10 @@ from multitoken_estimator.ConceptMatcher import (
 )
 from multitoken_estimator.data.data_model import SampleDataModel
 from multitoken_estimator.data.database import Database
-from multitoken_estimator.lib.layer_matching import LayerMatcher
+from multitoken_estimator.lib.extract_token_activations import (
+    extract_final_token_activations,
+)
+from multitoken_estimator.lib.layer_matching import LayerMatcher, get_layer_name
 from multitoken_estimator.lib.logger import log_or_print, logger
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
@@ -29,16 +32,12 @@ from multitoken_estimator.LinearRelationalEmbedding import (
     InvertedLinearRelationalEmbedding,
     LinearRelationalEmbedding,
 )
-from multitoken_estimator.MultitokenEstimator import (
-    extract_object_activations_from_prompts,
-)
+from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
 from multitoken_estimator.PromptGenerator import Prompt, PromptGenerator
 from multitoken_estimator.training.evaluate_relation_causality import (
     RelationCausalityResult,
     evaluate_relation_causality,
 )
-
-AggregationMethod = Literal["first", "mean"]
 
 
 def evaluate_causality(
@@ -46,11 +45,10 @@ def evaluate_causality(
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
     lres: Sequence[LinearRelationalEmbedding],
+    object_mapping: ObjectMappingModel,
     dataset: Database,
     batch_size: int = 32,
     inv_lre_rank: int = 100,
-    object_tokens_aggregation: AggregationMethod = "mean",
-    objects_aggregation: AggregationMethod = "mean",
     max_swaps_per_concept: int = 5,
     max_swaps_total: Optional[int] = None,
     magnitude_multiplier: float = 1.0,
@@ -104,9 +102,8 @@ def evaluate_causality(
             tokenizer=tokenizer,
             layer_matcher=layer_matcher,
             lre=lre,
-            prompts_by_object=prompts_by_object,
-            object_tokens_aggregation=object_tokens_aggregation,
-            objects_aggregation=objects_aggregation,
+            object_names=list(objects_in_relation),
+            object_mapping=object_mapping,
             batch_size=batch_size,
             inv_lre_rank=inv_lre_rank,
         )
@@ -187,11 +184,10 @@ def evaluate_relation_classification_accuracy(
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
     lres: Sequence[LinearRelationalEmbedding],
+    object_mapping: ObjectMappingModel,
     dataset: Database,
     batch_size: int = 32,
     inv_lre_rank: int = 100,
-    object_tokens_aggregation: AggregationMethod = "mean",
-    objects_aggregation: AggregationMethod = "mean",
     verbose: bool = True,
     use_zs_prompts: bool = True,
 ) -> list[RelationAccuracyResult]:
@@ -242,9 +238,8 @@ def evaluate_relation_classification_accuracy(
             tokenizer=tokenizer,
             layer_matcher=layer_matcher,
             lre=lre,
-            prompts_by_object=prompts_by_object,
-            object_tokens_aggregation=object_tokens_aggregation,
-            objects_aggregation=objects_aggregation,
+            object_mapping=object_mapping,
+            object_names=list(objects_in_relation),
             batch_size=batch_size,
             inv_lre_rank=inv_lre_rank,
         )
@@ -374,65 +369,68 @@ def _build_concepts_from_lre(
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
     lre: LinearRelationalEmbedding,
-    prompts_by_object: dict[str, list[Prompt]],
-    object_tokens_aggregation: AggregationMethod,
-    objects_aggregation: AggregationMethod,
+    object_mapping: ObjectMappingModel,
+    object_names: Sequence[str],
     inv_lre_rank: int,
     batch_size: int,
 ) -> list[Concept]:
     device = get_device(model)
+    _ensure_mapping_and_lre_compatibility(lre, object_mapping)
     inverted_lre = lre.invert(rank=inv_lre_rank, device=device)
+    object_activations = _get_object_activations(
+        model=model,
+        tokenizer=tokenizer,
+        layer_matcher=layer_matcher,
+        object_mapping=object_mapping,
+        object_names=object_names,
+        batch_size=batch_size,
+    )
     concepts = []
-    for object_name, prompts in prompts_by_object.items():
+    for object_name in object_names:
         concepts.append(
             _build_concept(
-                model=model,
-                tokenizer=tokenizer,
-                layer_matcher=layer_matcher,
                 object_name=object_name,
+                object_activation=object_activations[object_name],
                 inv_lre=inverted_lre,
-                prompts=prompts,
-                object_tokens_aggregation=object_tokens_aggregation,
-                objects_aggregation=objects_aggregation,
-                batch_size=batch_size,
             )
         )
     return concepts
 
 
-def _build_concept(
+def _get_object_activations(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
+    object_mapping: ObjectMappingModel,
+    object_names: Sequence[str],
+    batch_size: int,
+) -> dict[str, torch.Tensor]:
+    layer_name = get_layer_name(model, layer_matcher, object_mapping.source_layer)
+    source_activations = extract_final_token_activations(
+        model,
+        tokenizer,
+        layers=[layer_name],
+        texts=object_names,
+        device=get_device(model),
+        batch_size=batch_size,
+        show_progress=False,
+        move_results_to_cpu=True,
+    )
+    target_activations_by_object = {
+        object_name: object_mapping.forward(source_activation[layer_name])
+        for object_name, source_activation in zip(object_names, source_activations)
+    }
+    return target_activations_by_object
+
+
+def _build_concept(
     object_name: str,
     inv_lre: InvertedLinearRelationalEmbedding,
-    prompts: list[Prompt],
-    object_tokens_aggregation: AggregationMethod,
-    objects_aggregation: AggregationMethod,
-    batch_size: int,
+    object_activation: torch.Tensor,
     move_to_cpu: bool = True,
 ) -> Concept:
-    object_layer = inv_lre.object_layer
-    device = get_device(model)
-
-    object_activations = extract_object_activations_from_prompts(
-        model=model,
-        tokenizer=tokenizer,
-        layer_matcher=layer_matcher,
-        object_name=object_name,
-        object_prompts=prompts,
-        batch_size=batch_size,
-    )
-    object_tensors = [
-        _agg_token_acts(
-            act.layer_activations[object_layer], method=object_tokens_aggregation
-        ).to(device)
-        for act in object_activations.activations
-    ]
     concept_vec = (
-        inv_lre.calculate_subject_activation(
-            object_tensors, aggregation=objects_aggregation, normalize=True
-        )
+        inv_lre.calculate_subject_activation(object_activation, normalize=True)
         .detach()
         .clone()
     )
@@ -445,19 +443,19 @@ def _build_concept(
         layer=inv_lre.subject_layer,
         vector=concept_vec,
         metadata={
-            "object_tokens_aggregation": object_tokens_aggregation,
-            "objects_aggregation": objects_aggregation,
-            "num_objects": len(object_tensors),
+            "num_objects": 1,
         },
     )
 
 
-def _agg_token_acts(
-    token_acts: tuple[torch.Tensor, ...], method: AggregationMethod
-) -> torch.Tensor:
-    if method == "first":
-        return token_acts[0]
-    elif method == "mean":
-        return torch.mean(torch.stack(token_acts), dim=0)
-    else:
-        raise ValueError(f"Invalid token aggregation method {method}")
+def _ensure_mapping_and_lre_compatibility(
+    lre: LinearRelationalEmbedding, mapping: ObjectMappingModel
+) -> None:
+    if lre.object_layer != mapping.target_layer:
+        raise ValueError(
+            f"ObjectMappingModel target_layer {mapping.target_layer} must match lre object_layer {lre.object_layer}"
+        )
+    if lre.object_aggregation != mapping.object_aggregation:
+        raise ValueError(
+            f"ObjectMappingModel object_aggregation {mapping.object_aggregation} must match lre object_aggregation {lre.object_aggregation}"
+        )
