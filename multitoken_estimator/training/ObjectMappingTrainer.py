@@ -9,6 +9,7 @@ from tokenizers import Tokenizer
 from torch import nn
 from torch.utils.data import DataLoader
 
+from multitoken_estimator.data.data_model import RelationDataModel
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.extract_token_activations import (
     extract_final_token_activations,
@@ -19,7 +20,7 @@ from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
-from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
+from multitoken_estimator.ObjectMappingModel import ObjectMappingModel, prefix_object
 from multitoken_estimator.PromptGenerator import (
     DEFAULT_ENTITY_MODIFIERS,
     Prompt,
@@ -81,7 +82,13 @@ class ObjectMappingTrainer:
         pl_logger: Optional[Logger | Iterable[Logger] | bool] = True,
         use_gpu: bool = torch.cuda.is_available(),
         move_to_cpu: bool = True,
+        use_relation_prefixes: bool = True,
     ) -> ObjectMappingModel:
+        relation_prefixes: dict[str, str] = {}
+        if use_relation_prefixes:
+            relations = self.dataset.query_all(RelationDataModel)
+            for relation in relations:
+                relation_prefixes[relation.name] = _extract_prefix(relation.templates)
         mapping_dataset = self._build_training_dataset(
             source_layer=source_layer,
             target_layer=target_layer,
@@ -90,6 +97,7 @@ class ObjectMappingTrainer:
             batch_size=batch_size,
             augment_prompts=augment_prompts,
             verbose=verbose,
+            relation_prefixes=relation_prefixes,
         )
         reweighter = ObjectMappingSampleReweighter(mapping_dataset.samples)
         data_loader = DataLoader(mapping_dataset, batch_size=batch_size, shuffle=True)
@@ -128,6 +136,7 @@ class ObjectMappingTrainer:
         batch_size: int = 8,
         augment_prompts: bool = False,
         verbose: bool = True,
+        relation_prefixes: Optional[dict[str, str]] = None,
     ) -> ObjectMappingDataset:
         entity_modifiers = DEFAULT_ENTITY_MODIFIERS if augment_prompts else None
         raw_prompts = self.prompt_generator.generate_prompts_for_all_relations(
@@ -146,7 +155,8 @@ class ObjectMappingTrainer:
         )
 
         source_object_activations = self._extract_source_object_final_token_activations(
-            source_objects=list({prompt.object_name for prompt in prompts}),
+            prompts=prompts,
+            relation_prefixes=relation_prefixes,
             layer=source_layer,
             batch_size=batch_size,
             show_progress=verbose,
@@ -173,7 +183,9 @@ class ObjectMappingTrainer:
                         ObjectMappingSample(
                             relation_name=relation_name,
                             object_name=object_name,
-                            source_vector=source_object_activations[object_name],
+                            source_vector=source_object_activations[relation_name][
+                                object_name
+                            ],
                             target_vector=activation,
                         )
                     )
@@ -226,24 +238,38 @@ class ObjectMappingTrainer:
     @torch.no_grad()
     def _extract_source_object_final_token_activations(
         self,
-        source_objects: Sequence[str],
+        prompts: list[Prompt],
+        relation_prefixes: dict[str, str] | None,
         layer: int,
         batch_size: int,
         show_progress: bool = False,
         move_to_cpu: bool = True,
-    ) -> dict[str, torch.Tensor]:
+    ) -> dict[str, dict[str, torch.Tensor]]:
         layer_name = get_layer_name(self.model, self.layer_matcher, layer)
+        results: dict[str, dict[str, torch.Tensor]] = defaultdict(dict)
+        relation_objects = list(
+            {(prompt.relation_name, prompt.object_name) for prompt in prompts}
+        )
         raw_activations = extract_final_token_activations(
             self.model,
             self.tokenizer,
             layers=[layer_name],
-            texts=source_objects,
+            texts=[
+                prefix_object(object_name, relation_name, relation_prefixes)
+                for relation_name, object_name in relation_objects
+            ],
             device=get_device(self.model),
             batch_size=batch_size,
             show_progress=show_progress,
             move_results_to_cpu=move_to_cpu,
         )
-        return {
-            object: raw_activations[layer_name]
-            for object, raw_activations in zip(source_objects, raw_activations)
-        }
+        for (relation, object), layer_activations in zip(
+            relation_objects, raw_activations
+        ):
+            results[relation][object] = layer_activations[layer_name]
+        return results
+
+
+def _extract_prefix(templates: Iterable[str]) -> str:
+    # TODO: use all templates rather than just picking one
+    return list(templates)[0].replace("{}", "").replace("  ", " ")

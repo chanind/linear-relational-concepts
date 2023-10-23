@@ -346,6 +346,7 @@ def _build_concepts_from_lre(
         layer_matcher=layer_matcher,
         object_mapping=object_mapping,
         object_names=object_names,
+        relation_name=lre.relation,
         batch_size=batch_size,
     )
     concepts = []
@@ -366,6 +367,7 @@ def _get_object_activations(
     layer_matcher: LayerMatcher,
     object_mapping: ObjectMappingModel,
     object_names: Sequence[str],
+    relation_name: str,
     batch_size: int,
 ) -> dict[str, torch.Tensor]:
     layer_name = get_layer_name(model, layer_matcher, object_mapping.source_layer)
@@ -373,7 +375,7 @@ def _get_object_activations(
         model,
         tokenizer,
         layers=[layer_name],
-        texts=object_names,
+        texts=object_mapping.prefix_objects(object_names, relation_name),
         device=get_device(model),
         batch_size=batch_size,
         show_progress=False,
