@@ -77,6 +77,7 @@ class ObjectMappingTrainer:
         batch_size: int = 8,
         learning_rate: float = 0.01,
         n_epochs: int = 100,
+        log_loss_n_epochs: int = 100,
         squeeze_dim: int = 100,
         # TODO: figure this out automatically somehow
         activations_dim: int = 4096,  # This must match the model hidden activations size
@@ -127,11 +128,15 @@ class ObjectMappingTrainer:
                 loss.mean().backward()
                 optimizer.step()
 
-            if (epoch + 1) % 100 == 0:
+            if (epoch + 1) % log_loss_n_epochs == 0:
                 log_or_print(
                     f"Epoch [{epoch+1}/{n_epochs}], Loss: {loss.item():.4f}",
                     verbose=verbose,
                 )
+        log_or_print(
+            f"Final loss: {loss.item():.4f}",
+            verbose=verbose,
+        )
         return object_mapping_model
 
     def _build_training_dataset(
