@@ -1,4 +1,4 @@
-from typing import Any, Optional, TypeVar
+from typing import Any, Optional, TypeVar, cast
 
 import torch
 from torch import nn
@@ -82,3 +82,12 @@ def low_rank_pinv(
     u, s, v = svd
     matrix_pinv = v[:, :rank] @ torch.diag(1 / s[:rank]) @ u[:, :rank].T
     return matrix_pinv.to(matrix.dtype)
+
+
+def guess_model_name(model: nn.Module) -> str:
+    """
+    Guesses the model name from the model's config.
+    """
+    if hasattr(model, "config") and hasattr(model.config, "_name_or_path"):
+        return cast(str, model.config._name_or_path)
+    return model.__class__.__name__

@@ -16,11 +16,9 @@ from multitoken_estimator.lib.extract_token_activations import (
 )
 from multitoken_estimator.lib.layer_matching import LayerMatcher, get_layer_name
 from multitoken_estimator.lib.logger import log_or_print
+from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
-from multitoken_estimator.lib.verify_answers_match_expected import (
-    verify_answers_match_expected,
-)
 from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
 from multitoken_estimator.PromptGenerator import (
     DEFAULT_ENTITY_MODIFIERS,
@@ -46,6 +44,7 @@ class ObjectMappingTrainer:
     layer_matcher: LayerMatcher
     dataset: Database
     prompt_generator: PromptGenerator
+    prompt_validator: PromptValidator
 
     def __init__(
         self,
@@ -53,12 +52,14 @@ class ObjectMappingTrainer:
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
         dataset: Database,
+        prompt_validator: Optional[PromptValidator] = None,
     ):
         self.dataset = dataset
         self.prompt_generator = PromptGenerator(dataset)
         self.model = model
         self.tokenizer = tokenizer
         self.layer_matcher = layer_matcher
+        self.prompt_validator = prompt_validator or PromptValidator(model, tokenizer)
 
     def train(
         self,
@@ -67,7 +68,7 @@ class ObjectMappingTrainer:
         object_aggregation: ObjectAggregation = "mean",
         n_fsl_prompts: int = 5,
         batch_size: int = 8,
-        lr: float = 0.01,
+        lr: float = 1e-4,
         lr_gamma: float = 0.9,
         n_epochs: int = 100,
         squeeze_dim: int = 100,
@@ -76,7 +77,7 @@ class ObjectMappingTrainer:
         augment_prompts: bool = False,
         verbose: bool = True,
         reweight_samples: bool = True,
-        pl_precision: Optional[_PRECISION_INPUT] = None,
+        pl_precision: _PRECISION_INPUT = "16-mixed",
         pl_logger: Optional[Logger | Iterable[Logger] | bool] = True,
         use_gpu: bool = torch.cuda.is_available(),
         move_to_cpu: bool = True,
@@ -136,18 +137,9 @@ class ObjectMappingTrainer:
             f"Generated {len(raw_prompts)} prompts for building object mapping.",
             verbose=verbose,
         )
-        check_prompt_results = verify_answers_match_expected(
-            self.model,
-            self.tokenizer,
-            prompts=[prompt.text for prompt in raw_prompts],
-            expected_answers=[prompt.answer for prompt in raw_prompts],
-            batch_size=batch_size,
+        prompts = self.prompt_validator.filter_prompts(
+            raw_prompts, batch_size=batch_size, show_progress=verbose
         )
-        prompts = [
-            prompt
-            for prompt, result in zip(raw_prompts, check_prompt_results)
-            if result.answer_matches_expected
-        ]
         log_or_print(
             f"Filtered to {len(prompts)} prompts which model can answer correctly.",
             verbose=verbose,

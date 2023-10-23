@@ -13,6 +13,7 @@ from transformers import AutoTokenizer, GPTJForCausalLM
 from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.logger import log_or_print
+from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.training.benchmarking import (
     BenchmarkIterationsResult,
     BenchmarkResult,
@@ -45,6 +46,7 @@ def benchmark_gptj(
     causality_use_remove_concept_projection_magnitude: bool = False,
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
+    valid_prompts_cache_file: Optional[str] = None,
 ) -> dict[str, BenchmarkIterationsResult]:
     if model is None:
         model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
@@ -56,6 +58,8 @@ def benchmark_gptj(
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
     model.eval()
+
+    prompt_validator = PromptValidator(model, tokenizer, valid_prompts_cache_file)
 
     shared_args: dict[str, str | float | int] = {
         "verbose": verbose,
@@ -70,7 +74,13 @@ def benchmark_gptj(
         start = time()
         log_or_print(f"Iteration seed: {iteration_seed}", verbose=verbose)
         train_data, test_data = dataset.split(seed=iteration_seed)
-        lre_trainer = LreTrainer(model, tokenizer, LAYER_MATCHER, train_data)
+        lre_trainer = LreTrainer(
+            model,
+            tokenizer,
+            LAYER_MATCHER,
+            train_data,
+            prompt_validator=prompt_validator,
+        )
 
         if save_progress_dir is not None:
             Path(save_progress_dir).mkdir(parents=True, exist_ok=True)
@@ -138,6 +148,8 @@ def benchmark_gptj(
             force_rerun=force_rerun,
             verbose=verbose,
         )
+        if valid_prompts_cache_file:
+            prompt_validator.write_cache(valid_prompts_cache_file)
 
         for strategy, result in eval_results.items():
             log_or_print(f"iteration took {time() - start} seconds", verbose=verbose)

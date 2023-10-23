@@ -22,12 +22,9 @@ from multitoken_estimator.lib.extract_token_activations import (
 )
 from multitoken_estimator.lib.layer_matching import LayerMatcher, get_layer_name
 from multitoken_estimator.lib.logger import log_or_print, logger
+from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
-from multitoken_estimator.lib.verify_answers_match_expected import (
-    AnswerMatchResult,
-    verify_answers_match_expected,
-)
 from multitoken_estimator.LinearRelationalEmbedding import (
     InvertedLinearRelationalEmbedding,
     LinearRelationalEmbedding,
@@ -56,7 +53,10 @@ def evaluate_causality(
     use_remove_concept_projection_magnitude: bool = False,
     verbose: bool = True,
     use_zs_prompts: bool = True,
+    prompt_validator: Optional[PromptValidator] = None,
 ) -> list[RelationCausalityResult]:
+    if not prompt_validator:
+        prompt_validator = PromptValidator(model, tokenizer)
     reformulated_dataset = _reformulate_zs_prompts(dataset, use_zs_prompts)
     prompt_generator = PromptGenerator(reformulated_dataset)
     relation_results: list[RelationCausalityResult] = []
@@ -79,15 +79,13 @@ def evaluate_causality(
         raw_prompts = prompt_generator.generate_prompts_for_relation(
             relation_name, num_fsl_examples=0, entity_modifiers=None
         )
-        filter_prompts_result = _filter_incorrect_answer_prompts(
-            model, tokenizer, raw_prompts, batch_size
+        valid_prompts = prompt_validator.filter_prompts(
+            raw_prompts, batch_size=batch_size
         )
-        valid_prompts = filter_prompts_result.valid_prompts
-        prompt_answer_match_results = filter_prompts_result.prompt_answer_match_results
         valid_object_names = {prompt.object_name for prompt in valid_prompts}
         all_object_names = {prompt.object_name for prompt in raw_prompts}
         log_or_print(
-            f"Model answers correctly {len(valid_prompts)} of {len(prompt_answer_match_results)} prompts.",
+            f"Model answers correctly {len(valid_prompts)} of {len(raw_prompts)} prompts.",
             verbose=verbose,
         )
         log_or_print(
@@ -157,7 +155,6 @@ class PromptAccuracyResult:
 @dataclass
 class RelationAccuracyResult:
     relation: str
-    prompt_answer_match_results: list[AnswerMatchResult]
     prompt_eval_results: list[PromptAccuracyResult]
 
     @property
@@ -190,10 +187,13 @@ def evaluate_relation_classification_accuracy(
     inv_lre_rank: int = 100,
     verbose: bool = True,
     use_zs_prompts: bool = True,
+    prompt_validator: Optional[PromptValidator] = None,
 ) -> list[RelationAccuracyResult]:
     """
     Evaluate accuracy of trained LRE dataset concepts
     """
+    if not prompt_validator:
+        prompt_validator = PromptValidator(model, tokenizer)
     relation_results = []
     reformulated_dataset = _reformulate_zs_prompts(dataset, use_zs_prompts)
     prompt_generator = PromptGenerator(reformulated_dataset)
@@ -215,15 +215,13 @@ def evaluate_relation_classification_accuracy(
         raw_prompts = prompt_generator.generate_prompts_for_relation(
             relation_name, num_fsl_examples=0, entity_modifiers=None
         )
-        filter_prompts_result = _filter_incorrect_answer_prompts(
-            model, tokenizer, raw_prompts, batch_size
+        valid_prompts = prompt_validator.filter_prompts(
+            raw_prompts, batch_size=batch_size
         )
-        valid_prompts = filter_prompts_result.valid_prompts
-        prompt_answer_match_results = filter_prompts_result.prompt_answer_match_results
         valid_object_names = {prompt.object_name for prompt in valid_prompts}
         all_object_names = {prompt.object_name for prompt in raw_prompts}
         log_or_print(
-            f"Model answers correctly {len(valid_prompts)} of {len(prompt_answer_match_results)} prompts.",
+            f"Model answers correctly {len(valid_prompts)} of {len(raw_prompts)} prompts.",
             verbose=verbose,
         )
         log_or_print(
@@ -245,8 +243,6 @@ def evaluate_relation_classification_accuracy(
         )
         matcher = ConceptMatcher(model, tokenizer, concepts, layer_matcher)
 
-        valid_prompts = filter_prompts_result.valid_prompts
-        prompt_answer_match_results = filter_prompts_result.prompt_answer_match_results
         object_name_to_concept_name = {
             concept.object: concept.name for concept in concepts
         }
@@ -273,7 +269,6 @@ def evaluate_relation_classification_accuracy(
         ]
         relation_result = RelationAccuracyResult(
             relation_name,
-            prompt_answer_match_results=prompt_answer_match_results,
             prompt_eval_results=prompt_eval_results,
         )
         log_or_print(
@@ -310,38 +305,6 @@ def _get_prompt_num_answer_tokens(
         answer=prompt.answer,
     )
     return answer_data.num_answer_tokens
-
-
-@dataclass
-class FilterPromptsResult:
-    prompt_answer_match_results: list[AnswerMatchResult]
-    valid_prompts: list[Prompt]
-
-
-def _filter_incorrect_answer_prompts(
-    model: nn.Module,
-    tokenizer: Tokenizer,
-    prompts: Iterable[Prompt],
-    batch_size: int,
-) -> FilterPromptsResult:
-    prompt_answer_match_results: list[AnswerMatchResult] = []
-    expected_answers = []
-    prompt_texts = []
-    for prompt in prompts:
-        prompt_texts.append(prompt.text)
-        expected_answers.append(prompt.answer)
-    prompt_answer_match_results = verify_answers_match_expected(
-        model, tokenizer, prompt_texts, expected_answers, batch_size=batch_size
-    )
-    valid_prompts = [
-        prompt
-        for prompt, match_res in zip(prompts, prompt_answer_match_results)
-        if match_res.answer_matches_expected
-    ]
-    return FilterPromptsResult(
-        prompt_answer_match_results=prompt_answer_match_results,
-        valid_prompts=valid_prompts,
-    )
 
 
 def _reformulate_zs_prompts(dataset: Database, use_zs_prompts: bool) -> Database:

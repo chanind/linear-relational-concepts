@@ -9,10 +9,8 @@ from torch import nn
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.logger import log_or_print, logger
+from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.util import sample_or_all
-from multitoken_estimator.lib.verify_answers_match_expected import (
-    verify_answers_match_expected,
-)
 from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding
 from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
 from multitoken_estimator.PromptGenerator import (
@@ -35,6 +33,7 @@ class LreTrainer:
     layer_matcher: LayerMatcher
     database: Database
     prompt_generator: PromptGenerator
+    prompt_validator: PromptValidator
 
     def __init__(
         self,
@@ -42,12 +41,14 @@ class LreTrainer:
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
         database: Database,
+        prompt_validator: Optional[PromptValidator] = None,
     ):
         self.model = model
         self.tokenizer = tokenizer
         self.layer_matcher = layer_matcher
         self.database = database
         self.prompt_generator = PromptGenerator(database)
+        self.prompt_validator = prompt_validator or PromptValidator(model, tokenizer)
 
     def train_all_relations_with_object_mapping(
         self,
@@ -137,6 +138,7 @@ class LreTrainer:
                     batch_size=batch_size,
                     max_consider_prompts=max_consider_prompts,
                     filter_training_prompts=filter_training_prompts,
+                    verbose=verbose,
                 )
                 lres.append(lre)
                 if save_progress_path is not None:
@@ -161,6 +163,7 @@ class LreTrainer:
         batch_size: int = 8,
         max_consider_prompts: int = 100,
         filter_training_prompts: bool = True,
+        verbose: bool = True,
     ) -> LinearRelationalEmbedding:
         lre_modifiers = DEFAULT_ENTITY_MODIFIERS if augment_lre_prompts else None
         relation_prompts = list(
@@ -172,18 +175,9 @@ class LreTrainer:
         )
         relation_prompts = sample_or_all(relation_prompts, max_consider_prompts)
         if filter_training_prompts:
-            check_prompt_results = verify_answers_match_expected(
-                self.model,
-                self.tokenizer,
-                prompts=[prompt.text for prompt in relation_prompts],
-                expected_answers=[prompt.answer for prompt in relation_prompts],
-                batch_size=batch_size,
+            relation_prompts = self.prompt_validator.filter_prompts(
+                relation_prompts, batch_size=batch_size, show_progress=verbose
             )
-            relation_prompts = [
-                prompt
-                for prompt, result in zip(relation_prompts, check_prompt_results)
-                if result.answer_matches_expected
-            ]
         if len(relation_prompts) == 0:
             raise ValueError(f"No valid prompts found for {relation}.")
         training_prompts = sample_or_all(list(relation_prompts), n_lre_training_prompts)

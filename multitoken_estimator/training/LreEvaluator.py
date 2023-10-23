@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from tokenizers import Tokenizer
 from torch import nn
 
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.layer_matching import LayerMatcher
+from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.training.evaluate_accuracy_and_causality import (
     RelationAccuracyResult,
     evaluate_causality,
@@ -28,6 +30,7 @@ class LreEvaluator:
     causality_magnitude_multiplier: float = 1.0
     causality_edit_single_layer_only: bool = True
     causality_use_remove_concept_projection_magnitude: bool = False
+    prompt_validator: Optional[PromptValidator] = None
 
     def evaluate_causality(
         self, lres_with_mapping: LresWithObjectMapping, verbose: bool = True
@@ -46,6 +49,7 @@ class LreEvaluator:
             magnitude_multiplier=self.causality_magnitude_multiplier,
             edit_single_layer_only=self.causality_edit_single_layer_only,
             use_remove_concept_projection_magnitude=self.causality_use_remove_concept_projection_magnitude,
+            prompt_validator=self.prompt_validator,
         )
         return {result.relation: result for result in causality_results}
 
@@ -63,5 +67,6 @@ class LreEvaluator:
             inv_lre_rank=self.inv_lre_rank,
             verbose=verbose,
             use_zs_prompts=self.use_zs_prompts,
+            prompt_validator=self.prompt_validator,
         )
         return {result.relation: result for result in accuracy_results}
