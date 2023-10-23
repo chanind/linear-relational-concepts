@@ -70,7 +70,6 @@ class ObjectMappingTrainer:
         lr: float = 0.01,
         lr_gamma: float = 0.9,
         n_epochs: int = 100,
-        log_loss_n_epochs: int = 100,
         squeeze_dim: int = 100,
         # TODO: figure this out automatically somehow
         activations_dim: int = 4096,  # This must match the model hidden activations size
