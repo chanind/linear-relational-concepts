@@ -28,7 +28,7 @@ class PromptValidator:
     """
 
     _cache: MatchingPromptsCache
-    cache_file: str | None
+    cache_file: str | Path | None
     model: nn.Module
     tokenizer: Tokenizer
 
