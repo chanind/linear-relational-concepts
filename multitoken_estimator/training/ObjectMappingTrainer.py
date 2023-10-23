@@ -83,6 +83,8 @@ class ObjectMappingTrainer:
         use_gpu: bool = torch.cuda.is_available(),
         move_to_cpu: bool = True,
         use_relation_prefixes: bool = True,
+        validation_dataset: Optional[Database] = None,
+        val_check_interval: Optional[int] = None,
     ) -> ObjectMappingModel:
         relation_prefixes: dict[str, str] = {}
         if use_relation_prefixes:
@@ -90,6 +92,7 @@ class ObjectMappingTrainer:
             for relation in relations:
                 relation_prefixes[relation.name] = _extract_prefix(relation.templates)
         mapping_dataset = self._build_training_dataset(
+            prompt_generator=self.prompt_generator,
             source_layer=source_layer,
             target_layer=target_layer,
             object_aggregation=object_aggregation,
@@ -99,6 +102,21 @@ class ObjectMappingTrainer:
             verbose=verbose,
             relation_prefixes=relation_prefixes,
         )
+        val_loader = None
+        if validation_dataset is not None:
+            val_prompt_generator = PromptGenerator(validation_dataset)
+            val_mapping_dataset = self._build_training_dataset(
+                prompt_generator=val_prompt_generator,
+                source_layer=source_layer,
+                target_layer=target_layer,
+                object_aggregation=object_aggregation,
+                n_fsl_prompts=n_fsl_prompts,
+                batch_size=batch_size,
+                augment_prompts=augment_prompts,
+                verbose=verbose,
+                relation_prefixes=relation_prefixes,
+            )
+            val_loader = DataLoader(val_mapping_dataset, batch_size=batch_size)
         reweighter = ObjectMappingSampleReweighter(mapping_dataset.samples)
         data_loader = DataLoader(mapping_dataset, batch_size=batch_size, shuffle=True)
         object_mapping_model = ObjectMappingModel(
@@ -121,14 +139,16 @@ class ObjectMappingTrainer:
             logger=pl_logger,
             enable_checkpointing=False,
             precision=pl_precision,
+            val_check_interval=val_check_interval,
         )
-        pl_trainer.fit(training_wrapper, data_loader)
+        pl_trainer.fit(training_wrapper, data_loader, val_dataloaders=val_loader)
         if move_to_cpu:
             object_mapping_model = object_mapping_model.cpu()
         return object_mapping_model
 
     def _build_training_dataset(
         self,
+        prompt_generator: PromptGenerator,
         source_layer: int,
         target_layer: int,
         object_aggregation: ObjectAggregation = "mean",
@@ -139,7 +159,7 @@ class ObjectMappingTrainer:
         relation_prefixes: Optional[dict[str, str]] = None,
     ) -> ObjectMappingDataset:
         entity_modifiers = DEFAULT_ENTITY_MODIFIERS if augment_prompts else None
-        raw_prompts = self.prompt_generator.generate_prompts_for_all_relations(
+        raw_prompts = prompt_generator.generate_prompts_for_all_relations(
             num_fsl_examples=n_fsl_prompts, entity_modifiers=entity_modifiers
         )
         log_or_print(

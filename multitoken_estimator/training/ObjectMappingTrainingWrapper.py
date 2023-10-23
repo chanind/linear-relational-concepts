@@ -22,6 +22,7 @@ class ObjectMappingTrainingWrapper(pl.LightningModule):
     lr_gamma: float
     reweighter: ObjectMappingSampleReweighter | None
     training_step_outputs: list[torch.Tensor]
+    validation_step_outputs: list[torch.Tensor]
     criterion: nn.Module
 
     def __init__(
@@ -37,6 +38,7 @@ class ObjectMappingTrainingWrapper(pl.LightningModule):
         self.lr_gamma = lr_gamma
         self.reweighter = reweighter
         self.training_step_outputs = []
+        self.validation_step_outputs = []
         self.criterion = nn.MSELoss(reduction="none")
 
     def configure_optimizers(self) -> tuple[list[AdamW], list[ExponentialLR]]:
@@ -49,6 +51,22 @@ class ObjectMappingTrainingWrapper(pl.LightningModule):
         train_batch: ObjectMappingBatch,
         _batch_idx: int,
     ) -> STEP_OUTPUT:
+        loss = self._forward_step(train_batch)
+        self.log("train_loss", loss)
+        self.training_step_outputs.append(loss)
+        return loss
+
+    def validation_step(
+        self,
+        train_batch: ObjectMappingBatch,
+        _batch_idx: int,
+    ) -> STEP_OUTPUT:
+        loss = self._forward_step(train_batch)
+        self.log("validation_loss", loss)
+        self.validation_step_outputs.append(loss)
+        return loss
+
+    def _forward_step(self, train_batch: ObjectMappingBatch) -> torch.Tensor:
         relation_names, object_names, source_vectors, target_vectors = train_batch
         predictions = self.object_mapping(source_vectors)
         raw_loss = self.criterion(predictions, target_vectors)
@@ -58,11 +76,14 @@ class ObjectMappingTrainingWrapper(pl.LightningModule):
             )
             raw_loss = raw_loss * reweighting_tensor.unsqueeze(dim=1)
         loss = raw_loss.mean()
-        self.log("train_loss", loss)
-        self.training_step_outputs.append(loss)
         return loss
 
     def on_train_epoch_end(self) -> None:
         average_training_loss = torch.mean(torch.stack(self.training_step_outputs))
         self.log("training_epoch_average", average_training_loss)
         self.training_step_outputs.clear()
+
+    def on_validation_epoch_end(self) -> None:
+        average_validation_loss = torch.mean(torch.stack(self.validation_step_outputs))
+        self.log("validation_epoch_average", average_validation_loss)
+        self.validation_step_outputs.clear()
