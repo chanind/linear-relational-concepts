@@ -26,8 +26,10 @@ class InvertedLinearRelationalEmbedding:
         # match precision of weight_inverse and bias
         device = object_activation.device
         vec = (
-            self.weight_inverse.to(device)
-            @ (object_activation - self.bias.to(device)).t()
+            self.weight_inverse.to(device, dtype=torch.float32)
+            @ (
+                object_activation.float() - self.bias.to(device, dtype=torch.float32)
+            ).t()
         ).mean(dim=1)
         if normalize:
             vec = vec / vec.norm()
