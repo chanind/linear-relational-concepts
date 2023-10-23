@@ -1,10 +1,10 @@
-import random
 from dataclasses import dataclass
 from typing import Callable, Optional
 
 from multitoken_estimator.data.data_model import EntityDataModel, SampleDataModel
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.logger import logger
+from multitoken_estimator.lib.util import stable_sample
 
 EntityModifier = Callable[[str], str]
 
@@ -56,9 +56,11 @@ class PromptGenerator:
     """
 
     db: Database
+    seed: int | str
 
-    def __init__(self, db: Database) -> None:
+    def __init__(self, db: Database, seed: int | str = 42) -> None:
         self.db = db
+        self.seed = seed
 
     def generate_prompts_for_all_relations(
         self,
@@ -154,6 +156,7 @@ class PromptGenerator:
                             potential_fsl_samples=potential_fsl_samples,
                             object_modifier=entity_modifier,
                             num_fsl_examples=num_fsl_examples,
+                            seed=self.seed,
                         )
                         prompts.add(
                             Prompt(
@@ -174,12 +177,15 @@ def format_prompt_text(
     subject_modifier: EntityModifier | None = None,
     object_modifier: EntityModifier | None = None,
     num_fsl_examples: int = 5,
+    seed: int | str = 42,
 ) -> str:
     """
     Format a prompt text for a given sample and a list of FSL samples.
     """
-    fsl_samples = random.sample(
-        potential_fsl_samples, min(num_fsl_examples, len(potential_fsl_samples))
+    fsl_samples = stable_sample(
+        potential_fsl_samples,
+        min(num_fsl_examples, len(potential_fsl_samples)),
+        f"{sample.id}-{seed}",
     )
     texts = []
     for fsl_sample in fsl_samples:

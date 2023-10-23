@@ -45,6 +45,14 @@ def stable_shuffle(items: list[T], seed: int | float | str = 42) -> list[T]:
     return results
 
 
+def stable_sample(items: list[T], k: int, seed: int | float | str = 42) -> list[T]:
+    """
+    Sample from a list in a stable way
+    """
+    generator = random.Random(seed)
+    return generator.sample(items, k)
+
+
 def find_all_substring_indices(
     string: str, substring: str, start: int = 0, end: int | None = None
 ) -> list[int]:

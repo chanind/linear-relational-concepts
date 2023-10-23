@@ -1,11 +1,13 @@
 from collections import defaultdict
-from typing import NamedTuple, Sequence
+from typing import Iterable, Optional, Sequence
 
+import pytorch_lightning as pl
 import torch
-import torch.optim as optim
+from lightning_fabric.plugins.precision.precision import _PRECISION_INPUT
+from pytorch_lightning.loggers.logger import Logger
 from tokenizers import Tokenizer
 from torch import nn
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.lib.extract_token_activations import (
@@ -25,27 +27,17 @@ from multitoken_estimator.PromptGenerator import (
     Prompt,
     PromptGenerator,
 )
+from multitoken_estimator.training.ObjectMappingDataset import (
+    ObjectMappingDataset,
+    ObjectMappingSample,
+)
+from multitoken_estimator.training.ObjectMappingSampleReweighter import (
+    ObjectMappingSampleReweighter,
+)
+from multitoken_estimator.training.ObjectMappingTrainingWrapper import (
+    ObjectMappingTrainingWrapper,
+)
 from multitoken_estimator.training.train_lre import ObjectAggregation
-
-
-class ObjectMappingSample(NamedTuple):
-    relation_name: str
-    object_name: str
-    source_vector: torch.Tensor
-    target_vector: torch.Tensor
-
-
-class ObjectMappingDataset(Dataset[ObjectMappingSample]):
-    samples: list[ObjectMappingSample]
-
-    def __init__(self, samples: list[ObjectMappingSample]):
-        self.samples = samples
-
-    def __len__(self) -> int:
-        return len(self.samples)
-
-    def __getitem__(self, idx: int) -> ObjectMappingSample:
-        return self.samples[idx]
 
 
 class ObjectMappingTrainer:
@@ -75,7 +67,8 @@ class ObjectMappingTrainer:
         object_aggregation: ObjectAggregation = "mean",
         n_fsl_prompts: int = 5,
         batch_size: int = 8,
-        learning_rate: float = 0.01,
+        lr: float = 0.01,
+        lr_gamma: float = 0.9,
         n_epochs: int = 100,
         log_loss_n_epochs: int = 100,
         squeeze_dim: int = 100,
@@ -84,6 +77,10 @@ class ObjectMappingTrainer:
         augment_prompts: bool = False,
         verbose: bool = True,
         reweight_samples: bool = True,
+        pl_precision: Optional[_PRECISION_INPUT] = None,
+        pl_logger: Optional[Logger | Iterable[Logger] | bool] = True,
+        use_gpu: bool = torch.cuda.is_available(),
+        move_to_cpu: bool = True,
     ) -> ObjectMappingModel:
         mapping_dataset = self._build_training_dataset(
             source_layer=source_layer,
@@ -94,7 +91,7 @@ class ObjectMappingTrainer:
             augment_prompts=augment_prompts,
             verbose=verbose,
         )
-        reweighter = SampleReweighter(mapping_dataset.samples)
+        reweighter = ObjectMappingSampleReweighter(mapping_dataset.samples)
         data_loader = DataLoader(mapping_dataset, batch_size=batch_size, shuffle=True)
         object_mapping_model = ObjectMappingModel(
             activations_dim=activations_dim,
@@ -103,40 +100,23 @@ class ObjectMappingTrainer:
             target_layer=target_layer,
             object_aggregation=object_aggregation,
         )
-        criterion = nn.MSELoss(reduction="none")
-        optimizer = optim.Adam(object_mapping_model.parameters(), lr=learning_rate)
-
-        # Modified training loop
-        for epoch in range(n_epochs):
-            for (
-                relation_names,
-                object_names,
-                source_vectors,
-                target_vectors,
-            ) in data_loader:
-                # Forward pass
-                predictions = object_mapping_model(source_vectors)
-                loss = criterion(predictions, target_vectors)
-                if reweight_samples:
-                    reweighting_tensor = reweighter.calc_samples_reweighting_tensor(
-                        relation_names, object_names, loss.device, loss.dtype
-                    )
-                    loss = loss * reweighting_tensor.unsqueeze(dim=1)
-
-                # Backward pass and optimization
-                optimizer.zero_grad()
-                loss.mean().backward()
-                optimizer.step()
-
-            if (epoch + 1) % log_loss_n_epochs == 0:
-                log_or_print(
-                    f"Epoch [{epoch+1}/{n_epochs}], Loss: {loss.item():.4f}",
-                    verbose=verbose,
-                )
-        log_or_print(
-            f"Final loss: {loss.item():.4f}",
-            verbose=verbose,
+        training_wrapper = ObjectMappingTrainingWrapper(
+            object_mapping=object_mapping_model,
+            lr=lr,
+            lr_gamma=lr_gamma,
+            reweighter=reweighter if reweight_samples else None,
         )
+        pl_trainer = pl.Trainer(
+            max_epochs=n_epochs,
+            accelerator="gpu" if use_gpu else "cpu",
+            log_every_n_steps=1,
+            logger=pl_logger,
+            enable_checkpointing=False,
+            precision=pl_precision,
+        )
+        pl_trainer.fit(training_wrapper, data_loader)
+        if move_to_cpu:
+            object_mapping_model = object_mapping_model.cpu()
         return object_mapping_model
 
     def _build_training_dataset(
@@ -276,78 +256,3 @@ class ObjectMappingTrainer:
             object: raw_activations[layer_name]
             for object, raw_activations in zip(source_objects, raw_activations)
         }
-
-
-class SampleReweighter:
-    _counts_by_relation_and_object: dict[str, dict[str, int]]
-    _num_objects_per_relation: dict[str, int]
-    _reweighting_cache: dict[tuple[str, str], float]
-
-    def __init__(self, samples: Sequence[ObjectMappingSample]):
-        self._reweighting_cache = {}
-        self._counts_by_relation_and_object = defaultdict(lambda: defaultdict(int))
-        for sample in samples:
-            self._counts_by_relation_and_object[sample.relation_name][
-                sample.object_name
-            ] += 1
-        self._num_objects_per_relation = {
-            relation_name: len(objects)
-            for relation_name, objects in self._counts_by_relation_and_object.items()
-        }
-
-    def calc_samples_reweighting_tensor(
-        self,
-        relation_names: Sequence[str],
-        object_names: Sequence[str],
-        device: torch.device,
-        dtype: torch.dtype,
-    ) -> torch.Tensor:
-        assert len(relation_names) == len(object_names)
-
-        return torch.tensor(
-            [
-                self.calc_sample_reweighting(relation_name, object_name)
-                for relation_name, object_name in zip(relation_names, object_names)
-            ],
-            device=device,
-            dtype=dtype,
-        )
-
-    def calc_sample_reweighting(self, relation_name: str, object_name: str) -> float:
-        """
-        Reweight first for the object frequency in the relation, then for the
-        number of objects per relation
-        """
-        cache_key = (relation_name, object_name)
-        if cache_key not in self._reweighting_cache:
-            num_samples_in_relation = sum(
-                self._counts_by_relation_and_object[relation_name].values()
-            )
-            object_portion = (
-                self._counts_by_relation_and_object[relation_name][object_name]
-                / num_samples_in_relation
-            )
-            object_reweighting = _calc_reweighting(
-                object_portion, self._num_objects_per_relation[relation_name]
-            )
-
-            num_objects_total = sum(self._num_objects_per_relation.values())
-            num_relations = len(self._num_objects_per_relation)
-            relation_portion = (
-                self._num_objects_per_relation[relation_name] / num_objects_total
-            )
-            relation_reweighting = _calc_reweighting(relation_portion, num_relations)
-            reweighting = object_reweighting * relation_reweighting
-            self._reweighting_cache[cache_key] = reweighting
-        return self._reweighting_cache[cache_key]
-
-
-def _calc_reweighting(class_portion: float, num_classes: int) -> float:
-    """
-    Calculate reweighting to increase weight of underrepresented classes.
-    Use 1 / (num_classes * class_portion) as the weighting. This is based
-    on the "balanced" weighting from scikit-learn's LinearSVC class
-    """
-    if class_portion == 0:
-        return 0
-    return 1 / (num_classes * class_portion)

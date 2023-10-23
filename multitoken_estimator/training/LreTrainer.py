@@ -94,7 +94,7 @@ class LreTrainer:
             object_aggregation=object_aggregation,
             n_fsl_prompts=n_fsl_prompts,
             batch_size=batch_size,
-            learning_rate=object_mapping_lr,
+            lr=object_mapping_lr,
             n_epochs=object_mapping_epochs,
             activations_dim=activations_dim,
             squeeze_dim=object_mapping_squeeze_dim,
