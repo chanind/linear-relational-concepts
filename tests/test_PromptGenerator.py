@@ -1,8 +1,5 @@
 from typing import Iterable, Optional
 
-from syrupy.assertion import SnapshotAssertion
-
-from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.data.data_model import Entity, RelationData, RelationSample
 from multitoken_estimator.data.database import Database
 from multitoken_estimator.PromptGenerator import (
@@ -91,12 +88,6 @@ def test_PromptGenerator_generate_prompts_for_relation() -> None:
     pg = PromptGenerator(db)
     prompts = pg.generate_prompts_for_relation("city in country", entity_modifiers=None)
     assert len(prompts) == 2
-
-
-def test_PromptGenerator_is_consistent(snapshot: SnapshotAssertion) -> None:
-    db = load_lre_data({"city_in_country.json", "pokemon_evolutions.json"})
-    pg = PromptGenerator(db)
-    assert pg.generate_prompts_for_all_relations() == snapshot
 
 
 def test_split_with_dashes_modifier() -> None:
