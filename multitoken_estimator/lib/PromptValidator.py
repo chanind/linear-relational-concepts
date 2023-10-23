@@ -42,6 +42,7 @@ class PromptValidator:
         self.model = model
         self.tokenizer = tokenizer
         model_name = guess_model_name(model)
+        self.cache_file = cache_file
         if cache_file and load_saved_cache and os.path.exists(cache_file):
             with open(cache_file, "r") as f:
                 self._cache = MatchingPromptsCache.from_json(f.read())
