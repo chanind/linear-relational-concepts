@@ -79,13 +79,14 @@ def benchmark_llama2(
     dataset = load_lre_data()
     valid_objects_by_relation: dict[str, set[str]] | None = None
     if prefilter_objects:
+        log_or_print("Prefiltering objects", verbose=verbose)
         prompt_generator = PromptGenerator(dataset)
         all_prompts = prompt_generator.generate_prompts_for_all_relations(
             num_fsl_examples=5,
             entity_modifiers=None,
         )
         valid_prompts = prompt_validator.filter_prompts(
-            all_prompts, batch_size=batch_size
+            all_prompts, batch_size=batch_size, show_progress=verbose
         )
         valid_objects_by_relation = defaultdict(set)
         for prompt in valid_prompts:
