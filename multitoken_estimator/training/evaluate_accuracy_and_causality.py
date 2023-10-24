@@ -81,6 +81,12 @@ def evaluate_causality(
         valid_prompts = prompt_validator.filter_prompts(
             raw_prompts, batch_size=batch_size
         )
+        if valid_objects_by_relation is not None:
+            valid_prompts = [
+                prompt
+                for prompt in valid_prompts
+                if prompt.object_name in valid_objects_by_relation[relation_name]
+            ]
         valid_object_names = {prompt.object_name for prompt in valid_prompts}
         all_object_names = {prompt.object_name for prompt in raw_prompts}
         log_or_print(
@@ -101,9 +107,6 @@ def evaluate_causality(
             estimator=estimator,
             object_names=list(objects_in_relation),
             batch_size=batch_size,
-            valid_objects=valid_objects_by_relation[relation_name]
-            if valid_objects_by_relation
-            else None,
         )
         editor = CausalEditor(model, tokenizer, concepts, layer_matcher)
         concept_prompts: dict[str, list[Prompt]] = defaultdict(list)
@@ -217,6 +220,13 @@ def evaluate_relation_classification_accuracy(
         valid_prompts = prompt_validator.filter_prompts(
             raw_prompts, batch_size=batch_size
         )
+        if valid_objects_by_relation is not None:
+            valid_prompts = [
+                prompt
+                for prompt in valid_prompts
+                if prompt.object_name in valid_objects_by_relation[relation_name]
+            ]
+
         valid_object_names = {prompt.object_name for prompt in valid_prompts}
         all_object_names = {prompt.object_name for prompt in raw_prompts}
         log_or_print(
@@ -237,9 +247,6 @@ def evaluate_relation_classification_accuracy(
             estimator=estimator,
             object_names=list(objects_in_relation),
             batch_size=batch_size,
-            valid_objects=valid_objects_by_relation[relation_name]
-            if valid_objects_by_relation
-            else None,
         )
         matcher = ConceptMatcher(model, tokenizer, concepts, layer_matcher)
 
@@ -334,7 +341,6 @@ def _build_concepts_from_concept_estimator(
     estimator: RelationalConceptEstimator,
     object_names: Sequence[str],
     batch_size: int,
-    valid_objects: Optional[set[str]] = None,
 ) -> list[Concept]:
     object_source_activations = _get_object_source_activations(
         model=model,
@@ -346,8 +352,6 @@ def _build_concepts_from_concept_estimator(
     )
     concepts = []
     for object_name in object_names:
-        if valid_objects and object_name not in valid_objects:
-            continue
         concepts.append(
             estimator.estimate_concept(
                 object_name=object_name,
