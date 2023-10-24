@@ -52,6 +52,7 @@ def evaluate_causality(
     verbose: bool = True,
     use_zs_prompts: bool = True,
     prompt_validator: Optional[PromptValidator] = None,
+    valid_objects_by_relation: Optional[dict[str, set[str]]] = None,
 ) -> list[RelationCausalityResult]:
     if not prompt_validator:
         prompt_validator = PromptValidator(model, tokenizer)
@@ -100,6 +101,9 @@ def evaluate_causality(
             estimator=estimator,
             object_names=list(objects_in_relation),
             batch_size=batch_size,
+            valid_objects=valid_objects_by_relation[relation_name]
+            if valid_objects_by_relation
+            else None,
         )
         editor = CausalEditor(model, tokenizer, concepts, layer_matcher)
         concept_prompts: dict[str, list[Prompt]] = defaultdict(list)
@@ -182,6 +186,7 @@ def evaluate_relation_classification_accuracy(
     verbose: bool = True,
     use_zs_prompts: bool = True,
     prompt_validator: Optional[PromptValidator] = None,
+    valid_objects_by_relation: Optional[dict[str, set[str]]] = None,
 ) -> list[RelationAccuracyResult]:
     """
     Evaluate accuracy of trained LRE dataset concepts
@@ -232,6 +237,9 @@ def evaluate_relation_classification_accuracy(
             estimator=estimator,
             object_names=list(objects_in_relation),
             batch_size=batch_size,
+            valid_objects=valid_objects_by_relation[relation_name]
+            if valid_objects_by_relation
+            else None,
         )
         matcher = ConceptMatcher(model, tokenizer, concepts, layer_matcher)
 
@@ -326,6 +334,7 @@ def _build_concepts_from_concept_estimator(
     estimator: RelationalConceptEstimator,
     object_names: Sequence[str],
     batch_size: int,
+    valid_objects: Optional[set[str]] = None,
 ) -> list[Concept]:
     object_source_activations = _get_object_source_activations(
         model=model,
@@ -337,6 +346,8 @@ def _build_concepts_from_concept_estimator(
     )
     concepts = []
     for object_name in object_names:
+        if valid_objects and object_name not in valid_objects:
+            continue
         concepts.append(
             estimator.estimate_concept(
                 object_name=object_name,

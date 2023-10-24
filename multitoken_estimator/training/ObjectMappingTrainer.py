@@ -84,7 +84,6 @@ class ObjectMappingTrainer:
         move_to_cpu: bool = True,
         use_relation_prefix: bool = True,
         validation_dataset: Optional[Database] = None,
-        val_check_interval: Optional[int] = None,
     ) -> ObjectMappingModel:
         prefix: str | None = None
         if use_relation_prefix:
@@ -138,7 +137,6 @@ class ObjectMappingTrainer:
             logger=pl_logger,
             enable_checkpointing=False,
             precision=pl_precision,
-            val_check_interval=val_check_interval,
         )
         pl_trainer.fit(training_wrapper, data_loader, val_dataloaders=val_loader)
         if move_to_cpu:

@@ -30,6 +30,7 @@ class LreEvaluator:
     causality_edit_single_layer_only: bool = True
     causality_use_remove_concept_projection_magnitude: bool = False
     prompt_validator: Optional[PromptValidator] = None
+    valid_objects_by_relation: Optional[dict[str, set[str]]] = None
 
     def evaluate_causality(
         self, estimators: list[RelationalConceptEstimator], verbose: bool = True
@@ -47,6 +48,7 @@ class LreEvaluator:
             edit_single_layer_only=self.causality_edit_single_layer_only,
             use_remove_concept_projection_magnitude=self.causality_use_remove_concept_projection_magnitude,
             prompt_validator=self.prompt_validator,
+            valid_objects_by_relation=self.valid_objects_by_relation,
         )
         return {result.relation: result for result in causality_results}
 
@@ -63,5 +65,6 @@ class LreEvaluator:
             verbose=verbose,
             use_zs_prompts=self.use_zs_prompts,
             prompt_validator=self.prompt_validator,
+            valid_objects_by_relation=self.valid_objects_by_relation,
         )
         return {result.relation: result for result in accuracy_results}

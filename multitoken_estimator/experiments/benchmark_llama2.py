@@ -14,6 +14,7 @@ from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.PromptValidator import PromptValidator
+from multitoken_estimator.PromptGenerator import PromptGenerator
 from multitoken_estimator.training.benchmarking import (
     BenchmarkIterationsResult,
     BenchmarkResult,
@@ -25,6 +26,7 @@ from multitoken_estimator.training.LreEvaluator import LreEvaluator
 from multitoken_estimator.training.RelationalConceptEstimatorTrainer import (
     RelationalConceptEstimatorTrainer,
 )
+from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "model.layers.{num}"
@@ -49,6 +51,8 @@ def benchmark_llama2(
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
     valid_prompts_cache_file: Optional[str] = None,
+    prefilter_objects: bool = True,
+    object_aggregation: ObjectAggregation = "mean",
 ) -> dict[str, BenchmarkIterationsResult]:
     if model is None:
         model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
@@ -69,9 +73,24 @@ def benchmark_llama2(
         "activations_dim": ACTIVATIONS_DIM,
         "inv_lre_rank": INV_LRE_RANK,
         "mapping_source_layer": 15,
+        "object_aggregation": object_aggregation,
     }
 
     dataset = load_lre_data()
+    valid_objects_by_relation: dict[str, set[str]] | None = None
+    if prefilter_objects:
+        prompt_generator = PromptGenerator(dataset)
+        all_prompts = prompt_generator.generate_prompts_for_all_relations(
+            num_fsl_examples=5,
+            entity_modifiers=None,
+        )
+        valid_prompts = prompt_validator.filter_prompts(
+            all_prompts, batch_size=batch_size
+        )
+        valid_objects_by_relation = defaultdict(set)
+        for prompt in valid_prompts:
+            valid_objects_by_relation[prompt.relation_name].add(prompt.object_name)
+
     iteration_results: dict[str, list[BenchmarkResult]] = defaultdict(list)
     for iteration_seed in iteration_seeds:
         start = time()
@@ -106,6 +125,7 @@ def benchmark_llama2(
             causality_edit_single_layer_only=causality_edit_single_layer_only,
             causality_use_remove_concept_projection_magnitude=causality_use_remove_concept_projection_magnitude,
             prompt_validator=prompt_validator,
+            valid_objects_by_relation=valid_objects_by_relation,
         )
 
         strategies: list[TrainingStrategy] = [

@@ -43,7 +43,7 @@ class ObjectMappingTrainingWrapper(pl.LightningModule):
 
     def configure_optimizers(self) -> tuple[list[AdamW], list[ExponentialLR]]:
         optimizer = torch.optim.AdamW(self.object_mapping.parameters(), lr=self.lr)
-        scheduler = ExponentialLR(optimizer, gamma=self.lr_gamma, verbose=True)
+        scheduler = ExponentialLR(optimizer, gamma=self.lr_gamma)
         return [optimizer], [scheduler]
 
     def training_step(
