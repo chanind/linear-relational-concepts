@@ -53,7 +53,7 @@ def train_lre(
         weights.append(weight)
         biases.append(bias)
     weight = torch.stack(weights).mean(dim=0).detach()
-    bias = torch.stack(biases).mean(dim=0).detach()
+    bias = torch.stack(biases).mean(dim=0).squeeze(0).detach()
     if move_to_cpu:
         weight = weight.cpu()
         bias = bias.cpu()

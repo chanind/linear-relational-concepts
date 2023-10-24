@@ -38,4 +38,4 @@ def test_train_lre(model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast) -> None
     assert lre.subject_layer == 5
     assert lre.object_layer == 9
     assert lre.weight.shape == (768, 768)
-    assert lre.bias.shape == (1, 768)
+    assert lre.bias.shape == (768,)
