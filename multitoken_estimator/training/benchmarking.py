@@ -11,8 +11,7 @@ import torch
 from multitoken_estimator.data.data_loaders import get_relation_to_lre_type_map
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.util import mean, mean_values
-from multitoken_estimator.LinearRelationalEmbedding import LinearRelationalEmbedding
-from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
+from multitoken_estimator.RelationalConceptEstimator import RelationalConceptEstimator
 from multitoken_estimator.training.evaluate_accuracy_and_causality import (
     RelationAccuracyResult,
     avg_accuracy,
@@ -22,7 +21,9 @@ from multitoken_estimator.training.evaluate_relation_causality import (
     avg_causality,
 )
 from multitoken_estimator.training.LreEvaluator import LreEvaluator
-from multitoken_estimator.training.LreTrainer import LresWithObjectMapping, LreTrainer
+from multitoken_estimator.training.RelationalConceptEstimatorTrainer import (
+    RelationalConceptEstimatorTrainer,
+)
 
 CausalityTokenCountMethod = Literal["original", "target", "max_original_target"]
 
@@ -30,22 +31,21 @@ CausalityTokenCountMethod = Literal["original", "target", "max_original_target"]
 @dataclass
 class TrainingStrategy:
     name: str
-    run_fn: Callable[[], LresWithObjectMapping]
+    run_fn: Callable[[], list[RelationalConceptEstimator]]
     metadata: dict[str, Any]
 
 
 @dataclass
 class BenchmarkResult:
     strategy_name: str
-    lres: list[LinearRelationalEmbedding]
-    object_mapping: ObjectMappingModel
+    estimators: list[RelationalConceptEstimator]
     relation_causality: dict[str, RelationCausalityResult]
     relation_accuracy: dict[str, RelationAccuracyResult]
     metadata: dict[str, Any]
 
     @property
     def relations(self) -> set[str]:
-        return {lre.relation for lre in self.lres}
+        return {estimator.relation for estimator in self.estimators}
 
     @property
     def causality(self) -> float:
@@ -312,14 +312,16 @@ class BenchmarkIterationsResult:
 
 
 def strategy_from_trainer(
-    trainer: LreTrainer, strategy_name: str, kwargs: dict[str, Any]
+    trainer: RelationalConceptEstimatorTrainer,
+    strategy_name: str,
+    kwargs: dict[str, Any],
 ) -> TrainingStrategy:
     """
     Create a training strategy from a trainer and a strategy name
     """
 
-    def run_fn() -> LresWithObjectMapping:
-        return trainer.train_all_relations_with_object_mapping(**kwargs)
+    def run_fn() -> list[RelationalConceptEstimator]:
+        return trainer.train_all(**kwargs)
 
     return TrainingStrategy(strategy_name, run_fn, kwargs)
 
@@ -370,17 +372,16 @@ def benchmark_strategy(
     """
     Run a training strategy and return the results
     """
-    lres_with_mapping = strategy.run_fn()
+    concept_estimators = strategy.run_fn()
 
-    relation_accuracy = evaluator.evaluate_accuracy(lres_with_mapping, verbose=verbose)
+    relation_accuracy = evaluator.evaluate_accuracy(concept_estimators, verbose=verbose)
     relation_causality = evaluator.evaluate_causality(
-        lres_with_mapping, verbose=verbose
+        concept_estimators, verbose=verbose
     )
 
     results = BenchmarkResult(
         strategy.name,
-        lres_with_mapping.lres,
-        lres_with_mapping.object_mapping,
+        estimators=concept_estimators,
         relation_accuracy=relation_accuracy,
         relation_causality=relation_causality,
         metadata=strategy.metadata,

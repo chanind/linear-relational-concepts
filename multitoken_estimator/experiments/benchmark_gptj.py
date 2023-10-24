@@ -22,7 +22,9 @@ from multitoken_estimator.training.benchmarking import (
     strategy_from_trainer,
 )
 from multitoken_estimator.training.LreEvaluator import LreEvaluator
-from multitoken_estimator.training.LreTrainer import LreTrainer
+from multitoken_estimator.training.RelationalConceptEstimatorTrainer import (
+    RelationalConceptEstimatorTrainer,
+)
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "transformer.h.{num}"
@@ -65,6 +67,7 @@ def benchmark_gptj(
         "verbose": verbose,
         "force_retrain_all": force_rerun,
         "activations_dim": ACTIVATIONS_DIM,
+        "inv_lre_rank": INV_LRE_RANK,
         "mapping_source_layer": 15,
     }
 
@@ -74,7 +77,7 @@ def benchmark_gptj(
         start = time()
         log_or_print(f"Iteration seed: {iteration_seed}", verbose=verbose)
         train_data, test_data = dataset.split(seed=iteration_seed)
-        lre_trainer = LreTrainer(
+        lre_trainer = RelationalConceptEstimatorTrainer(
             model,
             tokenizer,
             LAYER_MATCHER,
@@ -98,7 +101,6 @@ def benchmark_gptj(
             layer_matcher=LAYER_MATCHER,
             dataset=test_data,
             batch_size=batch_size,
-            inv_lre_rank=INV_LRE_RANK,
             use_zs_prompts=eval_zs_prompts,
             causality_magnitude_multiplier=causality_magnitude_multiplier,
             causality_edit_single_layer_only=causality_edit_single_layer_only,

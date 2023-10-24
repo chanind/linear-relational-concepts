@@ -20,6 +20,9 @@ from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
+from multitoken_estimator.LinearRelationalEmbedding import (
+    InvertedLinearRelationalEmbedding,
+)
 from multitoken_estimator.ObjectMappingModel import ObjectMappingModel, prefix_object
 from multitoken_estimator.PromptGenerator import (
     DEFAULT_ENTITY_MODIFIERS,
@@ -36,7 +39,6 @@ from multitoken_estimator.training.ObjectMappingSampleReweighter import (
 from multitoken_estimator.training.ObjectMappingTrainingWrapper import (
     ObjectMappingTrainingWrapper,
 )
-from multitoken_estimator.training.train_lre import ObjectAggregation
 
 
 class ObjectMappingTrainer:
@@ -64,15 +66,13 @@ class ObjectMappingTrainer:
 
     def train(
         self,
+        inv_lre: InvertedLinearRelationalEmbedding,
         source_layer: int,
-        target_layer: int,
-        object_aggregation: ObjectAggregation = "mean",
         n_fsl_prompts: int = 5,
         batch_size: int = 8,
         lr: float = 1e-4,
         lr_gamma: float = 0.9,
         n_epochs: int = 100,
-        squeeze_dim: int = 100,
         # TODO: figure this out automatically somehow
         activations_dim: int = 4096,  # This must match the model hidden activations size
         augment_prompts: bool = False,
@@ -82,49 +82,48 @@ class ObjectMappingTrainer:
         pl_logger: Optional[Logger | Iterable[Logger] | bool] = True,
         use_gpu: bool = torch.cuda.is_available(),
         move_to_cpu: bool = True,
-        use_relation_prefixes: bool = True,
+        use_relation_prefix: bool = True,
         validation_dataset: Optional[Database] = None,
         val_check_interval: Optional[int] = None,
     ) -> ObjectMappingModel:
-        relation_prefixes: dict[str, str] = {}
-        if use_relation_prefixes:
-            relations = self.dataset.query_all(RelationDataModel)
-            for relation in relations:
-                relation_prefixes[relation.name] = _extract_prefix(relation.templates)
+        prefix: str | None = None
+        if use_relation_prefix:
+            relation = self.dataset.query_one_or_throw(
+                RelationDataModel, lambda rel: rel.name == inv_lre.relation
+            )
+            prefix = _extract_prefix(relation.templates)
         mapping_dataset = self._build_training_dataset(
+            inv_lre=inv_lre,
             prompt_generator=self.prompt_generator,
             source_layer=source_layer,
-            target_layer=target_layer,
-            object_aggregation=object_aggregation,
             n_fsl_prompts=n_fsl_prompts,
             batch_size=batch_size,
             augment_prompts=augment_prompts,
             verbose=verbose,
-            relation_prefixes=relation_prefixes,
+            prefix=prefix,
         )
         val_loader = None
         if validation_dataset is not None:
             val_prompt_generator = PromptGenerator(validation_dataset)
             val_mapping_dataset = self._build_training_dataset(
+                inv_lre=inv_lre,
                 prompt_generator=val_prompt_generator,
                 source_layer=source_layer,
-                target_layer=target_layer,
-                object_aggregation=object_aggregation,
                 n_fsl_prompts=n_fsl_prompts,
                 batch_size=batch_size,
                 augment_prompts=augment_prompts,
                 verbose=verbose,
-                relation_prefixes=relation_prefixes,
+                prefix=prefix,
             )
             val_loader = DataLoader(val_mapping_dataset, batch_size=batch_size)
         reweighter = ObjectMappingSampleReweighter(mapping_dataset.samples)
         data_loader = DataLoader(mapping_dataset, batch_size=batch_size, shuffle=True)
         object_mapping_model = ObjectMappingModel(
             activations_dim=activations_dim,
-            squeeze_dim=squeeze_dim,
+            target_rank=inv_lre.rank,
             source_layer=source_layer,
-            target_layer=target_layer,
-            object_aggregation=object_aggregation,
+            target_layer=inv_lre.object_layer,
+            object_aggregation=inv_lre.object_aggregation,
         )
         training_wrapper = ObjectMappingTrainingWrapper(
             object_mapping=object_mapping_model,
@@ -148,19 +147,20 @@ class ObjectMappingTrainer:
 
     def _build_training_dataset(
         self,
+        inv_lre: InvertedLinearRelationalEmbedding,
         prompt_generator: PromptGenerator,
         source_layer: int,
-        target_layer: int,
-        object_aggregation: ObjectAggregation = "mean",
         n_fsl_prompts: int = 5,
         batch_size: int = 8,
         augment_prompts: bool = False,
         verbose: bool = True,
-        relation_prefixes: Optional[dict[str, str]] = None,
+        prefix: Optional[str] = None,
     ) -> ObjectMappingDataset:
         entity_modifiers = DEFAULT_ENTITY_MODIFIERS if augment_prompts else None
-        raw_prompts = prompt_generator.generate_prompts_for_all_relations(
-            num_fsl_examples=n_fsl_prompts, entity_modifiers=entity_modifiers
+        raw_prompts = prompt_generator.generate_prompts_for_relation(
+            inv_lre.relation,
+            num_fsl_examples=n_fsl_prompts,
+            entity_modifiers=entity_modifiers,
         )
         log_or_print(
             f"Generated {len(raw_prompts)} prompts for building object mapping.",
@@ -176,17 +176,16 @@ class ObjectMappingTrainer:
 
         source_object_activations = self._extract_source_object_final_token_activations(
             prompts=prompts,
-            relation_prefixes=relation_prefixes,
+            prefix=prefix,
             layer=source_layer,
             batch_size=batch_size,
             show_progress=verbose,
         )
 
-        target_activations_by_relation_and_object = (
-            self._extract_target_object_activations_by_relation_and_object(
+        target_activations_by_object = (
+            self._extract_target_object_activations_for_inv_lre(
+                inv_lre=inv_lre,
                 prompts=prompts,
-                layer=target_layer,
-                aggregation=object_aggregation,
                 batch_size=batch_size,
                 show_progress=verbose,
             )
@@ -194,41 +193,36 @@ class ObjectMappingTrainer:
 
         samples: list[ObjectMappingSample] = []
         for (
-            relation_name,
-            activations_by_object,
-        ) in target_activations_by_relation_and_object.items():
-            for object_name, activations in activations_by_object.items():
-                for activation in activations:
-                    samples.append(
-                        ObjectMappingSample(
-                            relation_name=relation_name,
-                            object_name=object_name,
-                            source_vector=source_object_activations[relation_name][
-                                object_name
-                            ],
-                            target_vector=activation,
-                        )
+            object_name,
+            activations,
+        ) in target_activations_by_object.items():
+            for activation in activations:
+                samples.append(
+                    ObjectMappingSample(
+                        object_name=object_name,
+                        source_vector=source_object_activations[object_name],
+                        target_vector=activation,
                     )
+                )
         return ObjectMappingDataset(samples)
 
     @torch.no_grad()
-    def _extract_target_object_activations_by_relation_and_object(
+    def _extract_target_object_activations_for_inv_lre(
         self,
+        inv_lre: InvertedLinearRelationalEmbedding,
         prompts: Sequence[Prompt],
-        layer: int,
-        aggregation: ObjectAggregation,
         batch_size: int,
         show_progress: bool = False,
         move_to_cpu: bool = True,
-    ) -> dict[str, dict[str, list[torch.Tensor]]]:
-        activations_by_relation_and_object: dict[
-            str, dict[str, list[torch.Tensor]]
-        ] = defaultdict(lambda: defaultdict(list))
+    ) -> dict[str, list[torch.Tensor]]:
+        activations_by_object: dict[str, list[torch.Tensor]] = defaultdict(list)
         prompt_answer_data = [
             find_prompt_answer_data(self.tokenizer, prompt.text, prompt.answer)
             for prompt in prompts
         ]
-        layer_name = get_layer_name(self.model, self.layer_matcher, layer)
+        layer_name = get_layer_name(
+            self.model, self.layer_matcher, inv_lre.object_layer
+        )
         raw_activations = extract_token_activations(
             self.model,
             self.tokenizer,
@@ -244,49 +238,44 @@ class ObjectMappingTrainer:
             move_results_to_cpu=move_to_cpu,
         )
         for prompt, raw_activation in zip(prompts, raw_activations):
-            if aggregation == "mean":
+            if inv_lre.object_aggregation == "mean":
                 activation = torch.stack(raw_activation[layer_name]).mean(dim=0)
-            elif aggregation == "first_token":
+            elif inv_lre.object_aggregation == "first_token":
                 activation = raw_activation[layer_name][0]
             else:
-                raise ValueError(f"Unknown object aggregation: {aggregation}")
-            activations_by_relation_and_object[prompt.relation_name][
-                prompt.object_name
-            ].append(activation)
-        return activations_by_relation_and_object
+                raise ValueError(
+                    f"Unknown inv_lre.object_aggregation: {inv_lre.object_aggregation}"
+                )
+            activations_by_object[prompt.object_name].append(
+                inv_lre.calc_low_rank_target_activation(activation)
+            )
+        return activations_by_object
 
     @torch.no_grad()
     def _extract_source_object_final_token_activations(
         self,
         prompts: list[Prompt],
-        relation_prefixes: dict[str, str] | None,
+        prefix: str | None,
         layer: int,
         batch_size: int,
         show_progress: bool = False,
         move_to_cpu: bool = True,
-    ) -> dict[str, dict[str, torch.Tensor]]:
+    ) -> dict[str, torch.Tensor]:
         layer_name = get_layer_name(self.model, self.layer_matcher, layer)
-        results: dict[str, dict[str, torch.Tensor]] = defaultdict(dict)
-        relation_objects = list(
-            {(prompt.relation_name, prompt.object_name) for prompt in prompts}
-        )
+        results: dict[str, torch.Tensor] = {}
+        object_names = list({prompt.object_name for prompt in prompts})
         raw_activations = extract_final_token_activations(
             self.model,
             self.tokenizer,
             layers=[layer_name],
-            texts=[
-                prefix_object(object_name, relation_name, relation_prefixes)
-                for relation_name, object_name in relation_objects
-            ],
+            texts=[prefix_object(object_name, prefix) for object_name in object_names],
             device=get_device(self.model),
             batch_size=batch_size,
             show_progress=show_progress,
             move_results_to_cpu=move_to_cpu,
         )
-        for (relation, object), layer_activations in zip(
-            relation_objects, raw_activations
-        ):
-            results[relation][object] = layer_activations[layer_name]
+        for object_name, layer_activations in zip(object_names, raw_activations):
+            results[object_name] = layer_activations[layer_name]
         return results
 
 

@@ -67,12 +67,12 @@ class ObjectMappingTrainingWrapper(pl.LightningModule):
         return loss
 
     def _forward_step(self, train_batch: ObjectMappingBatch) -> torch.Tensor:
-        relation_names, object_names, source_vectors, target_vectors = train_batch
+        object_names, source_vectors, target_vectors = train_batch
         predictions = self.object_mapping(source_vectors)
         raw_loss = self.criterion(predictions, target_vectors)
         if self.reweighter is not None:
             reweighting_tensor = self.reweighter.calc_samples_reweighting_tensor(
-                relation_names, object_names, raw_loss.device, raw_loss.dtype
+                object_names, raw_loss.device, raw_loss.dtype
             )
             raw_loss = raw_loss * reweighting_tensor.unsqueeze(dim=1)
         loss = raw_loss.mean()

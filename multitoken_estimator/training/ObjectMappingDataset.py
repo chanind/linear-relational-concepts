@@ -5,14 +5,12 @@ from torch.utils.data import Dataset
 
 
 class ObjectMappingSample(NamedTuple):
-    relation_name: str
     object_name: str
     source_vector: torch.Tensor
     target_vector: torch.Tensor
 
 
 class ObjectMappingBatch(NamedTuple):
-    relation_names: list[str]
     object_names: list[str]
     source_vectors: torch.Tensor
     target_vectors: torch.Tensor

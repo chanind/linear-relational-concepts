@@ -27,10 +27,10 @@ from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
 from multitoken_estimator.LinearRelationalEmbedding import (
     InvertedLinearRelationalEmbedding,
-    LinearRelationalEmbedding,
 )
 from multitoken_estimator.ObjectMappingModel import ObjectMappingModel
 from multitoken_estimator.PromptGenerator import Prompt, PromptGenerator
+from multitoken_estimator.RelationalConceptEstimator import RelationalConceptEstimator
 from multitoken_estimator.training.evaluate_relation_causality import (
     RelationCausalityResult,
     evaluate_relation_causality,
@@ -41,11 +41,9 @@ def evaluate_causality(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
-    lres: Sequence[LinearRelationalEmbedding],
-    object_mapping: ObjectMappingModel,
+    estimators: Sequence[RelationalConceptEstimator],
     dataset: Database,
     batch_size: int = 32,
-    inv_lre_rank: int = 100,
     max_swaps_per_concept: int = 5,
     max_swaps_total: Optional[int] = None,
     magnitude_multiplier: float = 1.0,
@@ -61,13 +59,13 @@ def evaluate_causality(
     prompt_generator = PromptGenerator(reformulated_dataset)
     relation_results: list[RelationCausalityResult] = []
     valid_relation_names = reformulated_dataset.get_relation_names()
-    for lre in lres:
-        if lre.relation not in valid_relation_names:
+    for estimator in estimators:
+        if estimator.relation not in valid_relation_names:
             logger.warning(
-                f"Skipping relation {lre.relation} because it is not in the dataset"
+                f"Skipping relation {estimator.relation} because it is not in the dataset"
             )
             continue
-        relation_name = lre.relation
+        relation_name = estimator.relation
         objects_in_relation = reformulated_dataset.get_object_names_in_relation(
             relation_name
         )
@@ -95,15 +93,13 @@ def evaluate_causality(
         prompts_by_object = defaultdict(list)
         for prompt in valid_prompts:
             prompts_by_object[prompt.object_name].append(prompt)
-        concepts = _build_concepts_from_lre(
+        concepts = _build_concepts_from_concept_estimator(
             model=model,
             tokenizer=tokenizer,
             layer_matcher=layer_matcher,
-            lre=lre,
+            estimator=estimator,
             object_names=list(objects_in_relation),
-            object_mapping=object_mapping,
             batch_size=batch_size,
-            inv_lre_rank=inv_lre_rank,
         )
         editor = CausalEditor(model, tokenizer, concepts, layer_matcher)
         concept_prompts: dict[str, list[Prompt]] = defaultdict(list)
@@ -118,7 +114,7 @@ def evaluate_causality(
             relation_name=relation_name,
             editor=editor,
             concept_prompts=concept_prompts,
-            concept_vector_layer=lre.subject_layer,
+            concept_vector_layer=estimator.inv_lre.subject_layer,
             batch_size=batch_size,
             max_swaps_per_concept=max_swaps_per_concept,
             max_swaps_total=max_swaps_total,
@@ -180,11 +176,9 @@ def evaluate_relation_classification_accuracy(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
-    lres: Sequence[LinearRelationalEmbedding],
-    object_mapping: ObjectMappingModel,
+    estimators: Sequence[RelationalConceptEstimator],
     dataset: Database,
     batch_size: int = 32,
-    inv_lre_rank: int = 100,
     verbose: bool = True,
     use_zs_prompts: bool = True,
     prompt_validator: Optional[PromptValidator] = None,
@@ -198,13 +192,13 @@ def evaluate_relation_classification_accuracy(
     reformulated_dataset = _reformulate_zs_prompts(dataset, use_zs_prompts)
     prompt_generator = PromptGenerator(reformulated_dataset)
     valid_relation_names = reformulated_dataset.get_relation_names()
-    for lre in lres:
-        if lre.relation not in valid_relation_names:
+    for estimator in estimators:
+        if estimator.relation not in valid_relation_names:
             logger.warning(
-                f"Skipping relation {lre.relation} because it is not in the dataset"
+                f"Skipping relation {estimator.relation} because it is not in the dataset"
             )
             continue
-        relation_name = lre.relation
+        relation_name = estimator.relation
         objects_in_relation = reformulated_dataset.get_object_names_in_relation(
             relation_name
         )
@@ -231,15 +225,13 @@ def evaluate_relation_classification_accuracy(
         prompts_by_object = defaultdict(list)
         for prompt in valid_prompts:
             prompts_by_object[prompt.object_name].append(prompt)
-        concepts = _build_concepts_from_lre(
+        concepts = _build_concepts_from_concept_estimator(
             model=model,
             tokenizer=tokenizer,
             layer_matcher=layer_matcher,
-            lre=lre,
-            object_mapping=object_mapping,
+            estimator=estimator,
             object_names=list(objects_in_relation),
             batch_size=batch_size,
-            inv_lre_rank=inv_lre_rank,
         )
         matcher = ConceptMatcher(model, tokenizer, concepts, layer_matcher)
 
@@ -327,47 +319,39 @@ def _reformulate_zs_prompts(dataset: Database, use_zs_prompts: bool) -> Database
     return dataset.reformulate_samples(reformulate_sample)
 
 
-def _build_concepts_from_lre(
+def _build_concepts_from_concept_estimator(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
-    lre: LinearRelationalEmbedding,
-    object_mapping: ObjectMappingModel,
+    estimator: RelationalConceptEstimator,
     object_names: Sequence[str],
-    inv_lre_rank: int,
     batch_size: int,
 ) -> list[Concept]:
-    device = get_device(model)
-    _ensure_mapping_and_lre_compatibility(lre, object_mapping)
-    inverted_lre = lre.invert(rank=inv_lre_rank, device=device)
-    object_activations = _get_object_activations(
+    object_source_activations = _get_object_source_activations(
         model=model,
         tokenizer=tokenizer,
         layer_matcher=layer_matcher,
-        object_mapping=object_mapping,
+        object_mapping=estimator.object_mapping,
         object_names=object_names,
-        relation_name=lre.relation,
         batch_size=batch_size,
     )
     concepts = []
     for object_name in object_names:
         concepts.append(
-            _build_concept(
+            estimator.estimate_concept(
                 object_name=object_name,
-                object_activation=object_activations[object_name],
-                inv_lre=inverted_lre,
+                object_source_activation=object_source_activations[object_name],
             )
         )
     return concepts
 
 
-def _get_object_activations(
+def _get_object_source_activations(
     model: nn.Module,
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
     object_mapping: ObjectMappingModel,
     object_names: Sequence[str],
-    relation_name: str,
     batch_size: int,
 ) -> dict[str, torch.Tensor]:
     layer_name = get_layer_name(model, layer_matcher, object_mapping.source_layer)
@@ -375,17 +359,17 @@ def _get_object_activations(
         model,
         tokenizer,
         layers=[layer_name],
-        texts=object_mapping.prefix_objects(object_names, relation_name),
+        texts=object_mapping.prefix_objects(object_names),
         device=get_device(model),
         batch_size=batch_size,
         show_progress=False,
         move_results_to_cpu=True,
     )
-    target_activations_by_object = {
-        object_name: object_mapping.forward(source_activation[layer_name])
+    source_activations_by_object = {
+        object_name: source_activation[layer_name]
         for object_name, source_activation in zip(object_names, source_activations)
     }
-    return target_activations_by_object
+    return source_activations_by_object
 
 
 def _build_concept(
@@ -411,16 +395,3 @@ def _build_concept(
             "num_objects": 1,
         },
     )
-
-
-def _ensure_mapping_and_lre_compatibility(
-    lre: LinearRelationalEmbedding, mapping: ObjectMappingModel
-) -> None:
-    if lre.object_layer != mapping.target_layer:
-        raise ValueError(
-            f"ObjectMappingModel target_layer {mapping.target_layer} must match lre object_layer {lre.object_layer}"
-        )
-    if lre.object_aggregation != mapping.object_aggregation:
-        raise ValueError(
-            f"ObjectMappingModel object_aggregation {mapping.object_aggregation} must match lre object_aggregation {lre.object_aggregation}"
-        )
