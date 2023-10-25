@@ -1,7 +1,7 @@
 import random
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Callable, Literal, Optional, Sequence
 
 import torch
 from tokenizers import Tokenizer
@@ -26,8 +26,6 @@ from multitoken_estimator.PromptGenerator import (
     PromptGenerator,
 )
 
-EstimationMethod = Literal["mean", "weighted_mean", "first_token"]
-
 
 @dataclass
 class ObjectActivation:
@@ -48,6 +46,47 @@ class ObjectRepresentation:
     object_name: str
     layer_representations: dict[int, torch.Tensor]
     activations: list[ObjectActivation]
+
+
+RepresentationEstimator = Callable[[Sequence[tuple[torch.Tensor, ...]]], torch.Tensor]
+EstimationMethod = (
+    Literal["mean", "weighted_mean", "first_token"] | RepresentationEstimator
+)
+
+
+def _mean_estimator(
+    object_activations: Sequence[tuple[torch.Tensor, ...]],
+) -> torch.Tensor:
+    all_activations: list[torch.Tensor] = []
+    for token_activations in object_activations:
+        for token_activation in token_activations:
+            all_activations.extend(token_activation)
+    return torch.stack(all_activations).mean(dim=0)
+
+
+def _weighted_mean_estimator(
+    object_activations: Sequence[tuple[torch.Tensor, ...]],
+) -> torch.Tensor:
+    grouped_activations: list[torch.Tensor] = []
+    for token_activations in object_activations:
+        grouped_activations.append(torch.stack(token_activations).mean(dim=0))
+    return torch.stack(grouped_activations).mean(dim=0)
+
+
+def _first_token_estimator(
+    object_activations: Sequence[tuple[torch.Tensor, ...]],
+) -> torch.Tensor:
+    all_activations: list[torch.Tensor] = []
+    for token_activations in object_activations:
+        all_activations.append(token_activations[0])
+    return torch.stack(all_activations).mean(dim=0)
+
+
+ESTIMATOR_LOOKUP: dict[EstimationMethod, RepresentationEstimator] = {
+    "mean": _mean_estimator,
+    "weighted_mean": _weighted_mean_estimator,
+    "first_token": _first_token_estimator,
+}
 
 
 class MultitokenEstimator:
@@ -207,59 +246,19 @@ class MultitokenEstimator:
 
 
 @torch.no_grad()
-def _estimate_object_representation_mean(
-    object_activations: ObjectActivations,
+def _apply_estimator(
+    object_activations: ObjectActivations, estimator: RepresentationEstimator
 ) -> ObjectRepresentation:
-    all_activations_by_layer = defaultdict(list)
+    activations_by_layer: dict[int, list[tuple[torch.Tensor, ...]]] = defaultdict(list)
     for object_activation in object_activations.activations:
         for layer_num, activations in object_activation.layer_activations.items():
-            for activation in activations:
-                all_activations_by_layer[layer_num].append(activation)
+            activations_by_layer[layer_num].append(activations)
     return ObjectRepresentation(
         object_name=object_activations.object_name,
         activations=object_activations.activations,
         layer_representations={
-            layer_num: torch.stack(activations).mean(dim=0)
-            for layer_num, activations in all_activations_by_layer.items()
-        },
-    )
-
-
-@torch.no_grad()
-def _estimate_object_representation_first_token_mean(
-    object_activations: ObjectActivations,
-) -> ObjectRepresentation:
-    all_activations_by_layer = defaultdict(list)
-    for object_activation in object_activations.activations:
-        for layer_num, activations in object_activation.layer_activations.items():
-            all_activations_by_layer[layer_num].append(activations[0])
-    return ObjectRepresentation(
-        object_name=object_activations.object_name,
-        activations=object_activations.activations,
-        layer_representations={
-            layer_num: torch.stack(activations).mean(dim=0)
-            for layer_num, activations in all_activations_by_layer.items()
-        },
-    )
-
-
-@torch.no_grad()
-def _estimate_object_representation_weighted_mean(
-    object_activations: ObjectActivations,
-) -> ObjectRepresentation:
-    mean_activations_by_layer = defaultdict(list)
-    for object_activation in object_activations.activations:
-        for layer_num, activations in object_activation.layer_activations.items():
-            mean_activations_by_layer[layer_num].append(
-                torch.stack(activations).mean(dim=0)
-            )
-
-    return ObjectRepresentation(
-        object_name=object_activations.object_name,
-        activations=object_activations.activations,
-        layer_representations={
-            layer_num: torch.stack(activations).mean(dim=0)
-            for layer_num, activations in mean_activations_by_layer.items()
+            layer_num: estimator(activations)
+            for layer_num, activations in activations_by_layer.items()
         },
     )
 
@@ -313,13 +312,8 @@ def estimate_object_representation_from_activations(
     object_activations: ObjectActivations,
     estimation_method: EstimationMethod = "mean",
 ) -> ObjectRepresentation:
-    if estimation_method == "mean":
-        return _estimate_object_representation_mean(object_activations)
-    elif estimation_method == "weighted_mean":
-        return _estimate_object_representation_weighted_mean(object_activations)
-    elif estimation_method == "first_token":
-        return _estimate_object_representation_first_token_mean(object_activations)
+    if isinstance(estimation_method, str):
+        estimator = ESTIMATOR_LOOKUP[estimation_method]
     else:
-        raise ValueError(
-            f"Unknown estimation method: {estimation_method}.  Must be one of 'mean', 'weighted_mean'."
-        )
+        estimator = estimation_method
+    return _apply_estimator(object_activations, estimator)
