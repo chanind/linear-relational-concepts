@@ -16,11 +16,9 @@ from multitoken_estimator.lib.layer_matching import (
     collect_matching_layers,
 )
 from multitoken_estimator.lib.logger import log_or_print
+from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
-from multitoken_estimator.lib.verify_answers_match_expected import (
-    verify_answers_match_expected,
-)
 from multitoken_estimator.PromptGenerator import (
     DEFAULT_ENTITY_MODIFIERS,
     EntityModifier,
@@ -59,6 +57,7 @@ class MultitokenEstimator:
     database: Database
     prompt_generator: PromptGenerator
     layer_matcher: LayerMatcher
+    prompt_validator: PromptValidator
 
     def __init__(
         self,
@@ -66,6 +65,7 @@ class MultitokenEstimator:
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
         database: Database,
+        prompt_validator: Optional[PromptValidator] = None,
         device: torch.device = DEFAULT_DEVICE,
     ):
         self.model = model
@@ -74,6 +74,7 @@ class MultitokenEstimator:
         self.database = database
         self.prompt_generator = PromptGenerator(database)
         self.layer_matcher = layer_matcher
+        self.prompt_validator = prompt_validator or PromptValidator(model, tokenizer)
 
     def collect_object_activations(
         self,
@@ -102,21 +103,11 @@ class MultitokenEstimator:
         log_or_print(
             f"{len(prompts)} prompts generated for {object_name}", verbose=verbose
         )
-        answer_match_results = verify_answers_match_expected(
-            model=self.model,
-            tokenizer=self.tokenizer,
-            prompts=[prompt.text for prompt in prompts],
-            expected_answers=[prompt.answer for prompt in prompts],
-            batch_size=batch_size,
-            show_progress=verbose,
+        valid_prompts = self.prompt_validator.filter_prompts(
+            prompts, batch_size=batch_size
         )
-        matching_prompts = [
-            prompt
-            for prompt, match_result in zip(prompts, answer_match_results)
-            if match_result.answer_matches_expected
-        ]
         log_or_print(
-            f"{len(matching_prompts)} of {len(prompts)} prompts matched expected answer",
+            f"{len(valid_prompts)} of {len(prompts)} prompts matched expected answer",
             verbose=verbose,
         )
         return extract_object_activations_from_prompts(
@@ -124,7 +115,7 @@ class MultitokenEstimator:
             tokenizer=self.tokenizer,
             layer_matcher=self.layer_matcher,
             object_name=object_name,
-            object_prompts=matching_prompts,
+            object_prompts=valid_prompts,
             batch_size=batch_size,
             show_progress=verbose,
         )
