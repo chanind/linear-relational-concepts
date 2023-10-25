@@ -54,17 +54,16 @@ EstimationMethod = (
 )
 
 
-def _mean_estimator(
+def mean_estimator(
     object_activations: Sequence[tuple[torch.Tensor, ...]],
 ) -> torch.Tensor:
     all_activations: list[torch.Tensor] = []
     for token_activations in object_activations:
-        for token_activation in token_activations:
-            all_activations.extend(token_activation)
+        all_activations.extend(token_activations)
     return torch.stack(all_activations).mean(dim=0)
 
 
-def _weighted_mean_estimator(
+def weighted_mean_estimator(
     object_activations: Sequence[tuple[torch.Tensor, ...]],
 ) -> torch.Tensor:
     grouped_activations: list[torch.Tensor] = []
@@ -73,7 +72,7 @@ def _weighted_mean_estimator(
     return torch.stack(grouped_activations).mean(dim=0)
 
 
-def _first_token_estimator(
+def first_token_estimator(
     object_activations: Sequence[tuple[torch.Tensor, ...]],
 ) -> torch.Tensor:
     all_activations: list[torch.Tensor] = []
@@ -83,9 +82,9 @@ def _first_token_estimator(
 
 
 ESTIMATOR_LOOKUP: dict[EstimationMethod, RepresentationEstimator] = {
-    "mean": _mean_estimator,
-    "weighted_mean": _weighted_mean_estimator,
-    "first_token": _first_token_estimator,
+    "mean": mean_estimator,
+    "weighted_mean": weighted_mean_estimator,
+    "first_token": first_token_estimator,
 }
 
 
