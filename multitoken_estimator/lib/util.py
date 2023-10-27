@@ -1,5 +1,6 @@
 import random
-from typing import Generator, Iterable, Mapping, Sequence, TypeVar
+from collections import defaultdict
+from typing import Callable, Generator, Iterable, Mapping, Sequence, TypeVar
 
 from tqdm import tqdm
 
@@ -69,13 +70,14 @@ def find_all_substring_indices(
     return indices
 
 
-def sample_or_all(items: Sequence[T], k: int) -> list[T]:
+def sample_or_all(items: list[T], k: int, seed: int | float | str = 42) -> list[T]:
     """
     same as random.sample, but if k >= len(items), return items unmodified
     """
+    generator = random.Random(seed)
     if k >= len(items):
-        return list(items)
-    return random.sample(items, k=k)
+        return items
+    return generator.sample(items, k=k)
 
 
 def mean(items: Sequence[float]) -> float:
@@ -93,3 +95,14 @@ def mean_values(items: Sequence[Mapping[T, float]]) -> dict[T, float]:
         key: mean([item[key] for item in items if key in item])
         for key in set(key for item in items for key in item.keys())
     }
+
+
+def group_items(items: Iterable[T], group_fn: Callable[[T], str]) -> dict[str, list[T]]:
+    """
+    Group items by the result of a function
+    """
+    grouped_items: dict[str, list[T]] = defaultdict(list)
+    for item in items:
+        group = group_fn(item)
+        grouped_items[group].append(item)
+    return grouped_items

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import re
 from collections import defaultdict
-from pathlib import Path
 from time import time
 from typing import Literal, Optional
 
@@ -11,27 +9,28 @@ from tokenizers import Tokenizer
 from transformers import AutoTokenizer, GPTJForCausalLM
 
 from multitoken_estimator.data.data_loaders import load_lre_data
+from multitoken_estimator.evaluation.Evaluator import Evaluator
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.PromptValidator import PromptValidator
-from multitoken_estimator.PromptGenerator import PromptGenerator
 from multitoken_estimator.training.benchmarking import (
-    BenchmarkIterationsResult,
-    BenchmarkResult,
     TrainingStrategy,
     benchmark_strategies,
     strategy_from_trainer,
 )
-from multitoken_estimator.training.LreEvaluator import LreEvaluator
-from multitoken_estimator.training.RelationalConceptEstimatorTrainer import (
-    RelationalConceptEstimatorTrainer,
+from multitoken_estimator.training.BenchmarkIterationsResult import (
+    BenchmarkIterationsResult,
+)
+from multitoken_estimator.training.BenchmarkResult import BenchmarkResult
+from multitoken_estimator.training.LreConceptTrainer import (
+    LreConceptTrainer,
+    LreConceptTrainerOptions,
 )
 from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "transformer.h.{num}"
 INV_LRE_RANK = 100
-ACTIVATIONS_DIM = 4096
 
 Precision = Literal["fp16", "bf16", "fp32"]
 
@@ -51,8 +50,8 @@ def benchmark_gptj(
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
     valid_prompts_cache_file: Optional[str] = None,
-    prefilter_objects: bool = True,
     object_aggregation: ObjectAggregation = "mean",
+    min_test_prompts_per_relation: int = 1,
 ) -> dict[str, BenchmarkIterationsResult]:
     if model is None:
         model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
@@ -67,55 +66,14 @@ def benchmark_gptj(
 
     prompt_validator = PromptValidator(model, tokenizer, valid_prompts_cache_file)
 
-    shared_args: dict[str, str | float | int] = {
-        "verbose": verbose,
-        "force_retrain_all": force_rerun,
-        "activations_dim": ACTIVATIONS_DIM,
-        "inv_lre_rank": INV_LRE_RANK,
-        "mapping_source_layer": 15,
-        "object_aggregation": object_aggregation,
-    }
-
     dataset = load_lre_data()
-    valid_objects_by_relation: dict[str, set[str]] | None = None
-    if prefilter_objects:
-        log_or_print("Prefiltering objects", verbose=verbose)
-        prompt_generator = PromptGenerator(dataset)
-        all_prompts = prompt_generator.generate_prompts_for_all_relations(
-            num_fsl_examples=5,
-            entity_modifiers=None,
-        )
-        valid_prompts = prompt_validator.filter_prompts(
-            all_prompts, batch_size=batch_size, show_progress=verbose
-        )
-        valid_objects_by_relation = defaultdict(set)
-        for prompt in valid_prompts:
-            valid_objects_by_relation[prompt.relation_name].add(prompt.object_name)
 
     iteration_results: dict[str, list[BenchmarkResult]] = defaultdict(list)
     for iteration_seed in iteration_seeds:
         start = time()
         log_or_print(f"Iteration seed: {iteration_seed}", verbose=verbose)
-        train_data, test_data = dataset.split(seed=iteration_seed)
-        lre_trainer = RelationalConceptEstimatorTrainer(
-            model,
-            tokenizer,
-            LAYER_MATCHER,
-            train_data,
-            prompt_validator=prompt_validator,
-        )
-
-        if save_progress_dir is not None:
-            Path(save_progress_dir).mkdir(parents=True, exist_ok=True)
-
-        def save_progress_path(strategy_name: str) -> Optional[Path]:
-            if save_progress_dir:
-                return (
-                    Path(save_progress_dir) / f"{strategy_name}-seed{iteration_seed}.pt"
-                )
-            return None
-
-        evaluator = LreEvaluator(
+        raw_train_data, test_data = dataset.split(seed=iteration_seed)
+        evaluator = Evaluator(
             model=model,
             tokenizer=tokenizer,
             layer_matcher=LAYER_MATCHER,
@@ -126,64 +84,52 @@ def benchmark_gptj(
             causality_edit_single_layer_only=causality_edit_single_layer_only,
             causality_use_remove_concept_projection_magnitude=causality_use_remove_concept_projection_magnitude,
             prompt_validator=prompt_validator,
-            valid_objects_by_relation=valid_objects_by_relation,
+        )
+
+        train_data = evaluator.filter_relations_with_few_eval_prompts(
+            raw_train_data, min_relation_eval_prompts=min_test_prompts_per_relation
+        )
+
+        lre_trainer = LreConceptTrainer(
+            model,
+            tokenizer,
+            LAYER_MATCHER,
+            train_data,
+            prompt_validator=prompt_validator,
         )
 
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
                 lre_trainer,
-                f"var1-seed{iteration_seed}",
-                {
-                    "save_progress_path": save_progress_path("var1"),
-                    "subject_layer": 15,
-                    "object_layer": 22,
-                    "object_aggregation": "mean",
-                    **shared_args,
-                },
-            ),
-            strategy_from_trainer(
-                lre_trainer,
-                f"var2-seed{iteration_seed}",
-                {
-                    "save_progress_path": save_progress_path("var2"),
-                    "subject_layer": 15,
-                    "object_layer": 22,
-                    "object_aggregation": "first_token",
-                    **shared_args,
-                },
-            ),
-            strategy_from_trainer(
-                lre_trainer,
-                f"original-seed{iteration_seed}",
-                {
-                    "save_progress_path": save_progress_path("original"),
-                    "subject_layer": 15,
-                    "object_layer": 27,
-                    "object_aggregation": "first_token",
-                    **shared_args,
-                },
+                "var1",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation=object_aggregation,
+                    verbose=verbose,
+                    inv_lre_rank=INV_LRE_RANK,
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
             ),
         ]
 
-        eval_results = benchmark_strategies(
+        results = benchmark_strategies(
             strategies,
             evaluator=evaluator,
-            save_progress_path=save_progress_path("overall-benchmark"),
+            save_progress_dir=save_progress_dir,
             force_rerun=force_rerun,
             verbose=verbose,
+            seed=iteration_seed,
         )
         if valid_prompts_cache_file:
             prompt_validator.write_cache(valid_prompts_cache_file)
 
-        for strategy, result in eval_results.items():
+        for strategy, result in results.items():
             log_or_print(f"iteration took {time() - start} seconds", verbose=verbose)
-            iteration_results[strip_iteration_info(strategy)].append(result)
+            iteration_results[strategy].append(result)
     return {
         strategy: BenchmarkIterationsResult(iteration_results)
         for strategy, iteration_results in iteration_results.items()
     }
-
-
-def strip_iteration_info(strategy_name: str) -> str:
-    # remove -seed## from strategy name
-    return re.sub(r"-seed\d+$", "", strategy_name)

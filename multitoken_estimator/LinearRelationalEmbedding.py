@@ -9,32 +9,37 @@ class InvertedLinearRelationalEmbedding:
     relation: str
     subject_layer: int
     object_layer: int
+    # store u, v, s, and bias separately to avoid storing the full weight matrix
     u: torch.Tensor
-    w_inv_vs: torch.Tensor
-    w_inv_bias: torch.Tensor
+    s: torch.Tensor
+    v: torch.Tensor
+    bias: torch.Tensor
     rank: int
     object_aggregation: Literal["mean", "first_token"]
     metadata: dict[str, Any] | None = None
 
-    def calc_low_rank_target_activation(
-        self, object_activation: torch.Tensor
-    ) -> torch.Tensor:
-        return (
-            self.u.T.to(object_activation.device, dtype=object_activation.dtype)
-            @ object_activation
-        )
+    def w_inv_times_vec(self, vec: torch.Tensor) -> torch.Tensor:
+        device = vec.device
+        dtype = vec.dtype
+        s = self.s.to(device, dtype=dtype)
+        v = self.v.to(device, dtype=dtype)
+        u = self.u.to(device, dtype=dtype)
+        # group u.T @ vec to avoid calculating larger matrices than needed
+        return v @ torch.diag(1 / s) @ (u.T @ vec)
 
     @torch.no_grad()
     def calculate_subject_activation(
         self,
-        target_activation: torch.Tensor,
+        object_activations: torch.Tensor,  # a tensor of shape (num_activations, hidden_activation_size)
         normalize: bool = True,
     ) -> torch.Tensor:
         # match precision of weight_inverse and bias
-        device = target_activation.device
-        w_inv_vs = self.w_inv_vs.to(device, dtype=target_activation.dtype)
-        w_inv_bias = self.w_inv_bias.to(device, dtype=target_activation.dtype)
-        vec = w_inv_vs @ target_activation - w_inv_bias
+        device = object_activations.device
+        dtype = object_activations.dtype
+        bias = self.bias.to(device, dtype=dtype)
+        unbiased_acts = object_activations - bias.unsqueeze(0)
+        vec = self.w_inv_times_vec(unbiased_acts.T).mean(dim=1)
+
         if normalize:
             vec = vec / vec.norm()
         return vec
@@ -61,16 +66,15 @@ class LinearRelationalEmbedding:
         low_rank_u: torch.Tensor = u[:, :rank].to(self.weight.dtype)
         low_rank_v: torch.Tensor = v[:, :rank].to(self.weight.dtype)
         low_rank_s: torch.Tensor = s[:rank].to(self.weight.dtype)
-        w_inv_vs = low_rank_v @ torch.diag(1 / low_rank_s)
-        w_inv_bias = w_inv_vs @ (low_rank_u.T @ self.bias)
         return InvertedLinearRelationalEmbedding(
             relation=self.relation,
             subject_layer=self.subject_layer,
             object_layer=self.object_layer,
             object_aggregation=self.object_aggregation,
             u=low_rank_u.detach().clone().to(device),
-            w_inv_vs=w_inv_vs.detach().clone().to(device),
-            w_inv_bias=w_inv_bias.detach().clone().to(device),
+            s=low_rank_s.detach().clone().to(device),
+            v=low_rank_v.detach().clone().to(device),
+            bias=self.bias.detach().clone().to(device),
             rank=rank,
             metadata=self.metadata,
         )
