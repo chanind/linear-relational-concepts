@@ -9,8 +9,7 @@ from tokenizers import Tokenizer
 from torch import nn
 from torch.utils.data import DataLoader
 
-from multitoken_estimator.data.data_model import RelationDataModel
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.extract_token_activations import (
     extract_final_token_activations,
     extract_token_activations,
@@ -45,7 +44,7 @@ class ObjectMappingTrainer:
     model: nn.Module
     tokenizer: Tokenizer
     layer_matcher: LayerMatcher
-    dataset: Database
+    dataset: RelationDataset
     prompt_generator: PromptGenerator
     prompt_validator: PromptValidator
 
@@ -54,7 +53,7 @@ class ObjectMappingTrainer:
         model: nn.Module,
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
-        dataset: Database,
+        dataset: RelationDataset,
         prompt_validator: Optional[PromptValidator] = None,
     ):
         self.dataset = dataset
@@ -83,13 +82,11 @@ class ObjectMappingTrainer:
         use_gpu: bool = torch.cuda.is_available(),
         move_to_cpu: bool = True,
         use_relation_prefix: bool = True,
-        validation_dataset: Optional[Database] = None,
+        validation_dataset: Optional[RelationDataset] = None,
     ) -> ObjectMappingModel:
         prefix: str | None = None
         if use_relation_prefix:
-            relation = self.dataset.query_one_or_throw(
-                RelationDataModel, lambda rel: rel.name == inv_lre.relation
-            )
+            relation = self.dataset.get_relation(inv_lre.relation)
             prefix = _extract_prefix(relation.templates)
         mapping_dataset = self._build_training_dataset(
             inv_lre=inv_lre,

@@ -4,7 +4,7 @@ from typing import Optional
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.RelationalConceptEstimator import RelationalConceptEstimator
@@ -23,7 +23,7 @@ class LreEvaluator:
     model: nn.Module
     tokenizer: Tokenizer
     layer_matcher: LayerMatcher
-    dataset: Database
+    dataset: RelationDataset
     batch_size: int = 8
     use_zs_prompts: bool = False
     causality_magnitude_multiplier: float = 1.0

@@ -1,7 +1,4 @@
-from typing import Iterable, Optional
-
-from multitoken_estimator.data.data_model import Entity, RelationData, RelationSample
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import Relation, RelationDataset, Sample
 from multitoken_estimator.PromptGenerator import (
     PromptGenerator,
     split_with_dashes_modifier,
@@ -15,54 +12,53 @@ from multitoken_estimator.PromptGenerator import (
 def loc_sample(
     city: str,
     country: str,
-    alternative_country_names: Optional[Iterable[str]] = None,
-) -> RelationSample:
-    alts = frozenset(alternative_country_names) if alternative_country_names else None
-    return RelationSample(
-        subject=Entity(city, "city"),
-        object=Entity(country, "country", alts),
+) -> Sample:
+    return Sample(
+        relation="city in country",
+        subject=city,
+        object=country,
     )
 
 
 def test_PromptGenerator() -> None:
-    db = Database()
-    db.add_relation_data(
-        RelationData(
-            "city in country",
-            frozenset({"{} is located in the country of"}),
-            samples=[
-                loc_sample("Toronto", "Canada"),
-                loc_sample("Montreal", "Canada"),
-                loc_sample("Beijing", "China"),
-                loc_sample("Tokyo", "Japan"),
-                loc_sample("Paris", "France"),
-                loc_sample("Berlin", "Germany"),
-                loc_sample("Munich", "Germany"),
-            ],
+    db = RelationDataset()
+    db.add_relation(
+        Relation(
+            "city in country", templates=frozenset({"{} is located in the country of"})
         )
     )
 
+    db.add_sample(loc_sample("Toronto", "Canada"))
+    db.add_sample(loc_sample("Montreal", "Canada"))
+    db.add_sample(loc_sample("Beijing", "China"))
+    db.add_sample(loc_sample("Tokyo", "Japan"))
+    db.add_sample(loc_sample("Paris", "France"))
+    db.add_sample(loc_sample("Berlin", "Germany"))
+    db.add_sample(loc_sample("Munich", "Germany"))
+
     pg = PromptGenerator(db)
-    prompts = pg.generate_prompts_for_object("Canada")
+    prompts = pg.generate_prompts_for_object(
+        relation_name="city in country", object_name="Canada"
+    )
     # 6x entity modifiers * 1x templates * 2_modifierx Canada objects = 14
     assert len(prompts) == 12
 
 
 def test_PromptGenerator_customize_entity_modifiers() -> None:
-    db = Database()
-    db.add_relation_data(
-        RelationData(
-            "city in country",
-            frozenset({"{} is located in the country of"}),
-            samples=[
-                loc_sample("Toronto", "Canada"),
-                loc_sample("Beijing", "China"),
-            ],
+    db = RelationDataset()
+    db.add_relation(
+        Relation(
+            "city in country", templates=frozenset({"{} is located in the country of"})
         )
     )
+
+    db.add_sample(loc_sample("Toronto", "Canada"))
+    db.add_sample(loc_sample("Beijing", "China"))
     pg = PromptGenerator(db)
     prompts = pg.generate_prompts_for_object(
-        "Canada", entity_modifiers=[uppercase_modifier]
+        relation_name="city in country",
+        object_name="Canada",
+        entity_modifiers=[uppercase_modifier],
     )
     assert len(prompts) == 1
     prompt = list(prompts)[0]
@@ -74,17 +70,15 @@ def test_PromptGenerator_customize_entity_modifiers() -> None:
 
 
 def test_PromptGenerator_generate_prompts_for_relation() -> None:
-    db = Database()
-    db.add_relation_data(
-        RelationData(
-            "city in country",
-            frozenset({"{} is located in the country of"}),
-            samples=[
-                loc_sample("Toronto", "Canada"),
-                loc_sample("Beijing", "China"),
-            ],
+    db = RelationDataset()
+    db.add_relation(
+        Relation(
+            "city in country", templates=frozenset({"{} is located in the country of"})
         )
     )
+    db.add_sample(loc_sample("Toronto", "Canada"))
+    db.add_sample(loc_sample("Beijing", "China"))
+
     pg = PromptGenerator(db)
     prompts = pg.generate_prompts_for_relation("city in country", entity_modifiers=None)
     assert len(prompts) == 2

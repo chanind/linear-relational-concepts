@@ -7,8 +7,7 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.data.data_model import SampleDataModel
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.extract_token_activations import extract_token_activations
 from multitoken_estimator.lib.layer_matching import (
@@ -92,7 +91,7 @@ class MultitokenEstimator:
     model: nn.Module
     tokenizer: Tokenizer
     device: torch.device
-    database: Database
+    dataset: RelationDataset
     prompt_generator: PromptGenerator
     layer_matcher: LayerMatcher
     prompt_validator: PromptValidator
@@ -102,20 +101,21 @@ class MultitokenEstimator:
         model: nn.Module,
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
-        database: Database,
+        dataset: RelationDataset,
         prompt_validator: Optional[PromptValidator] = None,
         device: torch.device = DEFAULT_DEVICE,
     ):
         self.model = model
         self.tokenizer = tokenizer
         self.device = device
-        self.database = database
-        self.prompt_generator = PromptGenerator(database)
+        self.dataset = dataset
+        self.prompt_generator = PromptGenerator(dataset)
         self.layer_matcher = layer_matcher
         self.prompt_validator = prompt_validator or PromptValidator(model, tokenizer)
 
     def collect_object_activations(
         self,
+        relation_name: str,
         object_name: str,
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
@@ -128,7 +128,8 @@ class MultitokenEstimator:
         self.model.eval()
         prompts = list(
             self.prompt_generator.generate_prompts_for_object(
-                object_name,
+                relation_name=relation_name,
+                object_name=object_name,
                 num_fsl_examples=num_fsl_examples,
                 entity_modifiers=entity_modifiers,
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
@@ -160,6 +161,7 @@ class MultitokenEstimator:
 
     def estimate_object_representation(
         self,
+        relation_name: str,
         object_name: str,
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
@@ -171,7 +173,8 @@ class MultitokenEstimator:
         valid_relations: Optional[set[str]] = None,
     ) -> ObjectRepresentation:
         object_activations = self.collect_object_activations(
-            object_name,
+            relation_name=relation_name,
+            object_name=object_name,
             num_fsl_examples=num_fsl_examples,
             entity_modifiers=entity_modifiers,
             exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
@@ -196,10 +199,8 @@ class MultitokenEstimator:
         max_prompts_per_object: Optional[int] = None,
         min_prompts_per_object: int = 0,
     ) -> list[ObjectRepresentation]:
-        samples = self.database.query_all(
-            SampleDataModel, lambda s: s.relation.name == relation
-        )
-        objects = {sample.object.name for sample in samples}
+        samples = self.dataset.get_relation_samples(relation)
+        objects = {sample.object for sample in samples}
         object_representations = []
         for i, object in enumerate(objects):
             log_or_print(
@@ -209,7 +210,8 @@ class MultitokenEstimator:
             if min_prompts_per_object > 0:
                 num_prompts = len(
                     self.prompt_generator.generate_prompts_for_object(
-                        object,
+                        relation_name=relation,
+                        object_name=object,
                         entity_modifiers=entity_modifiers,
                         exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
                         valid_relation_names={relation},
@@ -222,7 +224,8 @@ class MultitokenEstimator:
                     )
                     continue
             object_activations = self.collect_object_activations(
-                object,
+                relation_name=relation,
+                object_name=object,
                 num_fsl_examples=num_fsl_examples,
                 entity_modifiers=entity_modifiers,
                 exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,

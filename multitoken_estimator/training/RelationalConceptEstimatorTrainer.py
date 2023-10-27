@@ -5,7 +5,7 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.logger import log_or_print, logger
 from multitoken_estimator.lib.PromptValidator import PromptValidator
@@ -20,7 +20,7 @@ class RelationalConceptEstimatorTrainer:
     Wrapper class around LreTrainer + ObjectMapping Trainer
     """
 
-    database: Database
+    dataset: RelationDataset
     lre_trainer: LreTrainer
     object_mapping_trainer: ObjectMappingTrainer
 
@@ -29,15 +29,15 @@ class RelationalConceptEstimatorTrainer:
         model: nn.Module,
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
-        database: Database,
+        dataset: RelationDataset,
         prompt_validator: Optional[PromptValidator] = None,
     ):
-        self.database = database
+        self.dataset = dataset
         self.lre_trainer = LreTrainer(
-            model, tokenizer, layer_matcher, database, prompt_validator
+            model, tokenizer, layer_matcher, dataset, prompt_validator
         )
         self.object_mapping_trainer = ObjectMappingTrainer(
-            model, tokenizer, layer_matcher, database, prompt_validator
+            model, tokenizer, layer_matcher, dataset, prompt_validator
         )
 
     def train_all(
@@ -61,7 +61,7 @@ class RelationalConceptEstimatorTrainer:
         save_progress_path: Optional[str] = None,
         force_retrain_all: bool = False,
     ) -> list[RelationalConceptEstimator]:
-        relations = self.database.get_relation_names()
+        relations = self.dataset.get_relation_names()
         estimators = load_trained_estimators(
             save_progress_path, force_retrain_all, verbose=verbose
         )

@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from multitoken_estimator.data.data_model import EntityDataModel, SampleDataModel
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import RelationDataset, Sample
 from multitoken_estimator.lib.logger import logger
 from multitoken_estimator.lib.util import stable_sample
 
@@ -11,8 +10,8 @@ EntityModifier = Callable[[str], str]
 
 def chain_modifiers(modifiers: list[EntityModifier]) -> EntityModifier:
     def chained_modifier(s: str) -> str:
-        for m in modifiers:
-            s = m(s)
+        for modifier in modifiers:
+            s = modifier(s)
         return s
 
     return chained_modifier
@@ -55,10 +54,10 @@ class PromptGenerator:
     Generate prompts which match various criteria from the database.
     """
 
-    db: Database
+    db: RelationDataset
     seed: int | str
 
-    def __init__(self, db: Database, seed: int | str = 42) -> None:
+    def __init__(self, db: RelationDataset, seed: int | str = 42) -> None:
         self.db = db
         self.seed = seed
 
@@ -68,9 +67,7 @@ class PromptGenerator:
         entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
     ) -> set[Prompt]:
-        relation_names = {
-            r.relation.name for r in self.db.query_all(SampleDataModel, lambda s: True)
-        }
+        relation_names = {rel.name for rel in self.db.relations}
         prompts: set[Prompt] = set()
         for relation_name in relation_names:
             prompts.update(
@@ -90,14 +87,13 @@ class PromptGenerator:
         entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
     ) -> set[Prompt]:
-        samples_in_relation = self.db.query_all(
-            SampleDataModel, lambda s: s.relation.name == relation_name
-        )
-        object_names = {s.object.name for s in samples_in_relation}
+        samples_in_relation = self.db.get_relation_samples(relation_name)
+        object_names = {sample.object for sample in samples_in_relation}
         prompts: set[Prompt] = set()
         for object_name in object_names:
             prompts.update(
                 self.generate_prompts_for_object(
+                    relation_name=relation_name,
                     object_name=object_name,
                     num_fsl_examples=num_fsl_examples,
                     entity_modifiers=entity_modifiers,
@@ -109,71 +105,62 @@ class PromptGenerator:
 
     def generate_prompts_for_object(
         self,
+        relation_name: str,
         object_name: str,
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         valid_relation_names: Optional[set[str]] = None,
     ) -> set[Prompt]:
-        object = self.db.query_one_or_throw(
-            EntityDataModel, lambda e: e.name == object_name
+        object_samples = self.db.get_object_samples(
+            relation=relation_name, object=object_name
         )
-        object_samples = self.db.query_all(
-            SampleDataModel, lambda s: s.object == object
-        )
+        relation = self.db.get_relation(relation_name)
         if valid_relation_names is not None:
             object_samples = [
-                s for s in object_samples if s.relation.name in valid_relation_names
+                s for s in object_samples if s.relation in valid_relation_names
             ]
-        relations = {s.relation for s in object_samples}
-        samples_by_relation_id = {}
-        for relation in relations:
-            selector = lambda s: s.relation == relation
-            if exclude_fsl_examples_of_object:
-                selector = lambda s: s.relation == relation and s.object != object
-            samples_by_relation_id[relation.id] = self.db.query_all(
-                SampleDataModel, selector
-            )
+        relation_samples = self.db.get_relation_samples(relation_name)
 
         prompts: set[Prompt] = set()
         for object_sample in object_samples:
-            answers = {object.name}
-            if object.alternative_names is not None:
-                answers.update(object.alternative_names)
-            potential_fsl_samples = samples_by_relation_id.get(
-                object_sample.relation.id, []
-            )
+            answer = object_name
+            potential_fsl_samples = relation_samples
+            if exclude_fsl_examples_of_object:
+                potential_fsl_samples = [
+                    s for s in potential_fsl_samples if s.object != object_name
+                ]
+
             if len(potential_fsl_samples) == 0:
                 logger.warn(
-                    f"Warning: no FSL samples for relation {object_sample.relation.name} and object {object_name}",
+                    f"Warning: no FSL samples for relation {object_sample.relation} and object {object_name}",
                 )
-            for answer in answers:
-                for entity_modifier in entity_modifiers or [null_modifier]:
-                    for template in object_sample.relation.templates:
-                        text = format_prompt_text(
-                            template=template,
-                            sample=object_sample,
-                            potential_fsl_samples=potential_fsl_samples,
-                            object_modifier=entity_modifier,
-                            num_fsl_examples=num_fsl_examples,
-                            seed=self.seed,
+            for entity_modifier in entity_modifiers or [null_modifier]:
+                for template in relation.templates:
+                    text = format_prompt_text(
+                        template=template,
+                        sample=object_sample,
+                        potential_fsl_samples=potential_fsl_samples,
+                        object_modifier=entity_modifier,
+                        num_fsl_examples=num_fsl_examples,
+                        seed=self.seed,
+                    )
+                    prompts.add(
+                        Prompt(
+                            text=text,
+                            answer=entity_modifier(answer),
+                            subject=object_sample.subject,
+                            object_name=object_name,
+                            relation_name=relation_name,
                         )
-                        prompts.add(
-                            Prompt(
-                                text=text,
-                                answer=entity_modifier(answer),
-                                subject=object_sample.subject.name,
-                                object_name=object_name,
-                                relation_name=object_sample.relation.name,
-                            )
-                        )
+                    )
         return prompts
 
 
 def format_prompt_text(
     template: str,
-    sample: SampleDataModel,
-    potential_fsl_samples: list[SampleDataModel],
+    sample: Sample,
+    potential_fsl_samples: list[Sample],
     subject_modifier: EntityModifier | None = None,
     object_modifier: EntityModifier | None = None,
     num_fsl_examples: int = 5,
@@ -185,18 +172,18 @@ def format_prompt_text(
     fsl_samples = stable_sample(
         potential_fsl_samples,
         min(num_fsl_examples, len(potential_fsl_samples)),
-        f"{sample.id}-{seed}",
+        f"{sample.relation}-{sample.object}-{sample.subject}-{seed}",
     )
     texts = []
     for fsl_sample in fsl_samples:
-        object = fsl_sample.object.name
-        subject = fsl_sample.subject.name
+        object = fsl_sample.object
+        subject = fsl_sample.subject
         if object_modifier is not None:
             object = object_modifier(object)
         if subject_modifier is not None:
             subject = subject_modifier(subject)
         texts.append(template.format(subject).strip() + " " + object.strip())
-    subject = sample.subject.name
+    subject = sample.subject
     if subject_modifier is not None:
         subject = subject_modifier(subject)
     texts.append(template.format(subject).strip())

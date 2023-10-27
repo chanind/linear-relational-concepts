@@ -15,8 +15,7 @@ from multitoken_estimator.ConceptMatcher import (
     ConceptMatchQuery,
     ConceptMatchResult,
 )
-from multitoken_estimator.data.data_model import SampleDataModel
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import Relation, RelationDataset
 from multitoken_estimator.lib.extract_token_activations import (
     extract_final_token_activations,
 )
@@ -42,7 +41,7 @@ def evaluate_causality(
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
     estimators: Sequence[RelationalConceptEstimator],
-    dataset: Database,
+    dataset: RelationDataset,
     batch_size: int = 32,
     max_swaps_per_concept: int = 5,
     max_swaps_total: Optional[int] = None,
@@ -67,9 +66,7 @@ def evaluate_causality(
             )
             continue
         relation_name = estimator.relation
-        objects_in_relation = reformulated_dataset.get_object_names_in_relation(
-            relation_name
-        )
+        objects_in_relation = reformulated_dataset.get_object_names(relation_name)
         log_or_print(
             f"evaluating causality for relation {relation_name} with {len(objects_in_relation)} objects",
             verbose=verbose,
@@ -184,7 +181,7 @@ def evaluate_relation_classification_accuracy(
     tokenizer: Tokenizer,
     layer_matcher: LayerMatcher,
     estimators: Sequence[RelationalConceptEstimator],
-    dataset: Database,
+    dataset: RelationDataset,
     batch_size: int = 32,
     verbose: bool = True,
     use_zs_prompts: bool = True,
@@ -207,9 +204,7 @@ def evaluate_relation_classification_accuracy(
             )
             continue
         relation_name = estimator.relation
-        objects_in_relation = reformulated_dataset.get_object_names_in_relation(
-            relation_name
-        )
+        objects_in_relation = reformulated_dataset.get_object_names(relation_name)
         log_or_print(
             f"evaluating accuracy for relation {relation_name} with {len(objects_in_relation)} objects",
             verbose=verbose,
@@ -314,24 +309,22 @@ def _get_prompt_num_answer_tokens(
     return answer_data.num_answer_tokens
 
 
-def _reformulate_zs_prompts(dataset: Database, use_zs_prompts: bool) -> Database:
+def _reformulate_zs_prompts(
+    dataset: RelationDataset, use_zs_prompts: bool
+) -> RelationDataset:
     """Return new concepts data replacing prompts with zs_prompts if use_zs_prompts is True"""
     if not use_zs_prompts:
         return dataset
 
-    def reformulate_sample(sample: SampleDataModel) -> SampleDataModel:
-        if sample.relation.zs_templates is None:
-            raise ValueError(f"Missing zs_prompts in LRE sample data for {sample.id}")
-        new_relation = replace(
-            sample.relation,
-            templates=sample.relation.zs_templates,
-        )
+    def reformulate_relation(relation: Relation) -> Relation:
+        if relation.zs_templates is None:
+            raise ValueError(f"Missing zs_prompts in LRE sample data for {relation}")
         return replace(
-            sample,
-            relation=new_relation,
+            relation,
+            templates=relation.zs_templates,
         )
 
-    return dataset.reformulate_samples(reformulate_sample)
+    return dataset.reformulate_relations(reformulate_relation)
 
 
 def _build_concepts_from_concept_estimator(

@@ -5,7 +5,7 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.data.database import Database
+from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.logger import log_or_print, logger
 from multitoken_estimator.lib.PromptValidator import PromptValidator
@@ -22,7 +22,7 @@ class LreTrainer:
     model: nn.Module
     tokenizer: Tokenizer
     layer_matcher: LayerMatcher
-    database: Database
+    database: RelationDataset
     prompt_generator: PromptGenerator
     prompt_validator: PromptValidator
 
@@ -31,7 +31,7 @@ class LreTrainer:
         model: nn.Module,
         tokenizer: Tokenizer,
         layer_matcher: LayerMatcher,
-        database: Database,
+        database: RelationDataset,
         prompt_validator: Optional[PromptValidator] = None,
     ):
         self.model = model

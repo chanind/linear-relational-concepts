@@ -2,12 +2,11 @@ from multitoken_estimator.data.data_loaders import (
     get_relation_to_lre_type_map,
     load_lre_data,
 )
-from multitoken_estimator.data.data_model import RelationDataModel
 
 
 def test_load_lre_data_with_limited_files() -> None:
     db = load_lre_data(only_load_files={"city_in_country.json"})
-    all_relations = db.query_all(RelationDataModel)
+    all_relations = db.relations
     assert len(all_relations) == 1
     assert all_relations[0].name == "city in country"
 

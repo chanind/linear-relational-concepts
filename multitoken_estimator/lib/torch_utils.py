@@ -62,28 +62,6 @@ def recursive_tensor_copy(
         assert False, f"Unknown type {type(x)} cannot be broken into tensors."
 
 
-Svd = tuple[torch.Tensor, torch.Tensor, torch.Tensor]
-
-
-def low_rank_pinv(
-    *, matrix: torch.Tensor, rank: int, svd: Svd | None = None
-) -> torch.Tensor:
-    """Compute a low-rank pseudo-inverse of a matrix.
-
-    Args:
-        matrix: The matrix to invert.
-        rank: The rank of the approximation.
-
-    Returns:
-        The pseudo-inverse.
-    """
-    if svd is None:
-        svd = torch.svd(matrix.float())
-    u, s, v = svd
-    matrix_pinv = v[:, :rank] @ torch.diag(1 / s[:rank]) @ u[:, :rank].T
-    return matrix_pinv.to(matrix.dtype)
-
-
 def guess_model_name(model: nn.Module) -> str:
     """
     Guesses the model name from the model's config.
