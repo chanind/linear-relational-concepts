@@ -49,17 +49,14 @@ class Prompt:
     relation_name: str
 
 
+@dataclass
 class PromptGenerator:
     """
     Generate prompts which match various criteria from the database.
     """
 
     db: RelationDataset
-    seed: int | str
-
-    def __init__(self, db: RelationDataset, seed: int | str = 42) -> None:
-        self.db = db
-        self.seed = seed
+    seed: int | float | str = 42
 
     def generate_prompts_for_all_relations(
         self,
@@ -164,7 +161,7 @@ def format_prompt_text(
     subject_modifier: EntityModifier | None = None,
     object_modifier: EntityModifier | None = None,
     num_fsl_examples: int = 5,
-    seed: int | str = 42,
+    seed: int | float | str = 42,
 ) -> str:
     """
     Format a prompt text for a given sample and a list of FSL samples.

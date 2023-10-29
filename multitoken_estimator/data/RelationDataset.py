@@ -1,8 +1,8 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Sequence
 
-from multitoken_estimator.lib.util import stable_shuffle
+from multitoken_estimator.lib.util import group_items, stable_shuffle
 
 
 @dataclass(frozen=True, slots=True)
@@ -63,10 +63,18 @@ class RelationDataset:
         )
 
     def split(
-        self, train_portion: float = 0.5, seed: int | str = 42
+        self,
+        train_portion: float = 0.5,
+        seed: int | str = 42,
     ) -> tuple["RelationDataset", "RelationDataset"]:
         """
         Split this dataset into train / test datasets based on SampleDataModel grouped by relation
+        NOTE: the train_portion operates per relation and object. So you can get unbalanced results
+        if, e.g., you have 3 samples per object, but aim for a 0.5 split, as you'd get 2 train, 1 test
+        for every object.
+        NOTE: this will ensure that the train set is guaranteed to have at least 1 of every object.
+        this means that the train set will be larger than train_portion if there are objects
+        that only appear one time in the relation, since they MUST get added to training set.
         """
 
         train_dataset = RelationDataset()
@@ -74,14 +82,18 @@ class RelationDataset:
         for relation in self.relations:
             train_dataset.add_relation(relation)
             test_dataset.add_relation(relation)
-            relation_samples = self.samples_by_relation[relation.name]
-            shuffled_samples = stable_shuffle(
-                relation_samples, seed=f"{relation.name}-{seed}"
-            )
-            split_index = int(len(shuffled_samples) * train_portion)
-            for train_sample in shuffled_samples[:split_index]:
+            samples = self.get_relation_samples(relation.name)
+            sample_by_object = group_items(samples, lambda s: s.object)
+            for object, object_samples in sample_by_object.items():
+                shuffled_samples = stable_shuffle(
+                    object_samples, seed=f"{relation}-{object}-{seed}"
+                )
+                train_samples, test_samples = _split_samples(
+                    shuffled_samples, train_portion
+                )
+            for train_sample in train_samples:
                 train_dataset.add_sample(train_sample)
-            for test_sample in shuffled_samples[split_index:]:
+            for test_sample in test_samples:
                 test_dataset.add_sample(test_sample)
         return train_dataset, test_dataset
 
@@ -103,3 +115,22 @@ class RelationDataset:
         for sample in self.samples:
             new_dataset.add_sample(sample)
         return new_dataset
+
+
+def _split_samples(
+    samples: Sequence[Sample], train_portion: float
+) -> tuple[list[Sample], list[Sample]]:
+    """
+    Split samples, ensuring the first sample always goes in train.
+    This method assumes the samples are already shuffled
+    """
+    train_samples: list[Sample] = [samples[0]]
+    test_samples: list[Sample] = []
+    for sample in samples[1:]:
+        total_sorted = len(train_samples) + len(test_samples)
+        cur_train_portion = len(train_samples) / total_sorted
+        if cur_train_portion <= train_portion:
+            train_samples.append(sample)
+        else:
+            test_samples.append(sample)
+    return train_samples, test_samples
