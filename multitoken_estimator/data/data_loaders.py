@@ -6,6 +6,7 @@ from dataclasses_json import DataClassJsonMixin
 
 from multitoken_estimator.data.RelationDataset import Relation, RelationDataset, Sample
 from multitoken_estimator.lib.constants import DATA_DIR
+from multitoken_estimator.lib.util import dedupe_stable
 
 
 @dataclass
@@ -34,23 +35,23 @@ class LreRelation(DataClassJsonMixin):
 def lre_relation_to_relation_and_samples(
     lre_relation: LreRelation,
 ) -> tuple[Relation, list[Sample]]:
-    relation_to_lre_type_map = get_relation_to_lre_type_map()
-
     relation = Relation(
         name=lre_relation.name,
         templates=frozenset(lre_relation.prompt_templates),
         zs_templates=frozenset(lre_relation.prompt_templates_zs),
-        category=relation_to_lre_type_map.get(lre_relation.name),
+        category=lre_relation.properties.relation_type,
     )
 
-    samples = [
-        Sample(
-            relation=lre_relation.name,
-            subject=sample.subject,
-            object=sample.object,
-        )
-        for sample in lre_relation.samples
-    ]
+    samples = dedupe_stable(
+        [
+            Sample(
+                relation=lre_relation.name,
+                subject=sample.subject,
+                object=sample.object,
+            )
+            for sample in lre_relation.samples
+        ]
+    )
     return relation, samples
 
 
@@ -59,24 +60,13 @@ def load_lre_data(only_load_files: Optional[set[str]] = None) -> RelationDataset
     for relation_file in DATA_DIR.glob("lre/*/*.json"):
         if only_load_files is not None and relation_file.name not in only_load_files:
             continue
-        with open(relation_file) as f:
-            lre_relation = LreRelation.from_json(f.read())
+        with open(relation_file, encoding="utf-8") as f:
+            raw_json_str = f.read()
+            # some of the JSON encoding is messed up, need to replace these double backslashes
+            # e.g. Bogot\\u00e1 instead of Bogot\u00e1 (Bogotá)
+            lre_relation = LreRelation.from_json(raw_json_str.replace("\\\\u", "\\u"))
             relation, samples = lre_relation_to_relation_and_samples(lre_relation)
         db.add_relation(relation)
         for sample in samples:
             db.add_sample(sample)
     return db
-
-
-@lru_cache(maxsize=1)
-def get_relation_to_lre_type_map() -> dict[str, str]:
-    """
-    map relation name to LRE type
-    """
-    relation_to_lre_type_map = {}
-    for relation_file in DATA_DIR.glob("lre/*/*.json"):
-        lre_type = relation_file.parent.name
-        with open(relation_file) as f:
-            lre_relation = LreRelation.from_json(f.read())
-        relation_to_lre_type_map[lre_relation.name] = lre_type
-    return relation_to_lre_type_map

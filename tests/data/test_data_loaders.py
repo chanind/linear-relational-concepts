@@ -1,6 +1,7 @@
+from collections import defaultdict
+
 from multitoken_estimator.data.data_loaders import (
     LreRelation,
-    get_relation_to_lre_type_map,
     load_lre_data,
     lre_relation_to_relation_and_samples,
 )
@@ -27,53 +28,41 @@ def test_load_city_in_country_lre_data() -> None:
     assert samples[0].object == "United States"
 
 
-def test_get_relation_to_lre_type_map() -> None:
-    assert get_relation_to_lre_type_map() == {
-        "adjective antonym": "linguistic",
-        "adjective comparative": "linguistic",
-        "adjective superlative": "linguistic",
-        "characteristic gender": "bias",
-        "city in country": "factual",
-        "company CEO": "factual",
-        "company hq": "factual",
-        "country capital city": "factual",
-        "country currency": "factual",
-        "country language": "factual",
-        "country largest city": "factual",
-        "food from country": "factual",
-        "fruit inside color": "commonsense",
-        "fruit outside color": "commonsense",
-        "landmark in country": "factual",
-        "landmark on continent": "factual",
-        "name birthplace": "bias",
-        "name gender": "bias",
-        "name religion": "bias",
-        "object superclass": "commonsense",
-        "occupation age": "bias",
-        "occupation gender": "bias",
-        "person father": "factual",
-        "person lead singer of band": "factual",
-        "person mother": "factual",
-        "person native language": "bias",
-        "person occupation": "factual",
-        "person plays instrument": "factual",
-        "person sport position": "factual",
-        "person university": "factual",
-        "plays pro sport": "factual",
-        "pokemon evolution": "factual",
-        "president birth year": "factual",
-        "president election year": "factual",
-        "product by company": "factual",
-        "star constellation name": "factual",
-        "substance phase of matter": "commonsense",
-        "superhero archnemesis": "factual",
-        "superhero person": "factual",
-        "task done by tool": "commonsense",
-        "task person type": "commonsense",
-        "univ degree gender": "bias",
-        "verb past tense": "linguistic",
-        "word first letter": "linguistic",
-        "word last letter": "linguistic",
-        "word sentiment": "commonsense",
-        "work location": "commonsense",
+def test_load_lre_data() -> None:
+    dataset = load_lre_data()
+    assert len(dataset.relations) == 47
+    relations_by_category = defaultdict(list)
+    lre_samples_by_category = defaultdict(list)
+    for relation in dataset.relations:
+        relations_by_category[relation.category].append(relation)
+        samples = dataset.get_relation_samples(relation.name)
+        lre_samples_by_category[relation.category].extend(samples)
+    assert set(relations_by_category.keys()) == {
+        "commonsense",
+        "bias",
+        "factual",
+        "linguistic",
     }
+    # These stats match what's in the paper
+    assert len(relations_by_category["commonsense"]) == 8
+    assert len(relations_by_category["bias"]) == 7
+    assert len(relations_by_category["factual"]) == 26
+    assert len(relations_by_category["linguistic"]) == 6
+    assert len(lre_samples_by_category["commonsense"]) == 369
+    assert len(lre_samples_by_category["bias"]) == 212
+    assert len(lre_samples_by_category["factual"]) == 9675
+    assert len(lre_samples_by_category["linguistic"]) == 793
+
+
+def test_load_lre_dataset_fixes_messed_up_unicode() -> None:
+    dataset = load_lre_data()
+    for relation in dataset.relations:
+        assert "\\" not in relation.name
+        assert "\\" not in relation.category
+        for template in relation.templates:
+            assert "\\" not in template
+        for template in relation.zs_templates or []:
+            assert "\\" not in template
+        for sample in dataset.get_relation_samples(relation.name):
+            assert "\\" not in sample.subject
+            assert "\\" not in sample.object

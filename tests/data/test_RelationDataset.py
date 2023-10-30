@@ -57,7 +57,7 @@ def test_split_full_lre_relations_dataset() -> None:
     assert len(train_db.relations) == 47
     assert len(test_db.relations) == 47
     assert len(train_objects) == 3484  # 3623
-    assert len(test_objects) == 439  # 465
-    assert len(train_relations_where_all_objects_have_one_sample) == 13  # 11
-    assert len(train_samples) == 7208  # 9250
-    assert len(test_samples) == 3881  # 5320
+    assert len(test_objects) == 426  # 465
+    assert len(train_relations_where_all_objects_have_one_sample) == 14  # 11
+    assert len(train_samples) == 7196  # 9250
+    assert len(test_samples) == 3853  # 5320
