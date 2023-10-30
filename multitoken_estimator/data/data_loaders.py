@@ -36,8 +36,8 @@ def lre_relation_to_relation_and_samples(
 ) -> tuple[Relation, list[Sample]]:
     relation = Relation(
         name=lre_relation.name,
-        templates=frozenset(lre_relation.prompt_templates),
-        zs_templates=frozenset(lre_relation.prompt_templates_zs),
+        templates=tuple(lre_relation.prompt_templates),
+        zs_templates=tuple(lre_relation.prompt_templates_zs),
         category=lre_relation.properties.relation_type,
     )
 

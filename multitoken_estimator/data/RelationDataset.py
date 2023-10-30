@@ -9,8 +9,8 @@ from multitoken_estimator.lib.util import group_items, stable_shuffle
 class Relation:
     name: str
     # expects a template string with a {} placeholder for the subject
-    templates: frozenset[str]
-    zs_templates: frozenset[str] | None = None
+    templates: tuple[str, ...]
+    zs_templates: tuple[str, ...] | None = None
     category: str | None = None
 
 

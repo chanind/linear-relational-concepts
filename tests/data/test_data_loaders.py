@@ -22,7 +22,7 @@ def test_load_city_in_country_lre_data() -> None:
     with open(LRE_DATA_FILE) as f:
         lre_relation = LreRelation.from_json(f.read())
     relation, samples = lre_relation_to_relation_and_samples(lre_relation)
-    assert relation.templates == {"{} is part of", "{} is in the country of"}
+    assert relation.templates == ("{} is part of", "{} is in the country of")
     assert len(samples) == 27
     assert samples[0].subject == "New York City"
     assert samples[0].object == "United States"
