@@ -58,6 +58,7 @@ def test_load_lre_dataset_fixes_messed_up_unicode() -> None:
     dataset = load_lre_data()
     for relation in dataset.relations:
         assert "\\" not in relation.name
+        assert relation.category is not None
         assert "\\" not in relation.category
         for template in relation.templates:
             assert "\\" not in template
