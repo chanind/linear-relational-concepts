@@ -86,9 +86,12 @@ def benchmark_gptj(
             prompt_validator=prompt_validator,
         )
 
+        log_or_print("Filtering relations with few eval prompts", verbose=verbose)
         train_data = evaluator.filter_relations_with_few_eval_prompts(
             raw_train_data, min_relation_eval_prompts=min_test_prompts_per_relation
         )
+        if valid_prompts_cache_file:
+            prompt_validator.write_cache(valid_prompts_cache_file)
 
         lre_trainer = LreConceptTrainer(
             model,
