@@ -1,5 +1,6 @@
 from multitoken_estimator.data.RelationDataset import Relation, RelationDataset, Sample
 from multitoken_estimator.PromptGenerator import (
+    AUGMENTATION_MODIFIERS,
     PromptGenerator,
     split_with_dashes_modifier,
     split_with_dashes_uppercase_modifier,
@@ -38,7 +39,9 @@ def test_PromptGenerator() -> None:
 
     pg = PromptGenerator(db)
     prompts = pg.generate_prompts_for_object(
-        relation_name="city in country", object_name="Canada"
+        relation_name="city in country",
+        object_name="Canada",
+        entity_modifiers=AUGMENTATION_MODIFIERS,
     )
     # 6x entity modifiers * 1x templates * 2_modifierx Canada objects = 14
     assert len(prompts) == 12

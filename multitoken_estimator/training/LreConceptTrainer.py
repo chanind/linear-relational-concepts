@@ -20,7 +20,7 @@ from multitoken_estimator.lib.util import group_items, sample_or_all
 from multitoken_estimator.LinearRelationalEmbedding import (
     InvertedLinearRelationalEmbedding,
 )
-from multitoken_estimator.PromptGenerator import DEFAULT_ENTITY_MODIFIERS, Prompt
+from multitoken_estimator.PromptGenerator import AUGMENTATION_MODIFIERS, Prompt
 from multitoken_estimator.training.ConceptTrainer import (
     ConceptTrainer,
     ConceptTrainerOptions,
@@ -54,7 +54,7 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
         opts: LreConceptTrainerOptions,
         verbose: bool = True,
     ) -> list[Concept]:
-        lre_modifiers = DEFAULT_ENTITY_MODIFIERS if opts.augment_lre_prompts else None
+        lre_modifiers = AUGMENTATION_MODIFIERS if opts.augment_lre_prompts else None
         relation_prompts = list(
             self.prompt_generator.generate_prompts_for_relation(
                 relation_name=relation,

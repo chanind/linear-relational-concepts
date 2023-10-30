@@ -53,6 +53,7 @@ def test_split_full_lre_relations_dataset() -> None:
     test_objects = set(sample.object for sample in test_samples)
 
     assert len(train_samples) + len(test_samples) == len(all_samples)
+    assert len(all_samples) == 11049
     # hardcoding these values as a form of snapshot test
     assert len(train_db.relations) == 47
     assert len(test_db.relations) == 47

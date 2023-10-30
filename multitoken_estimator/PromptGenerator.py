@@ -30,7 +30,7 @@ split_with_dashes_uppercase_modifier = chain_modifiers(
     [uppercase_modifier, split_with_dashes_modifier]
 )
 
-DEFAULT_ENTITY_MODIFIERS = [
+AUGMENTATION_MODIFIERS = [
     null_modifier,
     uppercase_modifier,
     lowercase_modifier,
@@ -61,7 +61,7 @@ class PromptGenerator:
     def generate_prompts_for_all_relations(
         self,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
     ) -> set[Prompt]:
         relation_names = {rel.name for rel in self.db.relations}
@@ -81,7 +81,7 @@ class PromptGenerator:
         self,
         relation_name: str,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
     ) -> set[Prompt]:
         samples_in_relation = self.db.get_relation_samples(relation_name)
@@ -105,7 +105,7 @@ class PromptGenerator:
         relation_name: str,
         object_name: str,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] | None = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
         valid_relation_names: Optional[set[str]] = None,
     ) -> set[Prompt]:

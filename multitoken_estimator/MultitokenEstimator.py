@@ -19,7 +19,7 @@ from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.lib.token_utils import find_prompt_answer_data
 from multitoken_estimator.lib.torch_utils import get_device
 from multitoken_estimator.PromptGenerator import (
-    DEFAULT_ENTITY_MODIFIERS,
+    AUGMENTATION_MODIFIERS,
     EntityModifier,
     Prompt,
     PromptGenerator,
@@ -118,7 +118,7 @@ class MultitokenEstimator:
         relation_name: str,
         object_name: str,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] = AUGMENTATION_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         max_prompts: Optional[int] = None,
@@ -164,7 +164,7 @@ class MultitokenEstimator:
         relation_name: str,
         object_name: str,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] = AUGMENTATION_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         verbose: bool = True,
@@ -191,7 +191,7 @@ class MultitokenEstimator:
         self,
         relation: str,
         num_fsl_examples: int = 5,
-        entity_modifiers: list[EntityModifier] = DEFAULT_ENTITY_MODIFIERS,
+        entity_modifiers: list[EntityModifier] = AUGMENTATION_MODIFIERS,
         exclude_fsl_examples_of_object: bool = True,
         batch_size: int = 8,
         verbose: bool = True,
