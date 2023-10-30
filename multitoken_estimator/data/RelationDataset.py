@@ -91,10 +91,10 @@ class RelationDataset:
                 train_samples, test_samples = _split_samples(
                     shuffled_samples, train_portion
                 )
-            for train_sample in train_samples:
-                train_dataset.add_sample(train_sample)
-            for test_sample in test_samples:
-                test_dataset.add_sample(test_sample)
+                for train_sample in train_samples:
+                    train_dataset.add_sample(train_sample)
+                for test_sample in test_samples:
+                    test_dataset.add_sample(test_sample)
         return train_dataset, test_dataset
 
     def reformulate_relations(
