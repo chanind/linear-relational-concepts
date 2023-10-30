@@ -24,9 +24,7 @@ def loc_sample(
 def test_PromptGenerator() -> None:
     db = RelationDataset()
     db.add_relation(
-        Relation(
-            "city in country", templates=frozenset({"{} is located in the country of"})
-        )
+        Relation("city in country", templates=("{} is located in the country of",))
     )
 
     db.add_sample(loc_sample("Toronto", "Canada"))
@@ -43,16 +41,14 @@ def test_PromptGenerator() -> None:
         object_name="Canada",
         entity_modifiers=AUGMENTATION_MODIFIERS,
     )
-    # 6x entity modifiers * 1x templates * 2_modifierx Canada objects = 14
+    # 6x entity modifiers * 1x templates * 2x Canada objects = 12
     assert len(prompts) == 12
 
 
 def test_PromptGenerator_customize_entity_modifiers() -> None:
     db = RelationDataset()
     db.add_relation(
-        Relation(
-            "city in country", templates=frozenset({"{} is located in the country of"})
-        )
+        Relation("city in country", templates=("{} is located in the country of",))
     )
 
     db.add_sample(loc_sample("Toronto", "Canada"))
@@ -75,9 +71,7 @@ def test_PromptGenerator_customize_entity_modifiers() -> None:
 def test_PromptGenerator_generate_prompts_for_relation() -> None:
     db = RelationDataset()
     db.add_relation(
-        Relation(
-            "city in country", templates=frozenset({"{} is located in the country of"})
-        )
+        Relation("city in country", templates=("{} is located in the country of",))
     )
     db.add_sample(loc_sample("Toronto", "Canada"))
     db.add_sample(loc_sample("Beijing", "China"))
