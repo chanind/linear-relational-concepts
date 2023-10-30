@@ -155,6 +155,12 @@ def print_benchmark_result(result: BenchmarkResult) -> None:
     print("total per num causality answer tokens")
     for ntoks, total in result.total_by_num_causality_answer_tokens().items():
         print(f"\t{ntoks}: {total:.3f}")
+    print("accuracy per relation")
+    for relation, accuracy in result.accuracy_by_relation.items():
+        print(f"\t{relation}: {accuracy:.3f}")
+    print("causality per relation")
+    for relation, causality in result.causality_by_relation.items():
+        print(f"\t{relation}: {causality:.3f}")
 
 
 def _save_progress_path(
