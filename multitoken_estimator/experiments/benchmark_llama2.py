@@ -111,6 +111,7 @@ def benchmark_llama2(
                     object_aggregation=object_aggregation,
                     verbose=verbose,
                     inv_lre_rank=INV_LRE_RANK,
+                    n_fsl_prompts=4,
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,

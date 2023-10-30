@@ -40,7 +40,7 @@ class LreConceptTrainerOptions(ConceptTrainerOptions):
     augment_lre_prompts: bool = False
     object_aggregation: ObjectAggregation = "mean"
     vector_aggregation: VectorAggregation = "post_mean"
-    n_fsl_prompts: int = 5
+    n_fsl_prompts: int = 4
     batch_size: int = 8
     filter_training_prompts: bool = True
     seed: int | str | float = 42
