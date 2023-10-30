@@ -69,11 +69,14 @@ class ConceptTrainer(ABC, Generic[T]):
             save_progress_path, force_retrain_all, verbose=verbose
         )
         already_trained_relations = {lre.relation for lre in concepts}
-        for relation in relations:
+        for i, relation in enumerate(relations):
             if relation in already_trained_relations:
                 log_or_print(f"Skipping {relation}, already trained", verbose=verbose)
                 continue
-            log_or_print(f"Training relation {relation}", verbose=verbose)
+            log_or_print(
+                f"Training relation {relation} ({i+1}/{len(relations)})",
+                verbose=verbose,
+            )
             try:
                 start_time = time()
                 relation_concepts = self.train_relation_concepts(
