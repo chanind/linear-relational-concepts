@@ -128,7 +128,7 @@ class PromptGenerator:
                     s for s in potential_fsl_samples if s.object != object_name
                 ]
 
-            if len(potential_fsl_samples) == 0:
+            if num_fsl_examples > 0 and len(potential_fsl_samples) == 0:
                 logger.warn(
                     f"Warning: no FSL samples for relation {object_sample.relation} and object {object_name}",
                 )
