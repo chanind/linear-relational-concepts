@@ -98,39 +98,47 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
                 object_name,
                 activations,
             ) in object_activations.items():
-                inv_lre = inv_lre_run_manager.get_inv_lre_for_object(object_name)
-                device = inv_lre.bias.device
-                dtype = inv_lre.bias.dtype
-                if opts.vector_aggregation == "pre_mean":
-                    acts = [
-                        (
-                            torch.stack(activations)
-                            .to(device=device, dtype=dtype)
-                            .mean(dim=0)
-                        )
-                    ]
-                elif opts.vector_aggregation == "post_mean":
-                    acts = [act.to(device=device, dtype=dtype) for act in activations]
-                else:
-                    raise ValueError(
-                        f"Unknown vector aggregation method {opts.vector_aggregation}"
-                    )
-                vecs = [
-                    (inv_lre.calculate_subject_activation(act, normalize=False))
-                    for act in acts
-                ]
-                vec = torch.stack(vecs).mean(dim=0)
-                vec = vec / vec.norm()
-                concepts.append(
-                    Concept(
-                        object=object_name,
-                        relation=relation,
-                        layer=opts.layer,
-                        vector=vec.detach().clone().cpu(),
-                        metadata=asdict(opts),
-                    )
+                concept = self._build_concept(
+                    relation_name=relation,
+                    object_name=object_name,
+                    activations=activations,
+                    inv_lre_run_manager=inv_lre_run_manager,
+                    opts=opts,
                 )
+                concepts.append(concept)
         return concepts
+
+    def _build_concept(
+        self,
+        relation_name: str,
+        object_name: str,
+        activations: list[torch.Tensor],
+        inv_lre_run_manager: "InvLreTrainingRunManager",
+        opts: LreConceptTrainerOptions,
+    ) -> Concept:
+        device = get_device(self.model)
+        inv_lre = inv_lre_run_manager.get_inv_lre_for_object(object_name).to(device)
+        dtype = inv_lre.bias.dtype
+        if opts.vector_aggregation == "pre_mean":
+            acts = [torch.stack(activations).to(device=device, dtype=dtype).mean(dim=0)]
+        elif opts.vector_aggregation == "post_mean":
+            acts = [act.to(device=device, dtype=dtype) for act in activations]
+        else:
+            raise ValueError(
+                f"Unknown vector aggregation method {opts.vector_aggregation}"
+            )
+        vecs = [
+            inv_lre.calculate_subject_activation(act, normalize=False) for act in acts
+        ]
+        vec = torch.stack(vecs).mean(dim=0)
+        vec = vec / vec.norm()
+        return Concept(
+            object=object_name,
+            relation=relation_name,
+            layer=opts.layer,
+            vector=vec.detach().clone().cpu(),
+            metadata=asdict(opts),
+        )
 
     @torch.no_grad()
     def _extract_target_object_activations_for_inv_lre(
@@ -239,17 +247,21 @@ class InvLreTrainingRunManager:
             seed=self.seed,
         )
         train_samples = object_train_samples + non_object_train_samples
-        inv_lre = train_lre(
-            self.model,
-            self.tokenizer,
-            self.hidden_layers_matcher,
-            prompts=train_samples,
-            relation_name=self.relation_name,
-            subject_layer=self.subject_layer,
-            object_layer=self.object_layer,
-            object_aggregation=self.object_aggregation,
-            move_to_cpu=False,
-        ).invert(self.inv_lre_rank)
+        inv_lre = (
+            train_lre(
+                self.model,
+                self.tokenizer,
+                self.hidden_layers_matcher,
+                prompts=train_samples,
+                relation_name=self.relation_name,
+                subject_layer=self.subject_layer,
+                object_layer=self.object_layer,
+                object_aggregation=self.object_aggregation,
+                move_to_cpu=False,
+            )
+            .invert(self.inv_lre_rank)
+            .to(torch.device("cpu"))
+        )
         for object_name in self._remaining_objects:
             if self._samples_satisfy_object_constraints(object_name, train_samples):
                 self._precomputed_inv_lres_by_object[object_name] = inv_lre

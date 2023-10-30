@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Literal, Optional
 
 import torch
@@ -43,6 +43,15 @@ class InvertedLinearRelationalEmbedding:
         if normalize:
             vec = vec / vec.norm()
         return vec
+
+    def to(self, device: torch.device) -> "InvertedLinearRelationalEmbedding":
+        return replace(
+            self,
+            u=self.u.to(device),
+            v=self.v.to(device),
+            s=self.s.to(device),
+            bias=self.bias.to(device),
+        )
 
 
 @dataclass
