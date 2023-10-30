@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
+from time import time
 from typing import Literal
 
 import torch
@@ -11,6 +12,7 @@ from multitoken_estimator.Concept import Concept
 from multitoken_estimator.lib.balance_grouped_items import balance_grouped_items
 from multitoken_estimator.lib.extract_token_activations import extract_token_activations
 from multitoken_estimator.lib.layer_matching import LayerMatcher, get_layer_name
+from multitoken_estimator.lib.logger import logger
 from multitoken_estimator.lib.token_utils import (
     PromptAnswerData,
     find_prompt_answer_data,
@@ -83,6 +85,7 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
             inv_lre_rank=opts.inv_lre_rank,
             seed=opts.seed,
         )
+        start_time = time()
         object_activations = self._extract_target_object_activations_for_inv_lre(
             prompts=relation_prompts,
             batch_size=opts.batch_size,
@@ -90,6 +93,9 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
             object_layer=opts.object_layer,
             show_progress=verbose,
             move_to_cpu=True,
+        )
+        logger.info(
+            f"Extracted {len(object_activations)} object activations in {time() - start_time:.2f}s"
         )
         concepts: list[Concept] = []
 
@@ -116,8 +122,8 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
         inv_lre_run_manager: "InvLreTrainingRunManager",
         opts: LreConceptTrainerOptions,
     ) -> Concept:
-        device = get_device(self.model)
-        inv_lre = inv_lre_run_manager.get_inv_lre_for_object(object_name).to(device)
+        inv_lre = inv_lre_run_manager.get_inv_lre_for_object(object_name)
+        device = inv_lre.bias.device
         dtype = inv_lre.bias.dtype
         if opts.vector_aggregation == "pre_mean":
             acts = [torch.stack(activations).to(device=device, dtype=dtype).mean(dim=0)]
@@ -232,6 +238,7 @@ class InvLreTrainingRunManager:
     def _train_inv_lre_for_object(
         self, object_name: str
     ) -> InvertedLinearRelationalEmbedding:
+        start_time = time()
         object_train_samples = sample_or_all(
             self.prompts_by_object[object_name],
             self.n_lre_object_train_samples,
@@ -247,24 +254,21 @@ class InvLreTrainingRunManager:
             seed=self.seed,
         )
         train_samples = object_train_samples + non_object_train_samples
-        inv_lre = (
-            train_lre(
-                self.model,
-                self.tokenizer,
-                self.hidden_layers_matcher,
-                prompts=train_samples,
-                relation_name=self.relation_name,
-                subject_layer=self.subject_layer,
-                object_layer=self.object_layer,
-                object_aggregation=self.object_aggregation,
-                move_to_cpu=False,
-            )
-            .invert(self.inv_lre_rank)
-            .to(torch.device("cpu"))
-        )
+        inv_lre = train_lre(
+            self.model,
+            self.tokenizer,
+            self.hidden_layers_matcher,
+            prompts=train_samples,
+            relation_name=self.relation_name,
+            subject_layer=self.subject_layer,
+            object_layer=self.object_layer,
+            object_aggregation=self.object_aggregation,
+            move_to_cpu=False,
+        ).invert(self.inv_lre_rank)
         for object_name in self._remaining_objects:
             if self._samples_satisfy_object_constraints(object_name, train_samples):
                 self._precomputed_inv_lres_by_object[object_name] = inv_lre
+        logger.info(f"Trained LRE for {object_name} in {time() - start_time:.2f}s")
         return inv_lre
 
     def _samples_satisfy_object_constraints(

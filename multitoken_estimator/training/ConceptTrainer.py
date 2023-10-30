@@ -2,6 +2,7 @@ import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
+from time import time
 from typing import Generic, Optional, TypeVar
 
 import torch
@@ -72,11 +73,16 @@ class ConceptTrainer(ABC, Generic[T]):
             if relation in already_trained_relations:
                 log_or_print(f"Skipping {relation}, already trained", verbose=verbose)
                 continue
-            log_or_print(f"Training LRE for {relation}", verbose=verbose)
+            log_or_print(f"Training relation {relation}", verbose=verbose)
             try:
+                start_time = time()
                 relation_concepts = self.train_relation_concepts(
                     relation=relation,
                     opts=opts,
+                    verbose=verbose,
+                )
+                log_or_print(
+                    f"Trained {len(relation_concepts)} concepts for {relation} in {time() - start_time:.2f}s",
                     verbose=verbose,
                 )
                 concepts.extend(relation_concepts)
