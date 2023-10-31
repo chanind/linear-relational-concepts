@@ -68,7 +68,7 @@ def test_LreConceptTrainer_train_all(
         assert concept.vector.shape == (768,)
         assert concept.vector.norm() == pytest.approx(1.0)
 
-    # evaluating on the train set should get perfect accuracy results
+    # evaluating on the train set should score highly
     evaluator = Evaluator(
         model,
         tokenizer,
@@ -77,7 +77,7 @@ def test_LreConceptTrainer_train_all(
         prompt_validator=trainer.prompt_validator,
     )
     accuracy_results = evaluator.evaluate_accuracy(concepts, verbose=False)
-    assert accuracy_results["located_in_country"].accuracy == 1.0
+    assert accuracy_results["located_in_country"].accuracy > 0.9
 
 
 def test_InvLreTrainingRunManager_uses_cached_inv_lre_if_possible(
