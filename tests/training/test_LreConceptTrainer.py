@@ -9,6 +9,8 @@ from multitoken_estimator.training.LreConceptTrainer import (
     InvLreTrainingRunManager,
     LreConceptTrainer,
     LreConceptTrainerOptions,
+    _num_balanced_sample_targets,
+    _sample_balanced,
 )
 from tests.helpers import create_prompt
 
@@ -215,3 +217,95 @@ def test_InvLreTrainingRunManager_samples_satisfy_object_constraints(
             prompts_by_object["Korea"][0],
         ],
     )
+
+
+def test_num_balanced_sample_targets() -> None:
+    prompts_by_object = {
+        "Japan": [
+            create_prompt("Tokyo", "Japan"),
+        ],
+        "China": [
+            create_prompt("Beijing", "China"),
+            create_prompt("Shanghai", "China"),
+        ],
+        "Korea": [
+            create_prompt("Seoul", "Korea"),
+            create_prompt("Busan", "Korea"),
+        ],
+    }
+    assert _num_balanced_sample_targets(
+        prompts_by_object, 3, floor_num_obj_samples=True
+    ) == (1, 2)
+    assert _num_balanced_sample_targets(
+        prompts_by_object, 3, floor_num_obj_samples=False
+    ) == (1, 2)
+    assert _num_balanced_sample_targets(
+        prompts_by_object, 10, floor_num_obj_samples=True
+    ) == (3, 7)
+    assert _num_balanced_sample_targets(
+        prompts_by_object, 10, floor_num_obj_samples=False
+    ) == (4, 6)
+
+
+def test_samples_balanced() -> None:
+    prompts_by_object = {
+        "Japan": [
+            create_prompt("Tokyo", "Japan"),
+        ],
+        "China": [
+            create_prompt("Beijing", "China"),
+            create_prompt("Shanghai", "China"),
+        ],
+        "Korea": [
+            create_prompt("Seoul", "Korea"),
+            create_prompt("Busan", "Korea"),
+        ],
+    }
+    samples = _sample_balanced(
+        "Japan", prompts_by_object, 3, floor_num_obj_samples=True, seed=42
+    )
+    assert len(samples) == 3
+    assert len([s for s in samples if s.object_name == "Japan"]) == 1
+
+
+def test_samples_balanced_with_too_few_cur_obj_samples() -> None:
+    prompts_by_object = {
+        "Japan": [
+            create_prompt("Tokyo", "Japan"),
+        ],
+        "China": [
+            create_prompt("Beijing", "China"),
+            create_prompt("Shanghai", "China"),
+        ],
+        "Korea": [
+            create_prompt("Seoul", "Korea"),
+            create_prompt("Busan", "Korea"),
+        ],
+    }
+    samples = _sample_balanced(
+        "Japan", prompts_by_object, 5, floor_num_obj_samples=False, seed=42
+    )
+    # should be aiming for 2 + 3, but only can do 1 + 3
+    assert len(samples) == 4
+    assert len([s for s in samples if s.object_name == "Japan"]) == 1
+
+
+def test_samples_balanced_with_too_few_samples() -> None:
+    prompts_by_object = {
+        "Japan": [
+            create_prompt("Tokyo", "Japan"),
+        ],
+        "China": [
+            create_prompt("Beijing", "China"),
+            create_prompt("Shanghai", "China"),
+        ],
+        "Korea": [
+            create_prompt("Seoul", "Korea"),
+            create_prompt("Busan", "Korea"),
+        ],
+    }
+    samples = _sample_balanced(
+        "Japan", prompts_by_object, 20, floor_num_obj_samples=False, seed=42
+    )
+    assert len(samples) == 5
+    assert len([s for s in samples if s.object_name == "Japan"]) == 1

@@ -329,7 +329,7 @@ class InvLreTrainingRunManager:
             return n_object_samples == 0
         else:
             use_floor = self.sampling_method == "balanced_floor"
-            num_obj_samples, num_non_obj_samples = _balanced_sample_targets(
+            num_obj_samples, num_non_obj_samples = _num_balanced_sample_targets(
                 self.prompts_by_object,
                 self.max_train_samples,
                 floor_num_obj_samples=use_floor,
@@ -382,7 +382,7 @@ def _sample_exclude_current_object(
     )
 
 
-def _balanced_sample_targets(
+def _num_balanced_sample_targets(
     prompts_by_object: dict[str, list[Prompt]],
     max_train_samples: int,
     floor_num_obj_samples: bool,
@@ -409,7 +409,7 @@ def _sample_balanced(
     obj_samples = _sample_only_current_object(
         current_object, prompts_by_object, max_train_samples, seed
     )
-    num_obj_samples, num_non_obj_samples = _balanced_sample_targets(
+    num_obj_samples, num_non_obj_samples = _num_balanced_sample_targets(
         prompts_by_object, max_train_samples, floor_num_obj_samples
     )
 
