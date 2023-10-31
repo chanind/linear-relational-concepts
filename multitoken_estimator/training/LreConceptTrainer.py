@@ -232,6 +232,7 @@ class InvLreTrainingRunManager:
             raise ValueError(f"Object {object_name} has already been trained")
         self._remaining_objects.remove(object_name)
         if object_name in self._precomputed_inv_lres_by_object:
+            logger.info(f"Using cached LRE for {object_name}")
             inv_lre = self._precomputed_inv_lres_by_object[object_name]
             del self._precomputed_inv_lres_by_object[object_name]
             return inv_lre
