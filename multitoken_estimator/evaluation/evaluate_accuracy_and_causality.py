@@ -53,24 +53,20 @@ def evaluate_causality(
             verbose=verbose,
         )
 
-        raw_prompts = prompt_generator.generate_prompts_for_relation(
-            relation_name, num_fsl_examples=0, entity_modifiers=None
-        )
-        valid_prompts = prompt_validator.filter_prompts(
-            raw_prompts, batch_size=batch_size
-        )
-        log_or_print(
-            f"Model answers correctly {len(valid_prompts)} of {len(raw_prompts)} prompts.",
+        object_name_to_concept_name = {
+            concept.object: concept.name for concept in concepts_in_relation
+        }
+        valid_prompts = _generate_test_prompts(
+            relation_name=relation_name,
+            concepts=concepts_in_relation,
+            prompt_generator=prompt_generator,
+            prompt_validator=prompt_validator,
+            batch_size=batch_size,
             verbose=verbose,
         )
-        prompts_by_object = defaultdict(list)
-        for prompt in valid_prompts:
-            prompts_by_object[prompt.object_name].append(prompt)
+
         editor = CausalEditor(model, tokenizer, concepts_in_relation, layer_matcher)
         concept_prompts: dict[str, list[Prompt]] = defaultdict(list)
-        object_name_to_concept_name = {
-            concept.object: concept.name for concept in concepts
-        }
         for prompt in valid_prompts:
             concept_prompts[object_name_to_concept_name[prompt.object_name]].append(
                 prompt
@@ -160,25 +156,18 @@ def evaluate_relation_classification_accuracy(
             f"evaluating accuracy for relation {relation_name} with {len(concepts_in_relation)} trained concepts",
             verbose=verbose,
         )
-        raw_prompts = prompt_generator.generate_prompts_for_relation(
-            relation_name, num_fsl_examples=0
-        )
-        valid_prompts = prompt_validator.filter_prompts(
-            raw_prompts, batch_size=batch_size
-        )
-
-        log_or_print(
-            f"Model answers correctly {len(valid_prompts)} of {len(raw_prompts)} prompts.",
-            verbose=verbose,
-        )
-        prompts_by_object = defaultdict(list)
-        for prompt in valid_prompts:
-            prompts_by_object[prompt.object_name].append(prompt)
-        matcher = ConceptMatcher(model, tokenizer, concepts_in_relation, layer_matcher)
-
         object_name_to_concept_name = {
             concept.object: concept.name for concept in concepts_in_relation
         }
+        valid_prompts = _generate_test_prompts(
+            relation_name=relation_name,
+            concepts=concepts_in_relation,
+            prompt_generator=prompt_generator,
+            prompt_validator=prompt_validator,
+            batch_size=batch_size,
+            verbose=verbose,
+        )
+        matcher = ConceptMatcher(model, tokenizer, concepts_in_relation, layer_matcher)
 
         matcher_queries = []
         for prompt in valid_prompts:
@@ -249,3 +238,29 @@ def _get_concepts_layer(concepts: Sequence[Concept]) -> int:
                 f"Concepts must all be from the same layer to evaluate, but got {layer} and {concept.layer}"
             )
     return layer
+
+
+def _generate_test_prompts(
+    relation_name: str,
+    concepts: list[Concept],
+    prompt_generator: PromptGenerator,
+    prompt_validator: PromptValidator,
+    batch_size: int,
+    verbose: bool,
+) -> list[Prompt]:
+    testable_objects = {concept.object for concept in concepts}
+    prompts = prompt_generator.generate_prompts_for_relation(
+        relation_name, num_fsl_examples=0
+    )
+    testable_prompts = [
+        prompt for prompt in prompts if prompt.object_name in testable_objects
+    ]
+
+    valid_prompts = prompt_validator.filter_prompts(
+        testable_prompts, batch_size=batch_size, show_progress=verbose
+    )
+    log_or_print(
+        f"Model answers correctly {len(valid_prompts)} of {len(prompts)} prompts.",
+        verbose=verbose,
+    )
+    return valid_prompts
