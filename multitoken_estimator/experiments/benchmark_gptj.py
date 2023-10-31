@@ -208,6 +208,34 @@ def benchmark_gptj(
                 seed=iteration_seed,
                 force_retrain_all=force_rerun,
             ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-ft-100-oco",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="first_token",
+                    inv_lre_rank=100,
+                    sampling_method="only_current_object",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-ft-100-eco",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="first_token",
+                    inv_lre_rank=100,
+                    sampling_method="exclude_current_object",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
         ]
         if not skip_svm:
             strategies.append(
