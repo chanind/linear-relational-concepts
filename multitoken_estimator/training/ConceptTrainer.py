@@ -20,7 +20,6 @@ from multitoken_estimator.PromptGenerator import PromptGenerator
 @dataclass
 class ConceptTrainerOptions:
     layer: int
-    verbose: bool
 
 
 T = TypeVar("T", bound="ConceptTrainerOptions")

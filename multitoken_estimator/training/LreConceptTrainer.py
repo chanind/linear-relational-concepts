@@ -39,9 +39,10 @@ class LreConceptTrainerOptions(ConceptTrainerOptions):
     inv_lre_rank: int = 100
     n_lre_object_train_samples: int = 1
     n_lre_non_object_train_samples: int = 4
-    augment_lre_prompts: bool = False
+    augment_prompts: bool = False
     object_aggregation: ObjectAggregation = "mean"
     vector_aggregation: VectorAggregation = "post_mean"
+    exclude_fsl_examples_of_object: bool = False
     n_fsl_prompts: int = 4
     batch_size: int = 8
     filter_training_prompts: bool = True
@@ -56,12 +57,13 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
         opts: LreConceptTrainerOptions,
         verbose: bool = True,
     ) -> list[Concept]:
-        lre_modifiers = AUGMENTATION_MODIFIERS if opts.augment_lre_prompts else None
+        lre_modifiers = AUGMENTATION_MODIFIERS if opts.augment_prompts else None
         relation_prompts = list(
             self.prompt_generator.generate_prompts_for_relation(
                 relation_name=relation,
                 num_fsl_examples=opts.n_fsl_prompts,
                 entity_modifiers=lre_modifiers,
+                exclude_fsl_examples_of_object=opts.exclude_fsl_examples_of_object,
             )
         )
         if opts.filter_training_prompts:
@@ -265,10 +267,12 @@ class InvLreTrainingRunManager:
             object_aggregation=self.object_aggregation,
             move_to_cpu=False,
         ).invert(self.inv_lre_rank)
-        for object_name in self._remaining_objects:
-            if self._samples_satisfy_object_constraints(object_name, train_samples):
-                self._precomputed_inv_lres_by_object[object_name] = inv_lre
         logger.info(f"Trained LRE for {object_name} in {time() - start_time:.2f}s")
+        for remaining_object in self._remaining_objects:
+            if self._samples_satisfy_object_constraints(
+                remaining_object, train_samples
+            ):
+                self._precomputed_inv_lres_by_object[remaining_object] = inv_lre
         return inv_lre
 
     def _samples_satisfy_object_constraints(

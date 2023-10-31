@@ -109,7 +109,6 @@ def benchmark_gptj(
                     layer=15,
                     object_layer=22,
                     object_aggregation=object_aggregation,
-                    verbose=verbose,
                     inv_lre_rank=INV_LRE_RANK,
                     n_fsl_prompts=4,
                 ),

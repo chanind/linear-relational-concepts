@@ -109,7 +109,6 @@ def benchmark_llama2(
                     layer=19,
                     object_layer=24,
                     object_aggregation=object_aggregation,
-                    verbose=verbose,
                     inv_lre_rank=INV_LRE_RANK,
                     n_fsl_prompts=4,
                 ),
