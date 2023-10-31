@@ -13,6 +13,10 @@ from multitoken_estimator.evaluation.Evaluator import Evaluator
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.logger import log_or_print
 from multitoken_estimator.lib.PromptValidator import PromptValidator
+from multitoken_estimator.training.AvgConceptTrainer import (
+    AvgConceptTrainer,
+    AvgConceptTrainerOptions,
+)
 from multitoken_estimator.training.benchmarking import (
     TrainingStrategy,
     benchmark_strategies,
@@ -56,6 +60,8 @@ def benchmark_gptj(
     valid_prompts_cache_file: Optional[str] = None,
     object_aggregation: ObjectAggregation = "mean",
     min_test_prompts_per_relation: int = 1,
+    skip_avg: bool = False,
+    skip_svm: bool = False,
 ) -> dict[str, BenchmarkIterationsResult]:
     if model is None:
         model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
@@ -111,6 +117,13 @@ def benchmark_gptj(
             train_data,
             prompt_validator=prompt_validator,
         )
+        avg_trainer = AvgConceptTrainer(
+            model,
+            tokenizer,
+            LAYER_MATCHER,
+            train_data,
+            prompt_validator=prompt_validator,
+        )
 
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
@@ -126,15 +139,29 @@ def benchmark_gptj(
                 seed=iteration_seed,
                 force_retrain_all=force_rerun,
             ),
-            strategy_from_trainer(
-                svm_trainer,
-                "svm",
-                SvmConceptTrainerOptions(layer=15),
-                save_progress_dir=save_progress_dir,
-                seed=iteration_seed,
-                force_retrain_all=force_rerun,
-            ),
         ]
+        if not skip_svm:
+            strategies.append(
+                strategy_from_trainer(
+                    svm_trainer,
+                    "svm",
+                    SvmConceptTrainerOptions(layer=15),
+                    save_progress_dir=save_progress_dir,
+                    seed=iteration_seed,
+                    force_retrain_all=force_rerun,
+                )
+            )
+        if not skip_avg:
+            strategies.append(
+                strategy_from_trainer(
+                    avg_trainer,
+                    "avg",
+                    AvgConceptTrainerOptions(layer=15),
+                    save_progress_dir=save_progress_dir,
+                    seed=iteration_seed,
+                    force_retrain_all=force_rerun,
+                ),
+            )
 
         results = benchmark_strategies(
             strategies,
