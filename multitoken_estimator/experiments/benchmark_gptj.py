@@ -26,6 +26,10 @@ from multitoken_estimator.training.LreConceptTrainer import (
     LreConceptTrainer,
     LreConceptTrainerOptions,
 )
+from multitoken_estimator.training.SvmConceptTrainer import (
+    SvmConceptTrainer,
+    SvmConceptTrainerOptions,
+)
 from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
@@ -100,18 +104,32 @@ def benchmark_gptj(
             train_data,
             prompt_validator=prompt_validator,
         )
+        svm_trainer = SvmConceptTrainer(
+            model,
+            tokenizer,
+            LAYER_MATCHER,
+            train_data,
+            prompt_validator=prompt_validator,
+        )
 
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
                 lre_trainer,
-                "var1",
+                "lre-var1",
                 LreConceptTrainerOptions(
                     layer=15,
                     object_layer=22,
                     object_aggregation=object_aggregation,
                     inv_lre_rank=INV_LRE_RANK,
-                    n_fsl_prompts=4,
                 ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                svm_trainer,
+                "svm",
+                SvmConceptTrainerOptions(layer=15),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
                 force_retrain_all=force_rerun,
