@@ -34,11 +34,9 @@ from multitoken_estimator.training.SvmConceptTrainer import (
     SvmConceptTrainer,
     SvmConceptTrainerOptions,
 )
-from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "transformer.h.{num}"
-INV_LRE_RANK = 100
 
 Precision = Literal["fp16", "bf16", "fp32"]
 
@@ -58,7 +56,6 @@ def benchmark_gptj(
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
     valid_prompts_cache_file: Optional[str] = None,
-    object_aggregation: ObjectAggregation = "mean",
     min_test_prompts_per_relation: int = 1,
     skip_avg: bool = False,
     skip_svm: bool = False,
@@ -128,12 +125,84 @@ def benchmark_gptj(
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
                 lre_trainer,
-                "lre-var1",
+                "lre-ft-100-rand",
                 LreConceptTrainerOptions(
                     layer=15,
                     object_layer=22,
-                    object_aggregation=object_aggregation,
-                    inv_lre_rank=INV_LRE_RANK,
+                    object_aggregation="first_token",
+                    inv_lre_rank=100,
+                    sampling_method="random",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-ft-100-rand-10s",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="first_token",
+                    inv_lre_rank=100,
+                    max_lre_training_samples=10,
+                    sampling_method="random",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-mn-100-rand",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="mean",
+                    inv_lre_rank=100,
+                    sampling_method="random",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-ft-256-rand",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="first_token",
+                    inv_lre_rank=256,
+                    sampling_method="random",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-ft-100-bc",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="first_token",
+                    inv_lre_rank=100,
+                    sampling_method="balanced_ceil",
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-ft-100-bf",
+                LreConceptTrainerOptions(
+                    layer=15,
+                    object_layer=22,
+                    object_aggregation="first_token",
+                    inv_lre_rank=100,
+                    sampling_method="balanced_floor",
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,

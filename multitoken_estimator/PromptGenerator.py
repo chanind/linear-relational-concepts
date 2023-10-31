@@ -3,7 +3,7 @@ from typing import Callable, Optional
 
 from multitoken_estimator.data.RelationDataset import RelationDataset, Sample
 from multitoken_estimator.lib.logger import logger
-from multitoken_estimator.lib.util import stable_sample
+from multitoken_estimator.lib.util import dedupe_stable, stable_sample
 
 EntityModifier = Callable[[str], str]
 
@@ -63,11 +63,11 @@ class PromptGenerator:
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
-    ) -> set[Prompt]:
+    ) -> list[Prompt]:
         relation_names = {rel.name for rel in self.db.relations}
-        prompts: set[Prompt] = set()
+        prompts: list[Prompt] = []
         for relation_name in relation_names:
-            prompts.update(
+            prompts.extend(
                 self.generate_prompts_for_relation(
                     relation_name=relation_name,
                     num_fsl_examples=num_fsl_examples,
@@ -83,12 +83,12 @@ class PromptGenerator:
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
-    ) -> set[Prompt]:
+    ) -> list[Prompt]:
         samples_in_relation = self.db.get_relation_samples(relation_name)
         object_names = {sample.object for sample in samples_in_relation}
-        prompts: set[Prompt] = set()
+        prompts: list[Prompt] = []
         for object_name in object_names:
-            prompts.update(
+            prompts.extend(
                 self.generate_prompts_for_object(
                     relation_name=relation_name,
                     object_name=object_name,
@@ -108,7 +108,7 @@ class PromptGenerator:
         entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
         valid_relation_names: Optional[set[str]] = None,
-    ) -> set[Prompt]:
+    ) -> list[Prompt]:
         object_samples = self.db.get_object_samples(
             relation=relation_name, object=object_name
         )
@@ -119,7 +119,7 @@ class PromptGenerator:
             ]
         relation_samples = self.db.get_relation_samples(relation_name)
 
-        prompts: set[Prompt] = set()
+        prompts: list[Prompt] = []
         for object_sample in object_samples:
             answer = object_name
             potential_fsl_samples = relation_samples
@@ -142,7 +142,7 @@ class PromptGenerator:
                         num_fsl_examples=num_fsl_examples,
                         seed=self.seed,
                     )
-                    prompts.add(
+                    prompts.append(
                         Prompt(
                             text=text,
                             answer=entity_modifier(answer),
@@ -151,7 +151,7 @@ class PromptGenerator:
                             relation_name=relation_name,
                         )
                     )
-        return prompts
+        return dedupe_stable(prompts)
 
 
 def format_prompt_text(

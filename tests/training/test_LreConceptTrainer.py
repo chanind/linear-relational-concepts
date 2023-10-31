@@ -104,8 +104,8 @@ def test_InvLreTrainingRunManager_uses_cached_inv_lre_if_possible(
         prompts_by_object=prompts_by_object,
         object_aggregation="mean",
         inv_lre_rank=10,
-        n_lre_object_train_samples=0,
-        n_lre_non_object_train_samples=1,
+        max_train_samples=1,
+        sampling_method="balanced_ceil",
         seed=42,
     )
     inv_lre_manager._precomputed_inv_lres_by_object["Japan"] = precomputed_lre
@@ -142,8 +142,8 @@ def test_InvLreTrainingRunManager_get_inv_lre_for_object_updates_precomputed_lis
         prompts_by_object=prompts_by_object,
         object_aggregation="mean",
         inv_lre_rank=10,
-        n_lre_object_train_samples=0,
-        n_lre_non_object_train_samples=1,
+        max_train_samples=2,
+        sampling_method="balanced_ceil",
         seed=42,
     )
 
@@ -191,8 +191,8 @@ def test_InvLreTrainingRunManager_samples_satisfy_object_constraints(
         prompts_by_object=prompts_by_object,
         object_aggregation="mean",
         inv_lre_rank=10,
-        n_lre_object_train_samples=1,
-        n_lre_non_object_train_samples=2,
+        max_train_samples=3,
+        sampling_method="balanced_floor",
         seed=42,
     )
 

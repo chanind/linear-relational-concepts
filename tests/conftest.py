@@ -5,7 +5,7 @@ from transformers import GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer
 # just need to make sure not to edit these models in tests...
 _model = GPT2LMHeadModel.from_pretrained("gpt2")
 _tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
-_vicuna_tokenizer = LlamaTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3")
+_vicuna_tokenizer = LlamaTokenizer.from_pretrained("lmsys/vicuna-7b-v1.3", legacy=False)
 
 
 @pytest.fixture

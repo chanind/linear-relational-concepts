@@ -1,5 +1,6 @@
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
+from math import ceil, floor
 from time import time
 from typing import Literal
 
@@ -30,6 +31,13 @@ from multitoken_estimator.training.ConceptTrainer import (
 from multitoken_estimator.training.train_lre import ObjectAggregation, train_lre
 
 VectorAggregation = Literal["pre_mean", "post_mean"]
+LreSamplingMethod = Literal[
+    "random",
+    "only_current_object",
+    "exclude_current_object",
+    "balanced_ceil",
+    "balanced_floor",
+]
 
 
 @dataclass
@@ -37,11 +45,11 @@ class LreConceptTrainerOptions(ConceptTrainerOptions):
     layer: int
     object_layer: int
     inv_lre_rank: int = 100
-    n_lre_object_train_samples: int = 1
-    n_lre_non_object_train_samples: int = 4
+    max_lre_training_samples: int = 5
     augment_prompts: bool = False
     object_aggregation: ObjectAggregation = "mean"
     vector_aggregation: VectorAggregation = "post_mean"
+    sampling_method: LreSamplingMethod = "random"
     exclude_fsl_examples_of_object: bool = False
     n_fsl_prompts: int = 4
     batch_size: int = 8
@@ -76,8 +84,8 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
         inv_lre_run_manager = InvLreTrainingRunManager(
             model=self.model,
             tokenizer=self.tokenizer,
-            n_lre_object_train_samples=opts.n_lre_object_train_samples,
-            n_lre_non_object_train_samples=opts.n_lre_non_object_train_samples,
+            max_train_samples=opts.max_lre_training_samples,
+            sampling_method=opts.sampling_method,
             hidden_layers_matcher=self.layer_matcher,
             relation_name=relation,
             subject_layer=opts.layer,
@@ -209,8 +217,8 @@ class InvLreTrainingRunManager:
     subject_layer: int
     object_layer: int
     object_aggregation: Literal["mean", "first_token"]
-    n_lre_non_object_train_samples: int
-    n_lre_object_train_samples: int
+    sampling_method: LreSamplingMethod
+    max_train_samples: int
     prompts_by_object: dict[str, list[Prompt]]
     inv_lre_rank: int
     seed: int | str | float
@@ -242,21 +250,7 @@ class InvLreTrainingRunManager:
         self, object_name: str
     ) -> InvertedLinearRelationalEmbedding:
         start_time = time()
-        object_train_samples = sample_or_all(
-            self.prompts_by_object[object_name],
-            self.n_lre_object_train_samples,
-            seed=self.seed,
-        )
-        non_object_train_samples = balance_grouped_items(
-            items_by_group={
-                object: prompts
-                for object, prompts in self.prompts_by_object.items()
-                if object != object_name
-            },
-            max_total=self.n_lre_non_object_train_samples,
-            seed=self.seed,
-        )
-        train_samples = object_train_samples + non_object_train_samples
+        train_samples = self._get_train_samples_for_object(object_name)
         inv_lre = train_lre(
             self.model,
             self.tokenizer,
@@ -276,14 +270,48 @@ class InvLreTrainingRunManager:
                 self._precomputed_inv_lres_by_object[remaining_object] = inv_lre
         return inv_lre
 
+    def _get_train_samples_for_object(self, object_name: str) -> list[Prompt]:
+        # We can use a proper interface for these sampling methods to avoid if-statements like this,
+        # but I'm not sure if it's worth it. Are we going to actually add more ever?
+        if self.sampling_method == "random":
+            return _sample_random(
+                self.prompts_by_object, self.max_train_samples, self.seed
+            )
+        elif self.sampling_method == "only_current_object":
+            return _sample_only_current_object(
+                object_name, self.prompts_by_object, self.max_train_samples, self.seed
+            )
+        elif self.sampling_method == "exclude_current_object":
+            return _sample_exclude_current_object(
+                object_name, self.prompts_by_object, self.max_train_samples, self.seed
+            )
+        elif self.sampling_method == "balanced_ceil":
+            return _sample_balanced(
+                object_name,
+                self.prompts_by_object,
+                self.max_train_samples,
+                seed=self.seed,
+                floor_num_obj_samples=False,
+            )
+        elif self.sampling_method == "balanced_floor":
+            return _sample_balanced(
+                object_name,
+                self.prompts_by_object,
+                self.max_train_samples,
+                seed=self.seed,
+                floor_num_obj_samples=True,
+            )
+        else:
+            raise ValueError(f"Unknown sampling method {self.sampling_method}")
+
     def _samples_satisfy_object_constraints(
         self,
         object_name: str,
         samples: list[Prompt],
     ) -> bool:
         """
-        Check if the list of samples satisfy n_lre_non_object_train_samples and
-        n_lre_object_train_samples for the given object
+        Check if the list of samples satisfy the constraints of the sampling strategy
+        we're using for the given object
         """
         n_object_samples = 0
         n_non_object_samples = 0
@@ -293,7 +321,96 @@ class InvLreTrainingRunManager:
                 n_object_samples += 1
             else:
                 n_non_object_samples += 1
-        return (
-            n_object_samples == self.n_lre_object_train_samples
-            and n_non_object_samples == self.n_lre_non_object_train_samples
-        )
+        if self.sampling_method == "random":
+            return True
+        elif self.sampling_method == "only_current_object":
+            return n_non_object_samples == 0
+        elif self.sampling_method == "exclude_current_object":
+            return n_object_samples == 0
+        else:
+            use_floor = self.sampling_method == "balanced_floor"
+            num_obj_samples, num_non_obj_samples = _balanced_sample_targets(
+                self.prompts_by_object,
+                self.max_train_samples,
+                floor_num_obj_samples=use_floor,
+            )
+            return (
+                n_object_samples == num_obj_samples
+                and n_non_object_samples == num_non_obj_samples
+            )
+
+
+def _sample_random(
+    prompts_by_object: dict[str, list[Prompt]],
+    max_train_samples: int,
+    seed: int | float | str,
+) -> list[Prompt]:
+    return balance_grouped_items(
+        items_by_group=prompts_by_object,
+        max_total=max_train_samples,
+        seed=seed,
+    )
+
+
+def _sample_only_current_object(
+    current_object: str,
+    prompts_by_object: dict[str, list[Prompt]],
+    max_train_samples: int,
+    seed: int | float | str,
+) -> list[Prompt]:
+    return sample_or_all(
+        prompts_by_object[current_object],
+        max_train_samples,
+        seed=seed,
+    )
+
+
+def _sample_exclude_current_object(
+    current_object: str,
+    prompts_by_object: dict[str, list[Prompt]],
+    max_train_samples: int,
+    seed: int | float | str,
+) -> list[Prompt]:
+    return balance_grouped_items(
+        items_by_group={
+            object: prompts
+            for object, prompts in prompts_by_object.items()
+            if object != current_object
+        },
+        max_total=max_train_samples,
+        seed=seed,
+    )
+
+
+def _balanced_sample_targets(
+    prompts_by_object: dict[str, list[Prompt]],
+    max_train_samples: int,
+    floor_num_obj_samples: bool,
+) -> tuple[int, int]:
+    target_ratio = 1 / len(prompts_by_object)
+    if floor_num_obj_samples:
+        num_obj_samples = floor(target_ratio * max_train_samples)
+    else:
+        num_obj_samples = ceil(target_ratio * max_train_samples)
+    num_non_obj_samples = max_train_samples - num_obj_samples
+    return num_obj_samples, num_non_obj_samples
+
+
+def _sample_balanced(
+    current_object: str,
+    prompts_by_object: dict[str, list[Prompt]],
+    max_train_samples: int,
+    floor_num_obj_samples: bool,
+    seed: int | float | str,
+) -> list[Prompt]:
+    non_obj_samples = _sample_exclude_current_object(
+        current_object, prompts_by_object, max_train_samples, seed
+    )
+    obj_samples = _sample_only_current_object(
+        current_object, prompts_by_object, max_train_samples, seed
+    )
+    num_obj_samples, num_non_obj_samples = _balanced_sample_targets(
+        prompts_by_object, max_train_samples, floor_num_obj_samples
+    )
+
+    return obj_samples[:num_obj_samples] + non_obj_samples[:num_non_obj_samples]
