@@ -25,7 +25,7 @@ class AggregateMetric:
         return stdev(self.values)
 
     def __repr__(self) -> str:
-        return f"{self.mean:.2f} ± {self.stdev:.2f}"
+        return f"{self.mean:.3f} ± {self.stdev:.3f}"
 
 
 def _agg_values(items: Sequence[Mapping[str, float]]) -> dict[str, AggregateMetric]:
@@ -183,3 +183,34 @@ class BenchmarkIterationsResult:
         self, result_cb: Callable[[BenchmarkResult], Mapping[Any, float]]
     ) -> dict[Any, AggregateMetric]:
         return _agg_values([result_cb(result) for result in self.iteration_results])
+
+
+def print_iterations_result(
+    result: BenchmarkIterationsResult, min_total_per_relation: int = 1
+) -> None:
+    print(
+        f"accuracy: {result.accuracy_avg_over_relations(min_total_per_relation)}, causality: {result.causality_avg_over_relations(min_total_per_relation)}"
+    )
+    print("accuracy per LRE type")
+    for category, accuracy in result.accuracy_by_category_avg_over_relations(
+        min_total_per_relation
+    ).items():
+        print(f"\t{category}: {accuracy}")
+    print("causality per LRE type")
+    for category, causality in result.causality_by_category_avg_over_relations(
+        5
+    ).items():
+        print(f"\t{category}: {causality}")
+    print("accuracy per num answer tokens")
+    for ntoks, accuracy in result.accuracy_by_num_answer_tokens.items():
+        print(f"\t{ntoks}: {accuracy}")
+    print("causality per num answer tokens")
+    for ntoks, causality in result.causality_by_num_answer_tokens().items():
+        print(f"\t{ntoks}: {causality}")
+    print("total per num accuracy answer tokens")
+    for ntoks, total in result.total_by_num_accuracy_answer_tokens.items():
+        print(f"\t{ntoks}: {total}")
+    print("total per num causality answer tokens")
+    for ntoks, total in result.total_by_num_causality_answer_tokens().items():
+        print(f"\t{ntoks}: {total}")
+    print("\n")
