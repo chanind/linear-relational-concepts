@@ -1,16 +1,24 @@
 from __future__ import annotations
 
 import os
+from collections import defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from time import time
 from typing import Any, Callable, Optional, TypeVar
 
 import torch
+from tokenizers import Tokenizer
 
 from multitoken_estimator.Concept import Concept
+from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.evaluation.Evaluator import Evaluator
+from multitoken_estimator.lib.layer_matching import LayerMatcher
 from multitoken_estimator.lib.logger import log_or_print
+from multitoken_estimator.lib.PromptValidator import PromptValidator
+from multitoken_estimator.training.BenchmarkIterationsResult import (
+    BenchmarkIterationsResult,
+)
 from multitoken_estimator.training.BenchmarkResult import BenchmarkResult
 from multitoken_estimator.training.ConceptTrainer import (
     ConceptTrainer,
@@ -138,6 +146,80 @@ def benchmark_strategy(
         metadata=strategy.metadata,
     )
     return results
+
+
+def benchmark_iterations(
+    model: torch.nn.Module,
+    tokenizer: Tokenizer,
+    layer_matcher: LayerMatcher,
+    dataset: RelationDataset,
+    iteration_seeds: list[int | str],
+    # fn which takes a prompt validator, a dataset, a seed
+    strategies_fn: Callable[
+        [PromptValidator, RelationDataset, int | str],
+        list[TrainingStrategy],
+    ],
+    verbose: bool = True,
+    batch_size: int = 8,
+    save_progress_dir: Optional[str] = None,
+    force_rerun: bool = False,
+    causality_magnitude_multiplier: float = 0.065,
+    causality_edit_single_layer_only: bool = False,
+    causality_use_remove_concept_projection_magnitude: bool = False,
+    valid_prompts_cache_file: Optional[str] = None,
+    eval_zs_prompts: bool = True,
+    dataset_train_ration: float = 0.5,
+    min_test_prompts_per_relation: int = 1,
+) -> dict[str, BenchmarkIterationsResult]:
+    prompt_validator = PromptValidator(model, tokenizer, valid_prompts_cache_file)
+
+    iteration_results: dict[str, list[BenchmarkResult]] = defaultdict(list)
+    for iteration_seed in iteration_seeds:
+        start = time()
+        log_or_print(f"Iteration seed: {iteration_seed}", verbose=verbose)
+        raw_train_data, test_data = dataset.split(
+            seed=iteration_seed, train_portion=dataset_train_ration
+        )
+        evaluator = Evaluator(
+            model=model,
+            tokenizer=tokenizer,
+            layer_matcher=layer_matcher,
+            dataset=test_data,
+            batch_size=batch_size,
+            use_zs_prompts=eval_zs_prompts,
+            causality_magnitude_multiplier=causality_magnitude_multiplier,
+            causality_edit_single_layer_only=causality_edit_single_layer_only,
+            causality_use_remove_concept_projection_magnitude=causality_use_remove_concept_projection_magnitude,
+            prompt_validator=prompt_validator,
+        )
+
+        log_or_print("Filtering relations with few eval prompts", verbose=verbose)
+        train_data = evaluator.filter_relations_with_few_eval_prompts(
+            raw_train_data, min_relation_eval_prompts=min_test_prompts_per_relation
+        )
+        if valid_prompts_cache_file:
+            prompt_validator.write_cache(valid_prompts_cache_file)
+
+        strategies = strategies_fn(prompt_validator, train_data, iteration_seed)
+
+        results = benchmark_strategies(
+            strategies,
+            evaluator=evaluator,
+            save_progress_dir=save_progress_dir,
+            force_rerun=force_rerun,
+            verbose=verbose,
+            seed=iteration_seed,
+        )
+        if valid_prompts_cache_file:
+            prompt_validator.write_cache(valid_prompts_cache_file)
+
+        for strategy, result in results.items():
+            log_or_print(f"iteration took {time() - start} seconds", verbose=verbose)
+            iteration_results[strategy].append(result)
+    return {
+        strategy: BenchmarkIterationsResult(iteration_results)
+        for strategy, iteration_results in iteration_results.items()
+    }
 
 
 def print_benchmark_result(result: BenchmarkResult) -> None:
