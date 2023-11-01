@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from time import time
 from typing import Any, Callable, Optional, TypeVar
 
 import torch
@@ -114,10 +115,18 @@ def benchmark_strategy(
     """
     Run a training strategy and return the results
     """
+    train_start = time()
     concepts = strategy.run_fn()
+    log_or_print(
+        f"Training strategy {strategy.name} took {time() - train_start:.2f}s", verbose
+    )
 
+    eval_start = time()
     relation_accuracy = evaluator.evaluate_accuracy(concepts, verbose=verbose)
     relation_causality = evaluator.evaluate_causality(concepts, verbose=verbose)
+    log_or_print(
+        f"Evaluating strategy {strategy.name} took {time() - eval_start:.2f}s", verbose
+    )
 
     results = BenchmarkResult(
         strategy.name,
