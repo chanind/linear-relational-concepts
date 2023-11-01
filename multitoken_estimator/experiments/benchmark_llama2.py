@@ -34,7 +34,6 @@ from multitoken_estimator.training.SvmConceptTrainer import (
     SvmConceptTrainer,
     SvmConceptTrainerOptions,
 )
-from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "model.layers.{num}"
