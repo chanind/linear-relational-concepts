@@ -9,7 +9,6 @@ from transformers import AutoTokenizer, LlamaForCausalLM
 from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
-from multitoken_estimator.lib.layer_matching import collect_matching_layers
 from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.training.benchmarking import (
     TrainingStrategy,
