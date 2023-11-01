@@ -29,7 +29,18 @@ def get_layer_name(
     model: nn.Module, layer_matcher: LayerMatcher, layer_num: int
 ) -> str:
     matcher_callable = _layer_matcher_to_callable(layer_matcher)
+    layer_num = fix_neg_layer_num(model, layer_matcher, layer_num)
     return matcher_callable(model, layer_num)
+
+
+def fix_neg_layer_num(
+    model: nn.Module, layer_matcher: LayerMatcher, layer_num: int
+) -> int:
+    """Helper to handle negative layer nums. If layer_num is negative, return len(layers) + layer_num"""
+    if layer_num >= 0:
+        return layer_num
+    matching_layers = collect_matching_layers(model, layer_matcher)
+    return len(matching_layers) + layer_num
 
 
 def get_layer_by_name(model: nn.Module, layer_name: str) -> nn.Module:

@@ -166,6 +166,46 @@ def test_InvLreTrainingRunManager_get_inv_lre_for_object_updates_precomputed_lis
     assert inv_lre in inv_lre_manager._precomputed_inv_lres_by_object.values()
 
 
+def test_InvLreTrainingRunManager_get_inv_lre_with_negative_object_layer(
+    model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast
+) -> None:
+    prompts_by_object = {
+        "Japan": [
+            create_prompt("Tokyo", "Japan"),
+            create_prompt("Osaka", "Japan"),
+        ],
+        "China": [
+            create_prompt("Beijing", "China"),
+            create_prompt("Shanghai", "China"),
+        ],
+        "Korea": [
+            create_prompt("Seoul", "Korea"),
+            create_prompt("Busan", "Korea"),
+        ],
+    }
+    inv_lre_manager = InvLreTrainingRunManager(
+        model=model,
+        tokenizer=tokenizer,
+        hidden_layers_matcher="transformer.h.{num}",
+        relation_name="located_in_country",
+        subject_layer=5,
+        object_layer=-1,
+        prompts_by_object=prompts_by_object,
+        object_aggregation="mean",
+        inv_lre_rank=10,
+        max_train_samples=2,
+        sampling_method="balanced_ceil",
+        seed=42,
+    )
+
+    inv_lre = inv_lre_manager.get_inv_lre_for_object("Japan")
+    assert inv_lre.relation == "located_in_country"
+    assert inv_lre.rank == 10
+    assert inv_lre.subject_layer == 5
+    assert inv_lre.object_layer == 11
+    assert inv_lre.object_aggregation == "mean"
+
+
 def test_InvLreTrainingRunManager_samples_satisfy_object_constraints(
     model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast
 ) -> None:

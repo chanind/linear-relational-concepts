@@ -4,7 +4,11 @@ import torch
 from tokenizers import Tokenizer
 from torch import nn
 
-from multitoken_estimator.lib.layer_matching import LayerMatcher, get_layer_name
+from multitoken_estimator.lib.layer_matching import (
+    LayerMatcher,
+    fix_neg_layer_num,
+    get_layer_name,
+)
 from multitoken_estimator.lib.token_utils import (
     find_final_word_token_index,
     find_prompt_answer_data,
@@ -32,6 +36,7 @@ def train_lre(
     weights = []
     biases = []
     full_prompts = []
+    object_layer = fix_neg_layer_num(model, layer_matcher, object_layer)
     for prompt in prompts:
         prompt_answer_data = find_prompt_answer_data(
             tokenizer, prompt.text, prompt.answer
