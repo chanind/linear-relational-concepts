@@ -57,6 +57,7 @@ def sweep_lre_params(
     dataset_train_ration: float = 0.5,
     min_test_prompts_per_relation: int = 1,
 ) -> SweepResult[PVal]:
+    """Wrapper around benchmark_iterations which runs the benchmark for each param value"""
     param_to_strategy_name: dict[PVal, str] = {}
 
     def build_strategies(

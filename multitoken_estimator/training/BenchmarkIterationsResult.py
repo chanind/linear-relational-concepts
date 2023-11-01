@@ -50,8 +50,8 @@ class BenchmarkIterationsResult:
         return mapping
 
     @property
-    def causality(self) -> float:
-        return mean([result.causality for result in self.iteration_results])
+    def causality(self) -> AggregateMetric:
+        return AggregateMetric([result.causality for result in self.iteration_results])
 
     def causality_avg_over_relations(
         self, min_total_per_relation: int = 0
