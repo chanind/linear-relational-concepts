@@ -20,7 +20,7 @@ def train_concept_vector_via_svm(
         max_iter=max_iter,
         class_weight=class_weight,
         fit_intercept=fit_intercept,
-        dual="auto",
+        dual=True,
     )
     pos_labels = np.ones(len(pos_activations))
     neg_labels = np.zeros(len(neg_activations))
