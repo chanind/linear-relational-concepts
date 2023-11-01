@@ -38,7 +38,6 @@ from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "model.layers.{num}"
-INV_LRE_RANK = 100
 
 Precision = Literal["fp16", "bf16", "fp32"]
 
@@ -58,7 +57,6 @@ def benchmark_llama2(
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
     valid_prompts_cache_file: Optional[str] = None,
-    object_aggregation: ObjectAggregation = "mean",
     min_test_prompts_per_relation: int = 1,
     skip_svm: bool = False,
     skip_avg: bool = False,
@@ -128,12 +126,27 @@ def benchmark_llama2(
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
                 lre_trainer,
-                "lre-var1",
+                "lre-ft-rand-r100-l24",
                 LreConceptTrainerOptions(
                     layer=19,
                     object_layer=24,
-                    object_aggregation=object_aggregation,
-                    inv_lre_rank=INV_LRE_RANK,
+                    object_aggregation="first_token",
+                    sampling_method="random",
+                    inv_lre_rank=100,
+                ),
+                save_progress_dir=save_progress_dir,
+                seed=iteration_seed,
+                force_retrain_all=force_rerun,
+            ),
+            strategy_from_trainer(
+                lre_trainer,
+                "lre-mn-rand-r100-l24",
+                LreConceptTrainerOptions(
+                    layer=19,
+                    object_layer=24,
+                    object_aggregation="mean",
+                    sampling_method="random",
+                    inv_lre_rank=100,
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
