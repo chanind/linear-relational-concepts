@@ -31,7 +31,7 @@ LAYER_MATCHER = "model.layers.{num}"
 Precision = Literal["fp16", "bf16", "fp32"]
 
 
-def sweep_layers_llama2(
+def sweep_rank_llama2(
     model: Optional[LlamaForCausalLM] = None,
     tokenizer: Optional[Tokenizer] = None,
     iteration_seeds: list[int | str] = [42, 43, 44, 44, 45],
@@ -48,7 +48,7 @@ def sweep_layers_llama2(
     valid_prompts_cache_file: Optional[str] = None,
     min_test_prompts_per_relation: int = 1,
     subject_layer: int = 19,
-    inv_lre_rank: int = 100,
+    object_layer: int = 24,
     object_aggregation: ObjectAggregation = "first_token",
 ) -> dict[str, BenchmarkIterationsResult]:
     if model is None:
@@ -61,8 +61,6 @@ def sweep_layers_llama2(
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
     model.eval()
-
-    num_layers = len(collect_matching_layers(model, LAYER_MATCHER))
 
     def get_strategies(
         prompt_validator: PromptValidator,
@@ -92,7 +90,7 @@ def sweep_layers_llama2(
                 seed=iteration_seed,
                 force_retrain_all=force_rerun,
             )
-            for object_layer in range(subject_layer + 1, num_layers)
+            for inv_lre_rank in [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
         ]
         return strategies
 
