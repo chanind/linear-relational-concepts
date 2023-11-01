@@ -7,22 +7,10 @@ from tokenizers import Tokenizer
 from transformers import AutoTokenizer, LlamaForCausalLM
 
 from multitoken_estimator.data.data_loaders import load_lre_data
-from multitoken_estimator.data.RelationDataset import RelationDataset
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
 from multitoken_estimator.lib.layer_matching import collect_matching_layers
-from multitoken_estimator.lib.PromptValidator import PromptValidator
-from multitoken_estimator.training.benchmarking import (
-    TrainingStrategy,
-    benchmark_iterations,
-    strategy_from_trainer,
-)
-from multitoken_estimator.training.BenchmarkIterationsResult import (
-    BenchmarkIterationsResult,
-)
-from multitoken_estimator.training.LreConceptTrainer import (
-    LreConceptTrainer,
-    LreConceptTrainerOptions,
-)
+from multitoken_estimator.training.LreConceptTrainer import LreConceptTrainerOptions
+from multitoken_estimator.training.sweep_lre_params import SweepResult, sweep_lre_params
 from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
@@ -50,7 +38,7 @@ def sweep_layers_llama2(
     subject_layer: int = 19,
     inv_lre_rank: int = 100,
     object_aggregation: ObjectAggregation = "first_token",
-) -> dict[str, BenchmarkIterationsResult]:
+) -> SweepResult[int]:
     if model is None:
         model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
         if precision == "bf16":
@@ -64,45 +52,29 @@ def sweep_layers_llama2(
 
     num_layers = len(collect_matching_layers(model, LAYER_MATCHER))
 
-    def get_strategies(
-        prompt_validator: PromptValidator,
-        train_dataset: RelationDataset,
+    def opts_from_object_layer(
+        object_layer: int,
         iteration_seed: int | str,
-    ) -> list[TrainingStrategy]:
-        lre_trainer = LreConceptTrainer(
-            model,
-            tokenizer,
-            LAYER_MATCHER,
-            train_dataset,
-            prompt_validator=prompt_validator,
+    ) -> LreConceptTrainerOptions:
+        return LreConceptTrainerOptions(
+            layer=subject_layer,
+            object_layer=object_layer,
+            object_aggregation=object_aggregation,
+            sampling_method="random",
+            inv_lre_rank=inv_lre_rank,
+            seed=iteration_seed,
         )
 
-        strategies = [
-            strategy_from_trainer(
-                lre_trainer,
-                f"lre-{object_aggregation}-{subject_layer}-{inv_lre_rank}-{object_layer}",
-                LreConceptTrainerOptions(
-                    layer=subject_layer,
-                    object_layer=object_layer,
-                    object_aggregation=object_aggregation,
-                    sampling_method="random",
-                    inv_lre_rank=inv_lre_rank,
-                ),
-                save_progress_dir=save_progress_dir,
-                seed=iteration_seed,
-                force_retrain_all=force_rerun,
-            )
-            for object_layer in range(subject_layer + 1, num_layers)
-        ]
-        return strategies
-
-    return benchmark_iterations(
+    return sweep_lre_params(
         model,
         tokenizer,
         LAYER_MATCHER,
+        name="sweep_layers_llama2",
+        param_name="object_layer",
+        param_values=list(range(subject_layer + 1, num_layers)),
         dataset=load_lre_data(),
         iteration_seeds=iteration_seeds,
-        strategies_fn=get_strategies,
+        trainer_opts_fn=opts_from_object_layer,
         batch_size=batch_size,
         eval_zs_prompts=eval_zs_prompts,
         min_test_prompts_per_relation=min_test_prompts_per_relation,

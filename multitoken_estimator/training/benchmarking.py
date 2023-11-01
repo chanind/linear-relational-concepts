@@ -19,7 +19,10 @@ from multitoken_estimator.lib.PromptValidator import PromptValidator
 from multitoken_estimator.training.BenchmarkIterationsResult import (
     BenchmarkIterationsResult,
 )
-from multitoken_estimator.training.BenchmarkResult import BenchmarkResult
+from multitoken_estimator.training.BenchmarkResult import (
+    BenchmarkResult,
+    print_benchmark_result,
+)
 from multitoken_estimator.training.ConceptTrainer import (
     ConceptTrainer,
     ConceptTrainerOptions,
@@ -220,38 +223,6 @@ def benchmark_iterations(
         strategy: BenchmarkIterationsResult(iteration_results)
         for strategy, iteration_results in iteration_results.items()
     }
-
-
-def print_benchmark_result(result: BenchmarkResult) -> None:
-    """
-    Print a benchmark result
-    """
-    print(f"Strategy: {result.strategy_name}")
-    print(f"accuracy: {result.accuracy:.3f}, causality: {result.causality:.3f}")
-    print("accuracy by LRE type")
-    for category, accuracy in result.accuracy_by_category.items():
-        print(f"\t{category}: {accuracy:.3f}")
-    print("causality by LRE type")
-    for category, causality in result.causality_by_category.items():
-        print(f"\t{category}: {causality:.3f}")
-    print("accuracy per num answer tokens")
-    for ntoks, accuracy in result.accuracy_by_num_answer_tokens.items():
-        print(f"\t{ntoks}: {accuracy:.3f}")
-    print("causality per num answer tokens")
-    for ntoks, causality in result.causality_by_num_answer_tokens().items():
-        print(f"\t{ntoks}: {causality:.3f}")
-    print("total per num accuracy answer tokens")
-    for ntoks, total in result.total_by_num_accuracy_answer_tokens.items():
-        print(f"\t{ntoks}: {total:.3f}")
-    print("total per num causality answer tokens")
-    for ntoks, total in result.total_by_num_causality_answer_tokens().items():
-        print(f"\t{ntoks}: {total:.3f}")
-    print("accuracy per relation")
-    for relation, accuracy in result.accuracy_by_relation.items():
-        print(f"\t{relation}: {accuracy:.3f}")
-    print("causality per relation")
-    for relation, causality in result.causality_by_relation.items():
-        print(f"\t{relation}: {causality:.3f}")
 
 
 def _save_progress_path(

@@ -162,3 +162,35 @@ class BenchmarkResult:
             if relation in self.relation_accuracy:
                 category_to_total[category] += self.relation_accuracy[relation].total
         return category_to_total
+
+
+def print_benchmark_result(result: BenchmarkResult) -> None:
+    """
+    Print a benchmark result
+    """
+    print(f"Strategy: {result.strategy_name}")
+    print(f"accuracy: {result.accuracy:.3f}, causality: {result.causality:.3f}")
+    print("accuracy by LRE type")
+    for category, accuracy in result.accuracy_by_category.items():
+        print(f"\t{category}: {accuracy:.3f}")
+    print("causality by LRE type")
+    for category, causality in result.causality_by_category.items():
+        print(f"\t{category}: {causality:.3f}")
+    print("accuracy per num answer tokens")
+    for ntoks, accuracy in result.accuracy_by_num_answer_tokens.items():
+        print(f"\t{ntoks}: {accuracy:.3f}")
+    print("causality per num answer tokens")
+    for ntoks, causality in result.causality_by_num_answer_tokens().items():
+        print(f"\t{ntoks}: {causality:.3f}")
+    print("total per num accuracy answer tokens")
+    for ntoks, total in result.total_by_num_accuracy_answer_tokens.items():
+        print(f"\t{ntoks}: {total:.3f}")
+    print("total per num causality answer tokens")
+    for ntoks, total in result.total_by_num_causality_answer_tokens().items():
+        print(f"\t{ntoks}: {total:.3f}")
+    print("accuracy per relation")
+    for relation, accuracy in result.accuracy_by_relation.items():
+        print(f"\t{relation}: {accuracy:.3f}")
+    print("causality per relation")
+    for relation, causality in result.causality_by_relation.items():
+        print(f"\t{relation}: {causality:.3f}")
