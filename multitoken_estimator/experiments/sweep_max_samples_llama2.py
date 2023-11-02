@@ -35,7 +35,7 @@ def sweep_max_samples_llama2(
     valid_prompts_cache_file: Optional[str] = None,
     min_test_prompts_per_relation: int = 1,
     subject_layer: int = 19,
-    object_layer: int = 24,
+    object_layer: int = 28,
     inv_lre_rank: int = 100,
     object_aggregation: ObjectAggregation = "first_token",
 ) -> SweepResult[int]:

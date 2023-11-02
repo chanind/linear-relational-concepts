@@ -111,10 +111,10 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-rand-r128-l21",
+                "lre-ft-rand-r128-l28",
                 LreConceptTrainerOptions(
                     layer=19,
-                    object_layer=21,
+                    object_layer=28,
                     object_aggregation="first_token",
                     sampling_method="random",
                     inv_lre_rank=128,
@@ -125,10 +125,10 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-mn-rand-r128-l21",
+                "lre-mn-rand-r128-l28",
                 LreConceptTrainerOptions(
                     layer=19,
-                    object_layer=21,
+                    object_layer=28,
                     object_aggregation="mean",
                     sampling_method="random",
                     inv_lre_rank=128,
@@ -139,10 +139,10 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-oco-r128-l21",
+                "lre-ft-oco-r128-l28",
                 LreConceptTrainerOptions(
                     layer=19,
-                    object_layer=21,
+                    object_layer=28,
                     object_aggregation="first_token",
                     sampling_method="only_current_object",
                     inv_lre_rank=128,
@@ -153,10 +153,10 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-eco-r128-l21",
+                "lre-ft-eco-r128-l28",
                 LreConceptTrainerOptions(
                     layer=19,
-                    object_layer=21,
+                    object_layer=28,
                     object_aggregation="first_token",
                     sampling_method="exclude_current_object",
                     inv_lre_rank=128,
@@ -167,10 +167,10 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-bc-r128-l21",
+                "lre-ft-bc-r128-l28",
                 LreConceptTrainerOptions(
                     layer=19,
-                    object_layer=21,
+                    object_layer=28,
                     object_aggregation="first_token",
                     sampling_method="balanced_ceil",
                     inv_lre_rank=128,
@@ -181,10 +181,10 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-bc-r128-l21",
+                "lre-ft-bc-r128-l28",
                 LreConceptTrainerOptions(
                     layer=19,
-                    object_layer=21,
+                    object_layer=28,
                     object_aggregation="first_token",
                     sampling_method="balanced_floor",
                     inv_lre_rank=128,
