@@ -53,6 +53,20 @@ class BenchmarkIterationsResult:
     def causality(self) -> AggregateMetric:
         return AggregateMetric([result.causality for result in self.iteration_results])
 
+    def multitoken_causality(
+        self, method: CausalityTokenCountMethod = "max_original_target"
+    ) -> AggregateMetric:
+        return AggregateMetric(
+            [result.multitoken_causality(method) for result in self.iteration_results]
+        )
+
+    def single_token_causality(
+        self, method: CausalityTokenCountMethod = "max_original_target"
+    ) -> AggregateMetric:
+        return AggregateMetric(
+            [result.single_token_causality(method) for result in self.iteration_results]
+        )
+
     def causality_avg_over_relations(
         self, min_total_per_relation: int = 0
     ) -> AggregateMetric:
@@ -98,6 +112,18 @@ class BenchmarkIterationsResult:
     @property
     def accuracy(self) -> AggregateMetric:
         return AggregateMetric([result.accuracy for result in self.iteration_results])
+
+    @property
+    def multitoken_accuracy(self) -> AggregateMetric:
+        return AggregateMetric(
+            [result.multitoken_accuracy for result in self.iteration_results]
+        )
+
+    @property
+    def single_token_accuracy(self) -> AggregateMetric:
+        return AggregateMetric(
+            [result.single_token_accuracy for result in self.iteration_results]
+        )
 
     def accuracy_avg_over_relations(
         self, min_total_per_relation: int = 0

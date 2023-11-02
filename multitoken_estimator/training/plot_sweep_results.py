@@ -11,6 +11,10 @@ Metric = Literal[
     "causality",
     "accuracy_avg_over_relations",
     "causality_avg_over_relations",
+    "multitoken_accuracy",
+    "multitoken_causality",
+    "single_token_accuracy",
+    "single_token_causality",
 ]
 
 
@@ -22,7 +26,7 @@ def plot_sweep_results(
     xlabel: Optional[str] = None,
     ylabel: Optional[str] = None,
     show: bool = True,
-    figsize: tuple[int, int] = (20, 10),
+    figsize: tuple[int, int] = (10, 5),
     show_uncertainty: bool = False,
 ) -> plt.Figure:
     """
@@ -36,6 +40,14 @@ def plot_sweep_results(
             y_metrics.append(res.accuracy)
         elif metric == "causality":
             y_metrics.append(res.causality)
+        elif metric == "multitoken_accuracy":
+            y_metrics.append(res.multitoken_accuracy)
+        elif metric == "multitoken_causality":
+            y_metrics.append(res.multitoken_causality())
+        elif metric == "single_token_accuracy":
+            y_metrics.append(res.single_token_accuracy)
+        elif metric == "single_token_causality":
+            y_metrics.append(res.single_token_causality())
         elif metric == "accuracy_avg_over_relations":
             y_metrics.append(res.accuracy_avg_over_relations(min_total_per_relation))
         elif metric == "causality_avg_over_relations":
