@@ -97,13 +97,13 @@ def benchmark_llama2(
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
                 lre_trainer,
-                "lre-og-rand-r128-20s",
+                "lre-og-rand-r128-10s",
                 LreConceptTrainerOptions(
                     layer=19,
                     object_layer=-1,
                     object_aggregation="first_token",
                     sampling_method="random",
-                    max_lre_training_samples=20,
+                    max_lre_training_samples=10,
                     inv_lre_rank=128,
                 ),
                 save_progress_dir=save_progress_dir,
@@ -112,13 +112,13 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-rand-r128-l28-20s",
+                "lre-ft-rand-r128-l28-10s",
                 LreConceptTrainerOptions(
                     layer=19,
                     object_layer=28,
                     object_aggregation="first_token",
                     sampling_method="random",
-                    max_lre_training_samples=20,
+                    max_lre_training_samples=10,
                     inv_lre_rank=128,
                 ),
                 save_progress_dir=save_progress_dir,
@@ -127,13 +127,13 @@ def benchmark_llama2(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-mn-rand-r128-l28-20s",
+                "lre-mn-rand-r128-l28-10s",
                 LreConceptTrainerOptions(
                     layer=19,
                     object_layer=28,
                     object_aggregation="mean",
                     sampling_method="random",
-                    max_lre_training_samples=20,
+                    max_lre_training_samples=10,
                     inv_lre_rank=128,
                 ),
                 save_progress_dir=save_progress_dir,
