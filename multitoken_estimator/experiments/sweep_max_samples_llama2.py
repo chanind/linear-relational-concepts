@@ -36,7 +36,7 @@ def sweep_max_samples_llama2(
     min_test_prompts_per_relation: int = 1,
     subject_layer: int = 19,
     object_layer: int = 28,
-    inv_lre_rank: int = 100,
+    inv_lre_rank: int = 192,
     object_aggregation: ObjectAggregation = "first_token",
 ) -> SweepResult[int]:
     if model is None:
@@ -70,7 +70,7 @@ def sweep_max_samples_llama2(
         LAYER_MATCHER,
         name="sweep_max_samples_llama2",
         param_name="max_lre_training_samples",
-        param_values=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25],
+        param_values=[1, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28],
         dataset=load_lre_data(),
         iteration_seeds=iteration_seeds,
         trainer_opts_fn=opts_from_max_samples,
