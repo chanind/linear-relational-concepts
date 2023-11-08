@@ -19,7 +19,7 @@ LAYER_MATCHER = "model.layers.{num}"
 Precision = Literal["fp16", "bf16", "fp32"]
 
 
-def sweep_layers_llama2(
+def sweep_object_layers_llama2(
     model: Optional[LlamaForCausalLM] = None,
     tokenizer: Optional[Tokenizer] = None,
     iteration_seeds: list[int | str] = [42, 43, 44, 44, 45],
@@ -36,7 +36,7 @@ def sweep_layers_llama2(
     valid_prompts_cache_file: Optional[str] = None,
     min_test_prompts_per_relation: int = 1,
     subject_layer: int = 19,
-    inv_lre_rank: int = 100,
+    inv_lre_rank: int = 192,
     object_aggregation: ObjectAggregation = "first_token",
 ) -> SweepResult[int]:
     if model is None:
@@ -69,7 +69,7 @@ def sweep_layers_llama2(
         model,
         tokenizer,
         LAYER_MATCHER,
-        name="sweep_layers_llama2",
+        name="sweep_object_layers_llama2",
         param_name="object_layer",
         param_values=list(range(subject_layer + 1, num_layers)),
         dataset=load_lre_data(),
