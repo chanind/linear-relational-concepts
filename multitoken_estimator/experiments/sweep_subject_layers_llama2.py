@@ -8,7 +8,6 @@ from transformers import AutoTokenizer, LlamaForCausalLM
 
 from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
-from multitoken_estimator.lib.layer_matching import collect_matching_layers
 from multitoken_estimator.training.LreConceptTrainer import LreConceptTrainerOptions
 from multitoken_estimator.training.sweep_lre_params import SweepResult, sweep_lre_params
 from multitoken_estimator.training.train_lre import ObjectAggregation
