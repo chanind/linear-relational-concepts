@@ -97,7 +97,7 @@ def benchmark_llama2(
         strategies: list[TrainingStrategy] = [
             strategy_from_trainer(
                 lre_trainer,
-                "lre-og-rand-rs17-o92-20s",
+                "lre-og-rand-r192-s17-20s",
                 LreConceptTrainerOptions(
                     layer=17,
                     object_layer=-1,
@@ -114,7 +114,7 @@ def benchmark_llama2(
                 lre_trainer,
                 "lre-ft-rand-r192-s17-o21-20s",
                 LreConceptTrainerOptions(
-                    layer=19,
+                    layer=17,
                     object_layer=21,
                     object_aggregation="first_token",
                     sampling_method="random",
@@ -144,7 +144,7 @@ def benchmark_llama2(
                 lre_trainer,
                 "lre-ft-rand-r192-s17-o24-20s",
                 LreConceptTrainerOptions(
-                    layer=19,
+                    layer=17,
                     object_layer=24,
                     object_aggregation="first_token",
                     sampling_method="random",
