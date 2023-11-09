@@ -59,8 +59,8 @@ def plot_sweep_results(
     y_lower = [metric.mean - metric.stdev for metric in y_metrics]
     y_upper = [metric.mean + metric.stdev for metric in y_metrics]
 
-    fig, ax = plt.subplots(figsize=figsize)
     sns.set_theme()
+    fig, ax = plt.subplots(figsize=figsize)
     sns.lineplot(x=x, y=y, ax=ax)
 
     if ylabel is None:
