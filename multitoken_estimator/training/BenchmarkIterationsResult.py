@@ -214,8 +214,9 @@ class BenchmarkIterationsResult:
 def print_iterations_result(
     result: BenchmarkIterationsResult, min_total_per_relation: int = 1
 ) -> None:
+    print(f"accuracy: {result.accuracy}, causality: {result.causality}")
     print(
-        f"accuracy: {result.accuracy_avg_over_relations(min_total_per_relation)}, causality: {result.causality_avg_over_relations(min_total_per_relation)}"
+        f"accuracy (avg relations): {result.accuracy_avg_over_relations(min_total_per_relation)}, causality (avg relations): {result.causality_avg_over_relations(min_total_per_relation)}"
     )
     print("accuracy per LRE type")
     for category, accuracy in result.accuracy_by_category_avg_over_relations(
