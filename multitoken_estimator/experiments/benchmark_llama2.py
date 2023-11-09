@@ -205,7 +205,7 @@ def benchmark_llama2(
             strategies.append(
                 strategy_from_trainer(
                     svm_trainer,
-                    "svm",
+                    "svm-l17",
                     SvmConceptTrainerOptions(layer=17),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
@@ -216,7 +216,7 @@ def benchmark_llama2(
             strategies.append(
                 strategy_from_trainer(
                     avg_trainer,
-                    "avg",
+                    "avg-l17",
                     AvgConceptTrainerOptions(layer=17),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
