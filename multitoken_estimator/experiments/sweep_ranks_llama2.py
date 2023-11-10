@@ -27,16 +27,16 @@ def sweep_ranks_llama2(
     device: torch.device = DEFAULT_DEVICE,
     verbose: bool = True,
     batch_size: int = BATCH_SIZE,
-    causality_magnitude_multiplier: float = 0.09,
+    causality_magnitude_multiplier: float = 0.075,
     causality_edit_single_layer_only: bool = False,
     causality_use_remove_concept_projection_magnitude: bool = False,
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
     valid_prompts_cache_file: Optional[str] = None,
     min_test_prompts_per_relation: int = 1,
-    subject_layer: int = 19,
-    object_layer: int = 24,
-    object_aggregation: ObjectAggregation = "first_token",
+    subject_layer: int = 17,
+    object_layer: int = 21,
+    object_aggregation: ObjectAggregation = "mean",
 ) -> SweepResult[int]:
     if model is None:
         model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
