@@ -46,7 +46,7 @@ def benchmark_gptj(
     device: torch.device = DEFAULT_DEVICE,
     verbose: bool = True,
     batch_size: int = BATCH_SIZE,
-    causality_magnitude_multiplier: float = 0.065,
+    causality_magnitude_multiplier: float = 0.05,
     causality_edit_single_layer_only: bool = False,
     causality_use_remove_concept_projection_magnitude: bool = False,
     precision: Precision = "fp16",
