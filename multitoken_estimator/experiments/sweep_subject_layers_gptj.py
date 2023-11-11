@@ -13,7 +13,7 @@ from multitoken_estimator.training.sweep_lre_params import SweepResult, sweep_lr
 from multitoken_estimator.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
-LAYER_MATCHER = "model.layers.{num}"
+LAYER_MATCHER = "transformer.h.{num}"
 
 Precision = Literal["fp16", "bf16", "fp32"]
 
