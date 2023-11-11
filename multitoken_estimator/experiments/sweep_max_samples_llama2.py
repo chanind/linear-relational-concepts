@@ -21,7 +21,7 @@ Precision = Literal["fp16", "bf16", "fp32"]
 def sweep_max_samples_llama2(
     model: Optional[LlamaForCausalLM] = None,
     tokenizer: Optional[Tokenizer] = None,
-    iteration_seeds: list[int | str] = [42, 43, 44, 44, 45],
+    iteration_seeds: list[int | str] = [42, 43, 44, 45, 46],
     save_progress_dir: Optional[str] = None,
     force_rerun: bool = False,
     device: torch.device = DEFAULT_DEVICE,
