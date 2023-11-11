@@ -99,7 +99,7 @@ def benchmark_gptj(
                 lre_trainer,
                 "lre-og-192-rand-20s",
                 LreConceptTrainerOptions(
-                    layer=15,
+                    layer=14,
                     object_layer=-1,
                     object_aggregation="first_token",
                     inv_lre_rank=192,
@@ -112,10 +112,10 @@ def benchmark_gptj(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-ft-192-rand-s15-l19-20s",
+                "lre-ft-192-rand-s14-l20-20s",
                 LreConceptTrainerOptions(
-                    layer=15,
-                    object_layer=19,
+                    layer=14,
+                    object_layer=20,
                     object_aggregation="first_token",
                     inv_lre_rank=192,
                     max_lre_training_samples=20,
@@ -127,10 +127,10 @@ def benchmark_gptj(
             ),
             strategy_from_trainer(
                 lre_trainer,
-                "lre-mn-192-rand-s15-l19-20s",
+                "lre-mn-192-rand-s14-l20-20s",
                 LreConceptTrainerOptions(
-                    layer=15,
-                    object_layer=19,
+                    layer=14,
+                    object_layer=20,
                     object_aggregation="mean",
                     inv_lre_rank=192,
                     max_lre_training_samples=20,
@@ -145,8 +145,8 @@ def benchmark_gptj(
             strategies.append(
                 strategy_from_trainer(
                     svm_trainer,
-                    "svm-l15",
-                    SvmConceptTrainerOptions(layer=15),
+                    "svm-l14",
+                    SvmConceptTrainerOptions(layer=14),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
                     force_retrain_all=force_rerun,
@@ -156,8 +156,8 @@ def benchmark_gptj(
             strategies.append(
                 strategy_from_trainer(
                     avg_trainer,
-                    "avg-l15",
-                    AvgConceptTrainerOptions(layer=15),
+                    "avg-l14",
+                    AvgConceptTrainerOptions(layer=14),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
                     force_retrain_all=force_rerun,
