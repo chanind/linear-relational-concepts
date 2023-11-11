@@ -4,7 +4,7 @@ from typing import Literal, Optional
 
 import torch
 from tokenizers import Tokenizer
-from transformers import AutoTokenizer, LlamaForCausalLM
+from transformers import AutoTokenizer, GPTJForCausalLM
 
 from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
@@ -18,8 +18,8 @@ LAYER_MATCHER = "model.layers.{num}"
 Precision = Literal["fp16", "bf16", "fp32"]
 
 
-def sweep_subject_layers_llama2(
-    model: Optional[LlamaForCausalLM] = None,
+def sweep_subject_layers_gptj(
+    model: Optional[GPTJForCausalLM] = None,
     tokenizer: Optional[Tokenizer] = None,
     iteration_seeds: list[int | str] = [42, 43, 44, 45, 46],
     save_progress_dir: Optional[str] = None,
@@ -27,26 +27,26 @@ def sweep_subject_layers_llama2(
     device: torch.device = DEFAULT_DEVICE,
     verbose: bool = True,
     batch_size: int = BATCH_SIZE,
-    causality_magnitude_multiplier: float = 0.075,
+    causality_magnitude_multiplier: float = 0.05,
     causality_edit_single_layer_only: bool = False,
     causality_use_remove_concept_projection_magnitude: bool = False,
     precision: Precision = "fp16",
     eval_zs_prompts: bool = True,
     valid_prompts_cache_file: Optional[str] = None,
     min_test_prompts_per_relation: int = 1,
-    object_layer: int = 22,
+    object_layer: int = 20,
     inv_lre_rank: int = 192,
     object_aggregation: ObjectAggregation = "mean",
 ) -> SweepResult[int]:
     if model is None:
-        model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
+        model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
         if precision == "bf16":
             model = model.bfloat16()
         elif precision == "fp16":
             model = model.half()
         model = model.to(device)
     if tokenizer is None:
-        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf")
+        tokenizer = AutoTokenizer.from_pretrained("EleutherAI/gpt-j-6B")
     model.eval()
 
     def opts_from_subject_layer(
@@ -66,7 +66,7 @@ def sweep_subject_layers_llama2(
         model,
         tokenizer,
         LAYER_MATCHER,
-        name="sweep_subject_layers_llama2",
+        name="sweep_subject_layers_gptj",
         param_name="subject_layer",
         param_values=list(range(10, object_layer)),
         dataset=load_lre_data(),
