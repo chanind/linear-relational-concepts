@@ -242,5 +242,5 @@ def benchmark_llama2(
         valid_prompts_cache_file=valid_prompts_cache_file,
         verbose=verbose,
         save_progress_dir=save_progress_dir,
-        force_rerun_all=force_rerun_all or rerun_evaluation,
+        force_rerun=force_rerun_all or rerun_evaluation,
     )
