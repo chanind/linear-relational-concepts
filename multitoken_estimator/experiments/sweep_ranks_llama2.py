@@ -8,7 +8,10 @@ from transformers import AutoTokenizer, LlamaForCausalLM
 
 from multitoken_estimator.data.data_loaders import load_lre_data
 from multitoken_estimator.lib.constants import DEFAULT_DEVICE
-from multitoken_estimator.training.LreConceptTrainer import LreConceptTrainerOptions
+from multitoken_estimator.training.LreConceptTrainer import (
+    LreConceptTrainerOptions,
+    LreSamplingMethod,
+)
 from multitoken_estimator.training.sweep_lre_params import SweepResult, sweep_lre_params
 from multitoken_estimator.training.train_lre import ObjectAggregation
 
@@ -37,6 +40,8 @@ def sweep_ranks_llama2(
     subject_layer: int = 17,
     object_layer: int = 21,
     object_aggregation: ObjectAggregation = "mean",
+    sampling_method: LreSamplingMethod = "random",
+    max_lre_training_samples: int = 5,
 ) -> SweepResult[int]:
     if model is None:
         model = LlamaForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf")
@@ -57,9 +62,10 @@ def sweep_ranks_llama2(
             layer=subject_layer,
             object_layer=object_layer,
             object_aggregation=object_aggregation,
-            sampling_method="random",
+            sampling_method=sampling_method,
             inv_lre_rank=inv_lre_rank,
             seed=iteration_seed,
+            max_lre_training_samples=max_lre_training_samples,
         )
 
     return sweep_lre_params(
@@ -68,7 +74,7 @@ def sweep_ranks_llama2(
         LAYER_MATCHER,
         name="sweep_inv_lre_ranks_llama2",
         param_name="inv_lre_rank",
-        param_values=[4, 8, 16, 32, 64, 128, 160, 192, 224, 256, 512, 1024, 2048],
+        param_values=[2, 4, 8, 16, 32, 64, 128, 160, 192, 224, 256, 512, 1024, 2048],
         dataset=load_lre_data(),
         iteration_seeds=iteration_seeds,
         trainer_opts_fn=opts_from_inv_lre_rank,
