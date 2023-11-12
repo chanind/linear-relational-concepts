@@ -166,7 +166,7 @@ def benchmark_iterations(
     batch_size: int = 8,
     save_progress_dir: Optional[str] = None,
     force_rerun: bool = False,
-    causality_magnitude_multiplier: float = 0.065,
+    causality_magnitude_multiplier: float = 0.05,
     causality_edit_single_layer_only: bool = False,
     causality_use_remove_concept_projection_magnitude: bool = False,
     valid_prompts_cache_file: Optional[str] = None,

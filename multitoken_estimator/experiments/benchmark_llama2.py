@@ -42,7 +42,8 @@ def benchmark_llama2(
     tokenizer: Optional[Tokenizer] = None,
     iteration_seeds: list[int | str] = [42, 43, 44, 45, 46],
     save_progress_dir: Optional[str] = None,
-    force_rerun: bool = False,
+    force_rerun_all: bool = False,
+    rerun_evaluation: bool = False,
     device: torch.device = DEFAULT_DEVICE,
     verbose: bool = True,
     batch_size: int = BATCH_SIZE,
@@ -108,7 +109,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
             strategy_from_trainer(
                 lre_trainer,
@@ -123,7 +124,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
             strategy_from_trainer(
                 lre_trainer,
@@ -138,7 +139,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
             strategy_from_trainer(
                 lre_trainer,
@@ -153,7 +154,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
             strategy_from_trainer(
                 lre_trainer,
@@ -168,7 +169,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
             strategy_from_trainer(
                 lre_trainer,
@@ -183,7 +184,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
             strategy_from_trainer(
                 lre_trainer,
@@ -198,7 +199,7 @@ def benchmark_llama2(
                 ),
                 save_progress_dir=save_progress_dir,
                 seed=iteration_seed,
-                force_retrain_all=force_rerun,
+                force_retrain_all=force_rerun_all,
             ),
         ]
         if not skip_svm:
@@ -209,7 +210,7 @@ def benchmark_llama2(
                     SvmConceptTrainerOptions(layer=17),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
-                    force_retrain_all=force_rerun,
+                    force_retrain_all=force_rerun_all,
                 )
             )
         if not skip_avg:
@@ -220,7 +221,7 @@ def benchmark_llama2(
                     AvgConceptTrainerOptions(layer=17),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
-                    force_retrain_all=force_rerun,
+                    force_retrain_all=force_rerun_all,
                 ),
             )
         return strategies
@@ -241,5 +242,5 @@ def benchmark_llama2(
         valid_prompts_cache_file=valid_prompts_cache_file,
         verbose=verbose,
         save_progress_dir=save_progress_dir,
-        force_rerun=force_rerun,
+        force_rerun_all=force_rerun_all or rerun_evaluation,
     )
