@@ -38,6 +38,42 @@ class BenchmarkResult:
         return avg_causality(self.relation_causality.values())
 
     @property
+    def total_causality_samples(self) -> int:
+        return sum(
+            [
+                relation_causality.total
+                for relation_causality in self.relation_causality.values()
+            ]
+        )
+
+    @property
+    def causality_total_correct(self) -> int:
+        return sum(
+            [
+                relation_causality.total_correct
+                for relation_causality in self.relation_causality.values()
+            ]
+        )
+
+    @property
+    def total_accuracy_samples(self) -> int:
+        return sum(
+            [
+                relation_accuracy.total
+                for relation_accuracy in self.relation_accuracy.values()
+            ]
+        )
+
+    @property
+    def accuracy_total_correct(self) -> int:
+        return sum(
+            [
+                relation_accuracy.total_correct
+                for relation_accuracy in self.relation_accuracy.values()
+            ]
+        )
+
+    @property
     def causality_by_category(self) -> dict[str, float]:
         category_to_relation_causalities = defaultdict(list)
         for relation, category in self.relation_category_map.items():
