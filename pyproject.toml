@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "multitoken-estimator"
+name = "linear-relational-concepts"
 version = "0.1.0"
 description = ""
 authors = ["David Chanin <chanindav@gmail.com>"]
