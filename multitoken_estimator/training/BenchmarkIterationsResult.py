@@ -22,6 +22,8 @@ class AggregateMetric:
 
     @property
     def stdev(self) -> float:
+        if len(self.values) <= 1:
+            return 0
         return stdev(self.values)
 
     def __repr__(self) -> str:
