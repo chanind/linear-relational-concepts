@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 
-from multitoken_estimator.training.train_avg_concept_vector import (
+from linear_relational_concepts.training.train_avg_concept_vector import (
     train_avg_concept_vector,
 )
 

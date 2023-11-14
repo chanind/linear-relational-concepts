@@ -1,6 +1,6 @@
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.training.train_lre import train_lre
+from linear_relational_concepts.training.train_lre import train_lre
 from tests.helpers import create_prompt
 
 

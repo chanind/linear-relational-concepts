@@ -1,6 +1,6 @@
 import pytest
 
-from multitoken_estimator.evaluation.statistical_significance import (
+from linear_relational_concepts.evaluation.statistical_significance import (
     calculate_statistical_significance,
 )
 

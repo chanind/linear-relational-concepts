@@ -1,11 +1,11 @@
 from collections import defaultdict
 
-from multitoken_estimator.data.data_loaders import (
+from linear_relational_concepts.data.data_loaders import (
     LreRelation,
     load_lre_data,
     lre_relation_to_relation_and_samples,
 )
-from multitoken_estimator.lib.constants import DATA_DIR
+from linear_relational_concepts.lib.constants import DATA_DIR
 
 
 def test_load_lre_data_with_limited_files() -> None:

@@ -1,4 +1,4 @@
-from multitoken_estimator.lib.PromptValidator import cache_key
+from linear_relational_concepts.lib.PromptValidator import cache_key
 
 
 def test_cache_key() -> None:

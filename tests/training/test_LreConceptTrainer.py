@@ -3,9 +3,13 @@ from unittest.mock import Mock
 import pytest
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.data.RelationDataset import Relation, RelationDataset, Sample
-from multitoken_estimator.evaluation.Evaluator import Evaluator
-from multitoken_estimator.training.LreConceptTrainer import (
+from linear_relational_concepts.data.RelationDataset import (
+    Relation,
+    RelationDataset,
+    Sample,
+)
+from linear_relational_concepts.evaluation.Evaluator import Evaluator
+from linear_relational_concepts.training.LreConceptTrainer import (
     InvLreTrainingRunManager,
     LreConceptTrainer,
     LreConceptTrainerOptions,

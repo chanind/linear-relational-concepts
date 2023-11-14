@@ -2,7 +2,7 @@ import pytest
 import torch
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer
 
-from multitoken_estimator.lib.token_utils import (
+from linear_relational_concepts.lib.token_utils import (
     decode_tokens,
     find_final_attention_positions,
     find_final_word_token_index,

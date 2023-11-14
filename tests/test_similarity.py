@@ -1,8 +1,8 @@
 import pytest
 import torch
 
-from multitoken_estimator.MultitokenEstimator import ObjectActivation
-from multitoken_estimator.similarity import aggregate_similarity_at_layer
+from linear_relational_concepts.MultitokenEstimator import ObjectActivation
+from linear_relational_concepts.similarity import aggregate_similarity_at_layer
 
 
 def test_aggregate_similarity_at_layer_with_mean() -> None:

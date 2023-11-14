@@ -1,6 +1,6 @@
 import torch
 
-from multitoken_estimator.LinearRelationalEmbedding import (
+from linear_relational_concepts.LinearRelationalEmbedding import (
     InvertedLinearRelationalEmbedding,
     LinearRelationalEmbedding,
 )

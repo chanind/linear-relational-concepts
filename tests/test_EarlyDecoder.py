@@ -1,6 +1,6 @@
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.EarlyDecoder import EarlyDecoder
+from linear_relational_concepts.EarlyDecoder import EarlyDecoder
 
 
 def test_EarlyDecoder(model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast) -> None:

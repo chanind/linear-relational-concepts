@@ -3,10 +3,12 @@ from typing import Optional
 import torch
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.Concept import Concept
-from multitoken_estimator.lib.extract_token_activations import extract_token_activations
-from multitoken_estimator.lib.token_utils import find_final_word_token_index
-from multitoken_estimator.PromptGenerator import Prompt
+from linear_relational_concepts.Concept import Concept
+from linear_relational_concepts.lib.extract_token_activations import (
+    extract_token_activations,
+)
+from linear_relational_concepts.lib.token_utils import find_final_word_token_index
+from linear_relational_concepts.PromptGenerator import Prompt
 
 
 def create_prompt(subject: str, answer: str, text: Optional[str] = None) -> Prompt:

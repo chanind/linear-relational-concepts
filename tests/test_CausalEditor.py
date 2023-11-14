@@ -1,6 +1,6 @@
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.CausalEditor import (
+from linear_relational_concepts.CausalEditor import (
     CausalEditor,
     ConceptSwapAndPredictGreedyRequest,
 )

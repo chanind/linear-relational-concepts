@@ -1,5 +1,9 @@
-from multitoken_estimator.data.RelationDataset import Relation, RelationDataset, Sample
-from multitoken_estimator.PromptGenerator import (
+from linear_relational_concepts.data.RelationDataset import (
+    Relation,
+    RelationDataset,
+    Sample,
+)
+from linear_relational_concepts.PromptGenerator import (
     AUGMENTATION_MODIFIERS,
     PromptGenerator,
     split_with_dashes_modifier,

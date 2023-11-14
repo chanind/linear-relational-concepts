@@ -1,8 +1,8 @@
 import torch
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.Concept import Concept
-from multitoken_estimator.ConceptMatcher import ConceptMatcher, ConceptMatchQuery
+from linear_relational_concepts.Concept import Concept
+from linear_relational_concepts.ConceptMatcher import ConceptMatcher, ConceptMatchQuery
 
 
 def test_ConceptMatcher_query(

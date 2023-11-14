@@ -1,4 +1,4 @@
-from multitoken_estimator.lib.util import (
+from linear_relational_concepts.lib.util import (
     dedupe_stable,
     find_all_substring_indices,
     stable_shuffle,

@@ -1,6 +1,6 @@
 import torch
 
-from multitoken_estimator.training.train_concept_vector_via_svm import (
+from linear_relational_concepts.training.train_concept_vector_via_svm import (
     train_concept_vector_via_svm,
 )
 

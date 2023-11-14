@@ -1,11 +1,11 @@
-from multitoken_estimator.data.data_loaders import (
+from linear_relational_concepts.data.data_loaders import (
     LreRelation,
     load_lre_data,
     lre_relation_to_relation_and_samples,
 )
-from multitoken_estimator.data.RelationDataset import RelationDataset, Sample
-from multitoken_estimator.lib.constants import DATA_DIR
-from multitoken_estimator.lib.util import group_items
+from linear_relational_concepts.data.RelationDataset import RelationDataset, Sample
+from linear_relational_concepts.lib.constants import DATA_DIR
+from linear_relational_concepts.lib.util import group_items
 
 DATA_FILE = DATA_DIR / "lre/factual/city_in_country.json"
 

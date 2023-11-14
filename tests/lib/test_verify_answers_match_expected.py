@@ -1,6 +1,6 @@
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from multitoken_estimator.lib.verify_answers_match_expected import (
+from linear_relational_concepts.lib.verify_answers_match_expected import (
     verify_answers_match_expected,
 )
 
