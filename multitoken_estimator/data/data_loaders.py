@@ -26,7 +26,7 @@ class LreSample(DataClassJsonMixin):
 class LreRelation(DataClassJsonMixin):
     name: str
     prompt_templates: list[str]
-    prompt_templates_zs: list[str]
+    prompt_templates_zs: list[str] | None
     properties: LreProperties
     samples: list[LreSample]
 
@@ -37,7 +37,9 @@ def lre_relation_to_relation_and_samples(
     relation = Relation(
         name=lre_relation.name,
         templates=tuple(lre_relation.prompt_templates),
-        zs_templates=tuple(lre_relation.prompt_templates_zs),
+        zs_templates=tuple(lre_relation.prompt_templates_zs)
+        if lre_relation.prompt_templates_zs is not None
+        else None,
         category=lre_relation.properties.relation_type,
     )
 
