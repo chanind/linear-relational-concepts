@@ -9,7 +9,7 @@ class StatisticalSignificanceResult:
     p_value: float
     z_score: float
 
-    def is_significant(self, significance_threshold=0.05) -> bool:
+    def is_significant(self, significance_threshold: float = 0.05) -> bool:
         return self.p_value < significance_threshold
 
     @property
