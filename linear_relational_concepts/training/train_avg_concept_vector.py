@@ -1,7 +1,7 @@
 from typing import Any, Sequence
 
-import torch
 import numpy as np
+import torch
 
 
 def train_avg_concept_vector(
