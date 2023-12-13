@@ -48,7 +48,7 @@ class CausalEditor:
     concepts: list[Concept]
     model: nn.Module
     tokenizer: Tokenizer
-    layers_matcher: LayerMatcher
+    layer_matcher: LayerMatcher
     layer_name_to_num: dict[str, int]
     device: torch.device
 
@@ -57,19 +57,19 @@ class CausalEditor:
         model: nn.Module,
         tokenizer: Tokenizer,
         concepts: list[Concept],
-        layers_matcher: LayerMatcher,
+        layer_matcher: LayerMatcher,
         device: torch.device = DEFAULT_DEVICE,
     ) -> None:
         self.concepts = concepts
         self.model = model
         self.tokenizer = tokenizer
-        self.layers_matcher = layers_matcher
+        self.layer_matcher = layer_matcher
         ensure_tokenizer_has_pad_token(tokenizer)
-        num_layers = len(collect_matching_layers(self.model, self.layers_matcher))
+        num_layers = len(collect_matching_layers(self.model, self.layer_matcher))
         self.layer_name_to_num = {}
         for layer_num in range(num_layers):
             self.layer_name_to_num[
-                get_layer_name(model, layers_matcher, layer_num)
+                get_layer_name(model, layer_matcher, layer_num)
             ] = layer_num
         self.device = device
 

@@ -103,7 +103,7 @@ def test_InvLreTrainingRunManager_uses_cached_inv_lre_if_possible(
     inv_lre_manager = InvLreTrainingRunManager(
         model=model,
         tokenizer=tokenizer,
-        hidden_layers_matcher="transformer.h.{num}",
+        hidden_layer_matcher="transformer.h.{num}",
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=8,
@@ -141,7 +141,7 @@ def test_InvLreTrainingRunManager_get_inv_lre_for_object_updates_precomputed_lis
     inv_lre_manager = InvLreTrainingRunManager(
         model=model,
         tokenizer=tokenizer,
-        hidden_layers_matcher="transformer.h.{num}",
+        hidden_layer_matcher="transformer.h.{num}",
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=8,
@@ -190,7 +190,7 @@ def test_InvLreTrainingRunManager_get_inv_lre_with_negative_object_layer(
     inv_lre_manager = InvLreTrainingRunManager(
         model=model,
         tokenizer=tokenizer,
-        hidden_layers_matcher="transformer.h.{num}",
+        hidden_layer_matcher="transformer.h.{num}",
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=-1,
@@ -230,7 +230,7 @@ def test_InvLreTrainingRunManager_samples_satisfy_object_constraints(
     inv_lre_manager = InvLreTrainingRunManager(
         model=model,
         tokenizer=tokenizer,
-        hidden_layers_matcher="transformer.h.{num}",
+        hidden_layer_matcher="transformer.h.{num}",
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=8,

@@ -88,7 +88,7 @@ class LreConceptTrainer(ConceptTrainer[LreConceptTrainerOptions]):
             tokenizer=self.tokenizer,
             max_train_samples=opts.max_lre_training_samples,
             sampling_method=opts.sampling_method,
-            hidden_layers_matcher=self.layer_matcher,
+            hidden_layer_matcher=self.layer_matcher,
             relation_name=relation,
             subject_layer=opts.layer,
             object_layer=opts.object_layer,
@@ -214,7 +214,7 @@ class InvLreTrainingRunManager:
 
     model: nn.Module
     tokenizer: Tokenizer
-    hidden_layers_matcher: LayerMatcher
+    hidden_layer_matcher: LayerMatcher
     relation_name: str
     subject_layer: int
     object_layer: int
@@ -256,7 +256,7 @@ class InvLreTrainingRunManager:
         inv_lre = train_lre(
             self.model,
             self.tokenizer,
-            self.hidden_layers_matcher,
+            self.hidden_layer_matcher,
             prompts=train_samples,
             relation_name=self.relation_name,
             subject_layer=self.subject_layer,

@@ -14,7 +14,7 @@ def test_CausalEditor_swap_subject_concepts_and_predict_greedy_single(
     japan = quick_concept(model, tokenizer, "Tokyo")
 
     editor = CausalEditor(
-        model, tokenizer, [china, japan], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [china, japan], layer_matcher="transformer.h.{num}"
     )
     result = editor.swap_subject_concepts_and_predict_greedy(
         text="Beijing is located in the country of",
@@ -35,7 +35,7 @@ def test_CausalEditor_swap_subject_concepts_and_predict_greedy_bulk(
     germany = quick_concept(model, tokenizer, "Berlin")
 
     editor = CausalEditor(
-        model, tokenizer, [china, japan, germany], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [china, japan, germany], layer_matcher="transformer.h.{num}"
     )
     results = editor.swap_subject_concepts_and_predict_greedy_bulk(
         [

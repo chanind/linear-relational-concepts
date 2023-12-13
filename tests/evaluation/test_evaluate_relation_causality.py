@@ -18,7 +18,7 @@ def test_evaluate_causal_edits_batch_simple(
     japan = quick_concept(model, tokenizer, "Tokyo")
 
     editor = CausalEditor(
-        model, tokenizer, [china, japan], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [china, japan], layer_matcher="transformer.h.{num}"
     )
 
     edits = [
@@ -68,7 +68,7 @@ def test_evaluate_causal_edits_batch_with_multitoken_answers(
     japan = quick_concept(model, tokenizer, "Tokyo")
 
     editor = CausalEditor(
-        model, tokenizer, [china, japan], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [china, japan], layer_matcher="transformer.h.{num}"
     )
 
     edits = [
@@ -118,7 +118,7 @@ def test_evaluate_causal_edits_batch_with_unsuccessful_causality(
     japan = quick_concept(model, tokenizer, "Tokyo")
 
     editor = CausalEditor(
-        model, tokenizer, [china, japan], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [china, japan], layer_matcher="transformer.h.{num}"
     )
 
     edits = [

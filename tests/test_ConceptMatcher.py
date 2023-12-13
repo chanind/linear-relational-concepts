@@ -15,7 +15,7 @@ def test_ConceptMatcher_query(
         vector=torch.rand(768),
     )
     conceptifier = ConceptMatcher(
-        model, tokenizer, [concept], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [concept], layer_matcher="transformer.h.{num}"
     )
     results = conceptifier.query("This is a test", "test")
     assert len(results) == 1
@@ -32,7 +32,7 @@ def test_ConceptMatcher_query_bulk(
         vector=torch.rand(768),
     )
     conceptifier = ConceptMatcher(
-        model, tokenizer, [concept], layers_matcher="transformer.h.{num}"
+        model, tokenizer, [concept], layer_matcher="transformer.h.{num}"
     )
     results = conceptifier.query_bulk(
         [
