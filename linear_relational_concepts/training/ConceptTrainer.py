@@ -6,10 +6,10 @@ from time import time
 from typing import Generic, Optional, TypeVar
 
 import torch
+from linear_relational import Concept
 from tokenizers import Tokenizer
 from torch import nn
 
-from linear_relational_concepts.Concept import Concept
 from linear_relational_concepts.data.RelationDataset import RelationDataset
 from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.lib.logger import log_or_print, logger

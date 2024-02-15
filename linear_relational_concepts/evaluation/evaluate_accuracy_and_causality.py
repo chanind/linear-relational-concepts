@@ -4,22 +4,23 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Iterable, Optional, Sequence
 
-from tokenizers import Tokenizer
-from torch import nn
-
-from linear_relational_concepts.CausalEditor import CausalEditor
-from linear_relational_concepts.Concept import Concept
-from linear_relational_concepts.ConceptMatcher import (
+from linear_relational import (
+    CausalEditor,
+    Concept,
     ConceptMatcher,
     ConceptMatchQuery,
     ConceptMatchResult,
+    Prompt,
 )
+from tokenizers import Tokenizer
+from torch import nn
+
 from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.lib.logger import log_or_print
 from linear_relational_concepts.lib.PromptValidator import PromptValidator
 from linear_relational_concepts.lib.token_utils import find_prompt_answer_data
 from linear_relational_concepts.lib.util import group_items
-from linear_relational_concepts.PromptGenerator import Prompt, PromptGenerator
+from linear_relational_concepts.PromptGenerator import PromptGenerator
 
 from .evaluate_relation_causality import (
     RelationCausalityResult,
@@ -174,7 +175,7 @@ def evaluate_relation_classification_accuracy(
             # only check prompt where the model gets the correct answer
             matcher_queries.append(ConceptMatchQuery(prompt.text, prompt.subject))
 
-        concept_results = matcher.query_bulk(
+        query_results = matcher.query_bulk(
             matcher_queries,
             batch_size=batch_size,
         )
@@ -182,12 +183,12 @@ def evaluate_relation_classification_accuracy(
             PromptAccuracyResult(
                 correct_concept=object_name_to_concept_name[prompt.object_name],
                 prompt=prompt,
-                concept_scores=concept_result,
+                concept_scores=concept_result.concept_results,
                 num_answer_tokens=_get_prompt_num_answer_tokens(
                     tokenizer, prompt=prompt
                 ),
             )
-            for prompt, concept_result in zip(valid_prompts, concept_results)
+            for prompt, concept_result in zip(valid_prompts, query_results)
         ]
         relation_result = RelationAccuracyResult(
             relation_name,

@@ -1,8 +1,8 @@
 from collections import defaultdict
 
+from linear_relational import CausalEditor
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
-from linear_relational_concepts.CausalEditor import CausalEditor
 from linear_relational_concepts.evaluation.evaluate_relation_causality import (
     EditAttempt,
     build_causal_edits,

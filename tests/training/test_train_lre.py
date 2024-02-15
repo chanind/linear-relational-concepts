@@ -1,6 +1,6 @@
+from linear_relational.training.train_lre import train_lre
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
-from linear_relational_concepts.training.train_lre import train_lre
 from tests.helpers import create_prompt
 
 
@@ -28,7 +28,7 @@ def test_train_lre(model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast) -> None
         model=model,
         tokenizer=tokenizer,
         layer_matcher="transformer.h.{num}",
-        relation_name="city in country",
+        relation="city in country",
         subject_layer=5,
         object_layer=9,
         prompts=prompts,

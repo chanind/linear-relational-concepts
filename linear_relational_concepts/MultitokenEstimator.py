@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Callable, Literal, Optional, Sequence
 
 import torch
+from linear_relational import Prompt
 from tokenizers import Tokenizer
 from torch import nn
 
@@ -23,7 +24,6 @@ from linear_relational_concepts.lib.torch_utils import get_device
 from linear_relational_concepts.PromptGenerator import (
     AUGMENTATION_MODIFIERS,
     EntityModifier,
-    Prompt,
     PromptGenerator,
 )
 

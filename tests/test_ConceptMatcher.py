@@ -1,16 +1,14 @@
 import torch
+from linear_relational import Concept, ConceptMatcher, ConceptMatchQuery
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
-
-from linear_relational_concepts.Concept import Concept
-from linear_relational_concepts.ConceptMatcher import ConceptMatcher, ConceptMatchQuery
 
 
 def test_ConceptMatcher_query(
     model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast
 ) -> None:
     concept = Concept(
-        "test_concept",
-        "test_relation",
+        object="test_concept",
+        relation="test_relation",
         layer=10,
         vector=torch.rand(768),
     )
@@ -18,16 +16,16 @@ def test_ConceptMatcher_query(
         model, tokenizer, [concept], layer_matcher="transformer.h.{num}"
     )
     results = conceptifier.query("This is a test", "test")
-    assert len(results) == 1
-    assert concept.name in results
+    assert len(results.concept_results) == 1
+    assert concept.name in results.concept_results
 
 
 def test_ConceptMatcher_query_bulk(
     model: GPT2LMHeadModel, tokenizer: GPT2TokenizerFast
 ) -> None:
     concept = Concept(
-        "test_concept",
-        "test_relation",
+        object="test_concept",
+        relation="test_relation",
         layer=10,
         vector=torch.rand(768),
     )
@@ -42,4 +40,4 @@ def test_ConceptMatcher_query_bulk(
     )
     assert len(results) == 2
     for result in results:
-        assert concept.name in result
+        assert concept.name in result.concept_results

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Iterable, Optional
 
 from dataclasses_json import DataClassJsonMixin
+from linear_relational import Prompt
 from tokenizers import Tokenizer
 from torch import nn
 
@@ -12,7 +13,6 @@ from linear_relational_concepts.lib.torch_utils import guess_model_name
 from linear_relational_concepts.lib.verify_answers_match_expected import (
     verify_answers_match_expected,
 )
-from linear_relational_concepts.PromptGenerator import Prompt
 
 
 @dataclass

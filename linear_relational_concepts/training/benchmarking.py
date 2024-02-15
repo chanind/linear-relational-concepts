@@ -8,9 +8,9 @@ from time import time
 from typing import Any, Callable, Optional, TypeVar
 
 import torch
+from linear_relational import Concept
 from tokenizers import Tokenizer
 
-from linear_relational_concepts.Concept import Concept
 from linear_relational_concepts.data.RelationDataset import RelationDataset
 from linear_relational_concepts.evaluation.Evaluator import Evaluator
 from linear_relational_concepts.lib.layer_matching import LayerMatcher

@@ -4,7 +4,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from linear_relational_concepts.Concept import Concept
+from linear_relational import Concept
+
 from linear_relational_concepts.evaluation.evaluate_accuracy_and_causality import (
     RelationAccuracyResult,
     avg_accuracy,

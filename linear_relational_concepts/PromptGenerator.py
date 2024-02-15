@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Callable, Optional
 
+from linear_relational import Prompt
+
 from linear_relational_concepts.data.RelationDataset import RelationDataset, Sample
 from linear_relational_concepts.lib.logger import logger
 from linear_relational_concepts.lib.util import dedupe_stable, stable_sample
@@ -38,15 +40,6 @@ AUGMENTATION_MODIFIERS = [
     split_with_periods_uppercase_modifier,
     split_with_dashes_uppercase_modifier,
 ]
-
-
-@dataclass(frozen=True, slots=True)
-class Prompt:
-    text: str
-    answer: str
-    subject: str
-    object_name: str
-    relation_name: str
 
 
 @dataclass
@@ -148,7 +141,6 @@ class PromptGenerator:
                             answer=entity_modifier(answer),
                             subject=object_sample.subject,
                             object_name=object_name,
-                            relation_name=relation_name,
                         )
                     )
         return dedupe_stable(prompts)

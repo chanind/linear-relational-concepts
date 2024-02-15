@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Literal, Optional
 
 import torch
+from linear_relational.training.train_lre import ObjectAggregation
 from tokenizers import Tokenizer
 from transformers import AutoTokenizer, LlamaForCausalLM
 
@@ -16,7 +17,6 @@ from linear_relational_concepts.training.sweep_lre_params import (
     SweepResult,
     sweep_lre_params,
 )
-from linear_relational_concepts.training.train_lre import ObjectAggregation
 
 BATCH_SIZE = 8
 LAYER_MATCHER = "model.layers.{num}"

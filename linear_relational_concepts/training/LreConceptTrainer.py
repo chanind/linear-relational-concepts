@@ -5,11 +5,12 @@ from time import time
 from typing import Literal
 
 import torch
+from linear_relational import Concept, InvertedLre, Prompt
+from linear_relational.training.train_lre import ObjectAggregation, train_lre
 from tokenizers import Tokenizer
 from torch import nn
 from typing_extensions import override
 
-from linear_relational_concepts.Concept import Concept
 from linear_relational_concepts.lib.balance_grouped_items import balance_grouped_items
 from linear_relational_concepts.lib.extract_token_activations import (
     extract_token_activations,
@@ -22,15 +23,11 @@ from linear_relational_concepts.lib.token_utils import (
 )
 from linear_relational_concepts.lib.torch_utils import get_device
 from linear_relational_concepts.lib.util import group_items, sample_or_all
-from linear_relational_concepts.LinearRelationalEmbedding import (
-    InvertedLinearRelationalEmbedding,
-)
-from linear_relational_concepts.PromptGenerator import AUGMENTATION_MODIFIERS, Prompt
+from linear_relational_concepts.PromptGenerator import AUGMENTATION_MODIFIERS
 from linear_relational_concepts.training.ConceptTrainer import (
     ConceptTrainer,
     ConceptTrainerOptions,
 )
-from linear_relational_concepts.training.train_lre import ObjectAggregation, train_lre
 
 VectorAggregation = Literal["pre_mean", "post_mean"]
 LreSamplingMethod = Literal[
@@ -227,17 +224,13 @@ class InvLreTrainingRunManager:
 
     # internally managed state
     _remaining_objects: set[str] = field(init=False)
-    _precomputed_inv_lres_by_object: dict[
-        str, InvertedLinearRelationalEmbedding
-    ] = field(init=False)
+    _precomputed_inv_lres_by_object: dict[str, InvertedLre] = field(init=False)
 
     def __post_init__(self) -> None:
         self._remaining_objects = set(self.prompts_by_object.keys())
         self._precomputed_inv_lres_by_object = {}
 
-    def get_inv_lre_for_object(
-        self, object_name: str
-    ) -> InvertedLinearRelationalEmbedding:
+    def get_inv_lre_for_object(self, object_name: str) -> InvertedLre:
         if object_name not in self._remaining_objects:
             raise ValueError(f"Object {object_name} has already been trained")
         self._remaining_objects.remove(object_name)
@@ -248,9 +241,7 @@ class InvLreTrainingRunManager:
             return inv_lre
         return self._train_inv_lre_for_object(object_name)
 
-    def _train_inv_lre_for_object(
-        self, object_name: str
-    ) -> InvertedLinearRelationalEmbedding:
+    def _train_inv_lre_for_object(self, object_name: str) -> InvertedLre:
         start_time = time()
         train_samples = self._get_train_samples_for_object(object_name)
         inv_lre = train_lre(
@@ -258,7 +249,7 @@ class InvLreTrainingRunManager:
             self.tokenizer,
             self.hidden_layer_matcher,
             prompts=train_samples,
-            relation_name=self.relation_name,
+            relation=self.relation_name,
             subject_layer=self.subject_layer,
             object_layer=self.object_layer,
             object_aggregation=self.object_aggregation,

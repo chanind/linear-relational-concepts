@@ -2,16 +2,16 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 
 import torch
+from linear_relational import Concept, Prompt
 from typing_extensions import override
 
-from linear_relational_concepts.Concept import Concept
 from linear_relational_concepts.lib.extract_token_activations import (
     extract_token_activations,
 )
 from linear_relational_concepts.lib.layer_matching import get_layer_name
 from linear_relational_concepts.lib.token_utils import find_final_word_token_index
 from linear_relational_concepts.lib.torch_utils import get_device
-from linear_relational_concepts.PromptGenerator import AUGMENTATION_MODIFIERS, Prompt
+from linear_relational_concepts.PromptGenerator import AUGMENTATION_MODIFIERS
 from linear_relational_concepts.training.ConceptTrainer import (
     ConceptTrainer,
     ConceptTrainerOptions,
