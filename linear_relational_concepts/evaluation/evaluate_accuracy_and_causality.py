@@ -11,13 +11,13 @@ from linear_relational import (
     ConceptMatchQuery,
     ConceptMatchResult,
     Prompt,
+    PromptValidator,
 )
 from tokenizers import Tokenizer
 from torch import nn
 
 from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.lib.logger import log_or_print
-from linear_relational_concepts.lib.PromptValidator import PromptValidator
 from linear_relational_concepts.lib.token_utils import find_prompt_answer_data
 from linear_relational_concepts.lib.util import group_items
 from linear_relational_concepts.PromptGenerator import PromptGenerator

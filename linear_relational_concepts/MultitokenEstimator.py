@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Callable, Literal, Optional, Sequence
 
 import torch
-from linear_relational import Prompt
+from linear_relational import Prompt, PromptValidator
 from tokenizers import Tokenizer
 from torch import nn
 
@@ -18,7 +18,6 @@ from linear_relational_concepts.lib.layer_matching import (
     collect_matching_layers,
 )
 from linear_relational_concepts.lib.logger import log_or_print
-from linear_relational_concepts.lib.PromptValidator import PromptValidator
 from linear_relational_concepts.lib.token_utils import find_prompt_answer_data
 from linear_relational_concepts.lib.torch_utils import get_device
 from linear_relational_concepts.PromptGenerator import (

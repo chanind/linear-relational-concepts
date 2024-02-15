@@ -56,17 +56,15 @@ class PromptGenerator:
         num_fsl_examples: int = 5,
         entity_modifiers: list[EntityModifier] | None = None,
         exclude_fsl_examples_of_object: bool = True,
-    ) -> list[Prompt]:
+    ) -> dict[str, list[Prompt]]:
         relation_names = {rel.name for rel in self.db.relations}
-        prompts: list[Prompt] = []
+        prompts: dict[str, list[Prompt]] = {}
         for relation_name in relation_names:
-            prompts.extend(
-                self.generate_prompts_for_relation(
-                    relation_name=relation_name,
-                    num_fsl_examples=num_fsl_examples,
-                    entity_modifiers=entity_modifiers,
-                    exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
-                )
+            prompts[relation_name] = self.generate_prompts_for_relation(
+                relation_name=relation_name,
+                num_fsl_examples=num_fsl_examples,
+                entity_modifiers=entity_modifiers,
+                exclude_fsl_examples_of_object=exclude_fsl_examples_of_object,
             )
         return prompts
 
