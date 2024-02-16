@@ -1,11 +1,10 @@
 from dataclasses import dataclass, field, replace
 
-from linear_relational import Concept, PromptValidator
+from linear_relational import Concept, LayerMatcher, PromptValidator
 from tokenizers import Tokenizer
 from torch import nn
 
 from linear_relational_concepts.data.RelationDataset import Relation, RelationDataset
-from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.PromptGenerator import PromptGenerator
 
 from .evaluate_accuracy_and_causality import (

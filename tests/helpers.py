@@ -2,12 +2,9 @@ from typing import Optional
 
 import torch
 from linear_relational import Concept, Prompt
+from linear_relational.lib.extract_token_activations import extract_token_activations
+from linear_relational.lib.token_utils import find_final_word_token_index
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
-
-from linear_relational_concepts.lib.extract_token_activations import (
-    extract_token_activations,
-)
-from linear_relational_concepts.lib.token_utils import find_final_word_token_index
 
 
 def create_prompt(subject: str, answer: str, text: Optional[str] = None) -> Prompt:

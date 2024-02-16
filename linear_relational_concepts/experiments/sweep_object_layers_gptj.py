@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import Literal, Optional
 
 import torch
-from linear_relational.training.train_lre import ObjectAggregation
+from linear_relational import ObjectAggregation
+from linear_relational.lib.layer_matching import collect_matching_layers
 from tokenizers import Tokenizer
 from transformers import AutoTokenizer, GPTJForCausalLM
 
 from linear_relational_concepts.data.data_loaders import load_lre_data
 from linear_relational_concepts.lib.constants import DEFAULT_DEVICE
-from linear_relational_concepts.lib.layer_matching import collect_matching_layers
 from linear_relational_concepts.training.LreConceptTrainer import (
     LreConceptTrainerOptions,
 )

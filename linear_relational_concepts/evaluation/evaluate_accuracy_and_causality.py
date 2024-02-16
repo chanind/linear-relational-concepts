@@ -10,16 +10,16 @@ from linear_relational import (
     ConceptMatcher,
     ConceptMatchQuery,
     ConceptMatchResult,
+    LayerMatcher,
     Prompt,
     PromptValidator,
 )
+from linear_relational.lib.token_utils import find_prompt_answer_data
+from linear_relational.lib.util import group_items
 from tokenizers import Tokenizer
 from torch import nn
 
-from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.lib.logger import log_or_print
-from linear_relational_concepts.lib.token_utils import find_prompt_answer_data
-from linear_relational_concepts.lib.util import group_items
 from linear_relational_concepts.PromptGenerator import PromptGenerator
 
 from .evaluate_relation_causality import (

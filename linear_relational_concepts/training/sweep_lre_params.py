@@ -2,11 +2,10 @@ from dataclasses import dataclass, replace
 from typing import Callable, Generic, Optional, Sequence, TypeVar
 
 import torch
-from linear_relational import PromptValidator
+from linear_relational import LayerMatcher, PromptValidator
 from tokenizers import Tokenizer
 
 from linear_relational_concepts.data.RelationDataset import RelationDataset
-from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.training.benchmarking import (
     TrainingStrategy,
     benchmark_iterations,

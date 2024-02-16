@@ -2,10 +2,10 @@ from dataclasses import dataclass
 from typing import Callable, Optional
 
 from linear_relational import Prompt
+from linear_relational.lib.util import dedupe_stable, stable_sample
 
 from linear_relational_concepts.data.RelationDataset import RelationDataset, Sample
 from linear_relational_concepts.lib.logger import logger
-from linear_relational_concepts.lib.util import dedupe_stable, stable_sample
 
 EntityModifier = Callable[[str], str]
 

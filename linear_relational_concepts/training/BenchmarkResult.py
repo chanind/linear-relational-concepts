@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from linear_relational import Concept
+from linear_relational.lib.util import mean
 
 from linear_relational_concepts.evaluation.evaluate_accuracy_and_causality import (
     RelationAccuracyResult,
@@ -15,7 +16,6 @@ from linear_relational_concepts.evaluation.evaluate_relation_causality import (
     RelationCausalityResult,
     avg_causality,
 )
-from linear_relational_concepts.lib.util import mean
 
 CausalityTokenCountMethod = Literal["original", "target", "max_original_target"]
 

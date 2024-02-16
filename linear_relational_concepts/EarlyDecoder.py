@@ -1,10 +1,9 @@
 from typing import Iterable
 
 import torch
+from linear_relational.lib.torch_utils import get_module
 from tokenizers import Tokenizer
 from torch import nn
-
-from linear_relational_concepts.lib.torch_utils import get_module
 
 
 class EarlyDecoder:

@@ -8,12 +8,11 @@ from time import time
 from typing import Any, Callable, Optional, TypeVar
 
 import torch
-from linear_relational import Concept, PromptValidator
+from linear_relational import Concept, LayerMatcher, PromptValidator
 from tokenizers import Tokenizer
 
 from linear_relational_concepts.data.RelationDataset import RelationDataset
 from linear_relational_concepts.evaluation.Evaluator import Evaluator
-from linear_relational_concepts.lib.layer_matching import LayerMatcher
 from linear_relational_concepts.lib.logger import log_or_print
 from linear_relational_concepts.training.BenchmarkIterationsResult import (
     BenchmarkIterationsResult,

@@ -5,7 +5,8 @@ from dataclasses import dataclass
 from statistics import stdev
 from typing import Any, Callable, Mapping, Sequence
 
-from linear_relational_concepts.lib.util import mean, mean_values
+from linear_relational.lib.util import mean, mean_values
+
 from linear_relational_concepts.training.BenchmarkResult import (
     BenchmarkResult,
     CausalityTokenCountMethod,

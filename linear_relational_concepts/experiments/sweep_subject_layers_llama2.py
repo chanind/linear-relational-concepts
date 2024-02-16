@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Literal, Optional
 
 import torch
-from linear_relational.training.train_lre import ObjectAggregation
+from linear_relational import ObjectAggregation
 from tokenizers import Tokenizer
 from transformers import AutoTokenizer, LlamaForCausalLM
 

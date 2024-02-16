@@ -6,11 +6,11 @@ from typing import Iterable, Optional, Sequence
 
 import torch
 from linear_relational import CausalEditor, ConceptSwapRequest, Prompt
+from linear_relational.lib.balance_grouped_items import balance_grouped_items
+from linear_relational.lib.util import batchify, sample_or_all
 from tokenizers import Tokenizer
 
-from linear_relational_concepts.lib.balance_grouped_items import balance_grouped_items
 from linear_relational_concepts.lib.logger import log_or_print
-from linear_relational_concepts.lib.util import batchify, sample_or_all
 
 
 @dataclass

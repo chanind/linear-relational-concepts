@@ -5,21 +5,16 @@ from typing import Callable, Literal, Optional, Sequence
 
 import torch
 from linear_relational import Prompt, PromptValidator
+from linear_relational.lib.extract_token_activations import extract_token_activations
+from linear_relational.lib.layer_matching import LayerMatcher, collect_matching_layers
+from linear_relational.lib.token_utils import find_prompt_answer_data
+from linear_relational.lib.torch_utils import get_device
 from tokenizers import Tokenizer
 from torch import nn
 
 from linear_relational_concepts.data.RelationDataset import RelationDataset
 from linear_relational_concepts.lib.constants import DEFAULT_DEVICE
-from linear_relational_concepts.lib.extract_token_activations import (
-    extract_token_activations,
-)
-from linear_relational_concepts.lib.layer_matching import (
-    LayerMatcher,
-    collect_matching_layers,
-)
 from linear_relational_concepts.lib.logger import log_or_print
-from linear_relational_concepts.lib.token_utils import find_prompt_answer_data
-from linear_relational_concepts.lib.torch_utils import get_device
 from linear_relational_concepts.PromptGenerator import (
     AUGMENTATION_MODIFIERS,
     EntityModifier,

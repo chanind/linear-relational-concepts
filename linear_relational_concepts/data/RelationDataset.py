@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from typing import Callable, Sequence
 
-from linear_relational_concepts.lib.util import group_items, stable_shuffle
+from linear_relational.lib.util import group_items, stable_shuffle
 
 
 @dataclass(frozen=True, slots=True)
