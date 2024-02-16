@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from dataclasses_json import DataClassJsonMixin
+from linear_relational.lib.util import dedupe_stable
 
 from linear_relational_concepts.data.RelationDataset import (
     Relation,
@@ -9,7 +10,6 @@ from linear_relational_concepts.data.RelationDataset import (
     Sample,
 )
 from linear_relational_concepts.lib.constants import DATA_DIR
-from linear_relational_concepts.lib.util import dedupe_stable
 
 
 @dataclass
@@ -41,9 +41,11 @@ def lre_relation_to_relation_and_samples(
     relation = Relation(
         name=lre_relation.name,
         templates=tuple(lre_relation.prompt_templates),
-        zs_templates=tuple(lre_relation.prompt_templates_zs)
-        if lre_relation.prompt_templates_zs is not None
-        else None,
+        zs_templates=(
+            tuple(lre_relation.prompt_templates_zs)
+            if lre_relation.prompt_templates_zs is not None
+            else None
+        ),
         category=lre_relation.properties.relation_type,
     )
 

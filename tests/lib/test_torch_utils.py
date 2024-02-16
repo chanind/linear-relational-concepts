@@ -1,7 +1,6 @@
+from linear_relational.lib.layer_matching import fix_neg_layer_num
+from linear_relational.lib.torch_utils import guess_model_name
 from transformers import GPT2LMHeadModel
-
-from linear_relational_concepts.lib.layer_matching import fix_neg_layer_num
-from linear_relational_concepts.lib.torch_utils import guess_model_name
 
 
 def test_guess_model_name(model: GPT2LMHeadModel) -> None:

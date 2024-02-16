@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
-from linear_relational_concepts.lib.balance_grouped_items import balance_grouped_items
+from linear_relational.lib.balance_grouped_items import balance_grouped_items
 
 
 @dataclass

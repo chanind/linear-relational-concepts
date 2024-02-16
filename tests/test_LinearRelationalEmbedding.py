@@ -1,14 +1,10 @@
 import torch
-
-from linear_relational_concepts.LinearRelationalEmbedding import (
-    InvertedLinearRelationalEmbedding,
-    LinearRelationalEmbedding,
-)
+from linear_relational import InvertedLre, Lre
 
 
-def test_LinearRelationalEmbedding_invert() -> None:
+def test_Lre_invert() -> None:
     bias = torch.tensor([1.0, 0.0, 0.0])
-    lre = LinearRelationalEmbedding(
+    lre = Lre(
         relation="test",
         subject_layer=5,
         object_layer=10,
@@ -28,9 +24,7 @@ def test_LinearRelationalEmbedding_invert() -> None:
     assert inv_lre.rank == 2
 
 
-def test_InvertedLinearRelationalEmbedding_calculate_subject_activation_unnormalized() -> (
-    None
-):
+def test_InvertedLre_calculate_subject_activation_unnormalized() -> None:
     acts = torch.stack(
         [
             torch.tensor([2.0, 1.0, 1.0]),
@@ -38,7 +32,7 @@ def test_InvertedLinearRelationalEmbedding_calculate_subject_activation_unnormal
         ]
     )
     bias = torch.tensor([1.0, 0.0, 0.0])
-    inv_lre = InvertedLinearRelationalEmbedding(
+    inv_lre = InvertedLre(
         relation="test",
         subject_layer=0,
         object_layer=0,
@@ -48,15 +42,12 @@ def test_InvertedLinearRelationalEmbedding_calculate_subject_activation_unnormal
         v=torch.eye(3),
         object_aggregation="mean",
         bias=bias,
-        rank=3,
     )
     vec = inv_lre.calculate_subject_activation(acts, normalize=False)
     assert torch.allclose(vec, torch.tensor([0.5, 0.5, 0.5]))
 
 
-def test_InvertedLinearRelationalEmbedding_calculate_subject_activation_normalized() -> (
-    None
-):
+def test_InvertedLre_calculate_subject_activation_normalized() -> None:
     acts = torch.stack(
         [
             torch.tensor([2.0, 1.0, 1.0]),
@@ -64,7 +55,7 @@ def test_InvertedLinearRelationalEmbedding_calculate_subject_activation_normaliz
         ]
     )
     bias = torch.tensor([1.0, 0.0, 0.0])
-    inv_lre = InvertedLinearRelationalEmbedding(
+    inv_lre = InvertedLre(
         relation="test",
         subject_layer=0,
         object_layer=0,
@@ -74,7 +65,6 @@ def test_InvertedLinearRelationalEmbedding_calculate_subject_activation_normaliz
         v=torch.eye(3),
         object_aggregation="mean",
         bias=bias,
-        rank=3,
     )
     vec = inv_lre.calculate_subject_activation(acts, normalize=True)
     raw_target = torch.tensor([0.5, 0.5, 0.5])

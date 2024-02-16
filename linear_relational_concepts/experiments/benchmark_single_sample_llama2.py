@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import Literal, Optional
 
 import torch
+from linear_relational import PromptValidator
 from tokenizers import Tokenizer
 from transformers import AutoTokenizer, LlamaForCausalLM
 
 from linear_relational_concepts.data.data_loaders import load_lre_data
 from linear_relational_concepts.data.RelationDataset import RelationDataset
 from linear_relational_concepts.lib.constants import DEFAULT_DEVICE
-from linear_relational_concepts.lib.PromptValidator import PromptValidator
 from linear_relational_concepts.training.benchmarking import (
     TrainingStrategy,
     benchmark_iterations,

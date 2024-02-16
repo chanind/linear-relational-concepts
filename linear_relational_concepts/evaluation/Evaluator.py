@@ -1,13 +1,10 @@
 from dataclasses import dataclass, field, replace
 
+from linear_relational import Concept, LayerMatcher, PromptValidator
 from tokenizers import Tokenizer
 from torch import nn
 
-from linear_relational_concepts.Concept import Concept
 from linear_relational_concepts.data.RelationDataset import Relation, RelationDataset
-from linear_relational_concepts.lib.layer_matching import LayerMatcher
-from linear_relational_concepts.lib.PromptValidator import PromptValidator
-from linear_relational_concepts.lib.util import group_items
 from linear_relational_concepts.PromptGenerator import PromptGenerator
 
 from .evaluate_accuracy_and_causality import (
@@ -89,15 +86,17 @@ class Evaluator:
     def find_num_valid_prompts_per_relation(
         self, show_progress: bool = True
     ) -> dict[str, int]:
-        prompts = self.prompt_generator.generate_prompts_for_all_relations(
+        prompts_by_relation = self.prompt_generator.generate_prompts_for_all_relations(
             num_fsl_examples=0
         )
-        valid_prompts = self.prompt_validator.filter_prompts(
-            prompts, batch_size=self.batch_size, show_progress=show_progress
-        )
-        prompts_by_relation = group_items(valid_prompts, lambda p: p.relation_name)
+        valid_prompts_by_relation = {
+            relation: self.prompt_validator.filter_prompts(
+                prompts, batch_size=self.batch_size, show_progress=show_progress
+            )
+            for relation, prompts in prompts_by_relation.items()
+        }
         return {
-            relation.name: len(prompts_by_relation.get(relation.name, []))
+            relation.name: len(valid_prompts_by_relation.get(relation.name, []))
             for relation in self.dataset.relations
         }
 

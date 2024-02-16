@@ -1,8 +1,6 @@
 import pytest
 import torch
-from transformers import GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer
-
-from linear_relational_concepts.lib.token_utils import (
+from linear_relational.lib.token_utils import (
     decode_tokens,
     find_final_attention_positions,
     find_final_word_token_index,
@@ -12,6 +10,7 @@ from linear_relational_concepts.lib.token_utils import (
     predict_all_token_probs_from_input,
     predict_next_tokens_greedy,
 )
+from transformers import GPT2LMHeadModel, GPT2TokenizerFast, LlamaTokenizer
 
 
 def test_decode_tokens(tokenizer: GPT2TokenizerFast) -> None:

@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 import pytest
+from linear_relational import Trainer
 from transformers import GPT2LMHeadModel, GPT2TokenizerFast
 
 from linear_relational_concepts.data.RelationDataset import (
@@ -100,10 +101,9 @@ def test_InvLreTrainingRunManager_uses_cached_inv_lre_if_possible(
         ],
     }
     precomputed_lre = Mock()
+    lre_trainer = Trainer(model, tokenizer, layer_matcher="transformer.h.{num}")
     inv_lre_manager = InvLreTrainingRunManager(
-        model=model,
-        tokenizer=tokenizer,
-        hidden_layer_matcher="transformer.h.{num}",
+        lre_trainer=lre_trainer,
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=8,
@@ -138,10 +138,9 @@ def test_InvLreTrainingRunManager_get_inv_lre_for_object_updates_precomputed_lis
             create_prompt("Busan", "Korea"),
         ],
     }
+    lre_trainer = Trainer(model, tokenizer, layer_matcher="transformer.h.{num}")
     inv_lre_manager = InvLreTrainingRunManager(
-        model=model,
-        tokenizer=tokenizer,
-        hidden_layer_matcher="transformer.h.{num}",
+        lre_trainer=lre_trainer,
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=8,
@@ -187,10 +186,9 @@ def test_InvLreTrainingRunManager_get_inv_lre_with_negative_object_layer(
             create_prompt("Busan", "Korea"),
         ],
     }
+    lre_trainer = Trainer(model, tokenizer, layer_matcher="transformer.h.{num}")
     inv_lre_manager = InvLreTrainingRunManager(
-        model=model,
-        tokenizer=tokenizer,
-        hidden_layer_matcher="transformer.h.{num}",
+        lre_trainer=lre_trainer,
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=-1,
@@ -227,10 +225,9 @@ def test_InvLreTrainingRunManager_samples_satisfy_object_constraints(
             create_prompt("Busan", "Korea"),
         ],
     }
+    lre_trainer = Trainer(model, tokenizer, layer_matcher="transformer.h.{num}")
     inv_lre_manager = InvLreTrainingRunManager(
-        model=model,
-        tokenizer=tokenizer,
-        hidden_layer_matcher="transformer.h.{num}",
+        lre_trainer=lre_trainer,
         relation_name="located_in_country",
         subject_layer=5,
         object_layer=8,

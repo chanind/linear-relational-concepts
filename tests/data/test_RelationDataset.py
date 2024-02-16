@@ -1,3 +1,5 @@
+from linear_relational.lib.util import group_items
+
 from linear_relational_concepts.data.data_loaders import (
     LreRelation,
     load_lre_data,
@@ -5,7 +7,6 @@ from linear_relational_concepts.data.data_loaders import (
 )
 from linear_relational_concepts.data.RelationDataset import RelationDataset, Sample
 from linear_relational_concepts.lib.constants import DATA_DIR
-from linear_relational_concepts.lib.util import group_items
 
 DATA_FILE = DATA_DIR / "lre/factual/city_in_country.json"
 

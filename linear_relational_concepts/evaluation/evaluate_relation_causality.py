@@ -5,13 +5,12 @@ from dataclasses import dataclass
 from typing import Iterable, Optional, Sequence
 
 import torch
+from linear_relational import CausalEditor, ConceptSwapRequest, Prompt
+from linear_relational.lib.balance_grouped_items import balance_grouped_items
+from linear_relational.lib.util import batchify, sample_or_all
 from tokenizers import Tokenizer
 
-from linear_relational_concepts.CausalEditor import CausalEditor, ConceptSwapRequest
-from linear_relational_concepts.lib.balance_grouped_items import balance_grouped_items
 from linear_relational_concepts.lib.logger import log_or_print
-from linear_relational_concepts.lib.util import batchify, sample_or_all
-from linear_relational_concepts.PromptGenerator import Prompt
 
 
 @dataclass
@@ -209,9 +208,8 @@ def evaluate_causal_edits_batch(
         edits_tracking.append((original_swaps, target_swaps))
     swap_results = editor.swap_subject_concepts_and_predict_all_token_probs_bulk(
         swap_requests,
-        concept_vector_layer=concept_vector_layer,
         magnitude_multiplier=magnitude_multiplier,
-        edit_single_layer_only=edit_single_layer_only,
+        edit_single_layer=concept_vector_layer if edit_single_layer_only else False,
         use_remove_concept_projection_magnitude=use_remove_concept_projection_magnitude,
         show_progress=False,
         # batching is handled by the caller, no need to batch here as well

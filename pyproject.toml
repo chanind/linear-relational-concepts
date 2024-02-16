@@ -17,6 +17,7 @@ scikit-learn = "^1.3.2"
 protobuf = "^4.24.4"
 matplotlib = "^3.8.1"
 seaborn = "^0.13.0"
+linear-relational = "^0.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
