@@ -22,6 +22,10 @@ from linear_relational_concepts.training.benchmarking import (
 from linear_relational_concepts.training.BenchmarkIterationsResult import (
     BenchmarkIterationsResult,
 )
+from linear_relational_concepts.training.LogisticRegressionConceptTrainer import (
+    LogisticRegressionConceptTrainer,
+    LogisticRegressionConceptTrainerOptions,
+)
 from linear_relational_concepts.training.LreConceptTrainer import (
     LreConceptTrainer,
     LreConceptTrainerOptions,
@@ -56,6 +60,7 @@ def benchmark_gptj(
     min_test_prompts_per_relation: int = 1,
     skip_avg: bool = False,
     skip_svm: bool = False,
+    skip_logistic: bool = False,
 ) -> dict[str, BenchmarkIterationsResult]:
     if model is None:
         model = GPTJForCausalLM.from_pretrained("EleutherAI/gpt-j-6B")
@@ -88,6 +93,13 @@ def benchmark_gptj(
             prompt_validator=prompt_validator,
         )
         avg_trainer = AvgConceptTrainer(
+            model,
+            tokenizer,
+            LAYER_MATCHER,
+            train_dataset,
+            prompt_validator=prompt_validator,
+        )
+        logistic_trainer = LogisticRegressionConceptTrainer(
             model,
             tokenizer,
             LAYER_MATCHER,
@@ -148,6 +160,17 @@ def benchmark_gptj(
                     svm_trainer,
                     "svm-l14",
                     SvmConceptTrainerOptions(layer=14),
+                    save_progress_dir=save_progress_dir,
+                    seed=iteration_seed,
+                    force_retrain_all=force_rerun_all,
+                )
+            )
+        if not skip_logistic:
+            strategies.append(
+                strategy_from_trainer(
+                    logistic_trainer,
+                    "logistic-l14",
+                    LogisticRegressionConceptTrainerOptions(layer=14),
                     save_progress_dir=save_progress_dir,
                     seed=iteration_seed,
                     force_retrain_all=force_rerun_all,
