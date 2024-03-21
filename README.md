@@ -1,6 +1,6 @@
 # Linear Relational Concepts
 
-This is the code for experiments that accompany the paper: "Identifying Linear Relational Concepts in Large Language Models".
+This is the code for experiments that accompany the paper: "[Identifying Linear Relational Concepts in Large Language Models](https://arxiv.org/abs/2311.08968)".
 
 If you're interested in using Linear Relational Concepts (LRCs) or Linear Relational Embeddings (LREs) in your own work,
 check out the [linear-relational](https://github.com/chanind/linear-relational) library. Linear-relational contains the
